@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   uint64_t len = 0;
   unsigned char buffer[1024];
 
-  ckb_debug("This is a data integrity for ckplant");
+  ckb_debug("This is a data integrity for ckplanet");
 
   // 你可以使用多个cell来存储你的数据，不仅限于数据完整性存储
   // 但是第一个的data字段必须放置你的更新数据
