@@ -1,6 +1,3 @@
 # Data_integrity
 
-This is an example to demonstrate a basic CKB script.
-
-Reference
-- [https://xuejie.space/2019_07_13_introduction_to_ckb_script_programming_script_basics/]
+数据完整性合约，其中检测数据的部分待完善
