@@ -1,6 +1,14 @@
 # User_DataInfo
 
-This is an example to demonstrate a basic CKB script.
+个人信息更新合约
 
-Reference
-- [https://xuejie.space/2019_07_13_introduction_to_ckb_script_programming_script_basics/]
+
+
+ - 类型：type
+
+ - args: app_id (由dapp自己定）
+
+ - output_data ：
+ - dataserver_ip :
+ - access_token_public :
+ - access_token_public_pk:
