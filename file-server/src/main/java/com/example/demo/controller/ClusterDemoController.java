@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.*;
+import java.security.spec.ECGenParameterSpec;
+
 /**
  * @author Eric Zhao
  */
@@ -33,6 +36,7 @@ public class ClusterDemoController {
     static final int NOT_EXIST = 2;
     static final int EXIST = 1;
     static final int SUCCESS = 0;
+
     @Autowired
     private MongoDBService mongoDBService;
 
@@ -62,5 +66,21 @@ public class ClusterDemoController {
         response.setData(entity.toString());
         response.setCode(SUCCESS);
         return response;
+    }
+
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
+        // curveName这里取值：secp256k1
+        ECGenParameterSpec ecGenParameterSpec = new ECGenParameterSpec("secp256k1");
+        keyPairGenerator.initialize(ecGenParameterSpec, new SecureRandom());
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        // 获取公钥
+        PublicKey pub = keyPair.getPublic();
+        // 获取私钥
+        PrivateKey pre = keyPair.getPrivate();
+        System.out.println(pub.toString());
+        System.out.println(pre.toString());
+
+        
     }
 }
