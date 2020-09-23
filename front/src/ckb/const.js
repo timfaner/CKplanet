@@ -7,6 +7,8 @@ const KEYPERING_URL = 'http://localhost:3102'
 const MIN_CAPACITY = new BN('6100000000')
 const TRANSACTION_FEE = new BN('10000000')
 
+const CODE_HASH_CAPACITY = new BN('3200000000')
+
 
 const DAPP_DESCRIPTION = 'Simplest DApp are requesting to sign and send transactions'
 
@@ -24,13 +26,40 @@ const DATASERVER_INFO_DEP_TXHASH = ''
 const DATA_INTEGRITY_DEP_TXHASH = ''
 
 
-const DATA_SERVER_INFO_CEELDEPS = {
-  outPoint: {
-    txHash: DATASERVER_INFO_DEP_TXHASH,
-    index:'0x0'
+const DATASERVER_INFO = {
+  cell_deps:{
+    outPoint:{
+      txHash:DATASERVER_INFO_DEP_TXHASH,
+      index: '0x0',
+    },
+    depType:'code'
   },
-  depType: 'code'
+  script:{
+    code_hash:DATASERVER_INFO_CODE_HASH,
+    args:'',
+    hash_type:'data'
+  },
 }
+
+const DATA_INTEGRITY = {
+  cell_deps:{
+    outPoint:{
+      txHash:DATA_INTEGRITY_DEP_TXHASH,
+      index: '0x0',
+    },
+    depType:'code'
+  },
+  script:{
+    code_hash:DATA_INTEGRITY_CODE_HASH,
+    args:'',
+    hash_type:'data'
+  },
+}
+
+
+
+
+
 module.exports = {
   RICH_NODE_RPC_URL,
   RICH_NODE_INDEXER_URL,
@@ -41,9 +70,7 @@ module.exports = {
   KEYPERING_URL,
   DAPP_DESCRIPTION,
   Operator,
-  DATASERVER_INFO_CODE_HASH,
-  DATASERVER_INFO_DEP_TXHASH,
-  DATA_INTEGRITY_CODE_HASH,
-  DATA_INTEGRITY_DEP_TXHASH,
-  DATA_SERVER_INFO_CEELDEPS,
+  DATASERVER_INFO,
+  DATA_INTEGRITY,
+  CODE_HASH_CAPACITY,
 }

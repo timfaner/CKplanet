@@ -41,7 +41,7 @@
 
 
 
-import { formatCkb, } from '@/ckb/utils'
+import { formatCkb,textToHex } from '@/ckb/utils'
 
 
 import { getAuth, } from '@/ckb/transcation'
@@ -49,6 +49,10 @@ import { getAuth, } from '@/ckb/transcation'
 export default {
     name: 'TopBar',
     methods:{
+    
+    k(m){
+      return textToHex(m)
+    },
 
     notifiy(msg,type) {
         this.$notify.success({

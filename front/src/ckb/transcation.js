@@ -1,6 +1,6 @@
 import * as BN from 'bn.js'
 import { hexToBytes } from '@nervosnetwork/ckb-sdk-utils'
-import { textToHex, getRawTxTemplate, } from '@/ckb/utils'
+import { textToHex, getRawTxTemplate,getTxTemplateWithCellsDeps,getScriptCapacity } from '@/ckb/utils'
 import { MIN_CAPACITY, TRANSACTION_FEE, Operator } from '@/ckb/const'
 import { signAndSendTransaction,requestAuth,  } from '@/ckb/rpc'
 
@@ -22,9 +22,25 @@ async function  collectCells(){
 }
 
 
-async function jointTx(currentCell = null,mode,data,lockScript,typeScript) {
-    const rawTx = getRawTxTemplate()
+async function jointTx(currentCell = null,mode,data,lock_script,type = null,args = '') {
+  //args 是string  , type 是定义在const中的
+  const rawTx = getRawTxTemplate()
+    var type_script = ''
+    if (type !==null){
+      getTxTemplateWithCellsDeps(rawTx,type)
+      type_script = type.script
+      //  args 的类型转化
+      args = textToHex(args)
+      if (!args || args.length % 2 !== 0) {
+        alert('The length of data must be an even number')
+        return
+      }
+      type_script.args = args
+    }
+
     let outputCapacity = new BN(0)
+    
+    
     // Generate outputs and outputsData
     if (mode === Operator.Create || mode === Operator.Update) {
     data = textToHex(data)
@@ -32,11 +48,20 @@ async function jointTx(currentCell = null,mode,data,lockScript,typeScript) {
         alert('The length of data must be an even number')
         return
       }
-      outputCapacity = outputCapacity.add(new BN(hexToBytes(data).byteLength * 100000000)).add(MIN_CAPACITY)
+      // 添加 type_script 的capacity
+      outputCapacity = outputCapacity.add(new BN(hexToBytes(data).byteLength * 100000000))
+      .add(MIN_CAPACITY)
+
+      if (type !== null){
+        let tc = getScriptCapacity(type_script)
+        outputCapacity = outputCapacity.add(tc)
+      }
+      
+      
       rawTx.outputs.push({
         capacity: `0x${outputCapacity.toString(16)}`,
-        lock: lockScript,
-        type: typeScript,
+        lock: lock_script,
+        type: type_script,
       })
       rawTx.outputsData.push(data)
     }
@@ -61,7 +86,7 @@ async function jointTx(currentCell = null,mode,data,lockScript,typeScript) {
         const changeCapacity = inputCapacity.sub(outputCapacity)
         rawTx.outputs.push({
           capacity: `0x${changeCapacity.toString(16)}`,
-          lock: lockScript,
+          lock: lock_script,
         })
         rawTx.outputsData.push('0x')
         break
