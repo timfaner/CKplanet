@@ -8,6 +8,10 @@ public class DownloadResponseEntity {
     public String proof;
     public int code;
 
+    public DownloadResponseEntity(int code) {
+        this.code = code;
+    }
+
     public int getCode() {
         return code;
     }
