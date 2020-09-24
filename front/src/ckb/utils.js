@@ -1,5 +1,5 @@
 const { bytesToHex, parseAddress, hexToBytes } = require('@nervosnetwork/ckb-sdk-utils')
-const { SECP256K1_BLAKE160_CODE_HASH,SECP256K1_BLAKE160_DEP_TXHASH } = require('./const')
+const { SECP256K1_BLAKE160_CODE_HASH,SECP256K1_BLAKE160_DEP_TXHASH,CODE_HASH_CAPACITY } = require('./const')
 
 const formatCkb = value => {
   if (typeof value === 'undefined') {
@@ -79,9 +79,9 @@ const getRawTxTemplate = () => {
   }
 }
 
-const getTxTemplateWithType = (type) => {
-  let tx = getRawTxTemplate()
-  tx.cellDeps.push(type)
+const getTxTemplateWithCellsDeps = (tx,type) => {
+  tx.cellDeps.push(type.cell_deps)
+
   return tx
 }
 
@@ -108,6 +108,8 @@ const getTypeScript = (args,codeHash) =>{
   }
 }
 
+
+
 function makeId(length) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -118,6 +120,18 @@ function makeId(length) {
     return result;
  }
 
+ const BN = require('bn.js')
+
+ function getScriptCapacity(script){
+  let args_length = 0
+  if (script.args !== "0x" && script.args === null){
+   args_length = (script.args.length -2)/2 // strip '0x' 
+  }
+  
+  let b =new BN(0)
+  b = b.add(CODE_HASH_CAPACITY).add(new BN("100000000")).add(new BN(args_length * 100000000)) 
+  return b
+ }
 
 
 module.exports = {
@@ -130,6 +144,7 @@ module.exports = {
   groupCells,
   getLockScript,
   makeId,
-  getTxTemplateWithType,
+  getTxTemplateWithCellsDeps,
   getTypeScript,
+  getScriptCapacity,
 }

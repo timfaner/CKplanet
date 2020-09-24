@@ -48,7 +48,7 @@ export default {
         this.loading = true
     },
     handleAvatarSuccess(res) {
-        console.log("susss")
+        console.log("avatar update success")
         this.loading = false
         this.test = res
         },
