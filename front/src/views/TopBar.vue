@@ -41,18 +41,14 @@
 
 
 
-import { formatCkb,textToHex } from '@/ckb/utils'
-
-
+import { formatCkb } from '@/ckb/utils'
+//import {hashfunction,generatePrivKey,signData,verifyData} from '@/ckb/crypto'
 import { getAuth, } from '@/ckb/transcation'
+
 
 export default {
     name: 'TopBar',
     methods:{
-    
-    k(m){
-      return textToHex(m)
-    },
 
     notifiy(msg,type) {
         this.$notify.success({
@@ -90,6 +86,7 @@ export default {
     },
     data: function () {
         return {
+        //hashfunction,
         walletname:"选择钱包",
         showed:false,
         lockScript: undefined,

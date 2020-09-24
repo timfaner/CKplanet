@@ -127,7 +127,7 @@ function makeId(length) {
   if (script.args !== "0x" && script.args === null){
    args_length = (script.args.length -2)/2 // strip '0x' 
   }
-
+  
   let b =new BN(0)
   b = b.add(CODE_HASH_CAPACITY).add(new BN("100000000")).add(new BN(args_length * 100000000)) 
   return b

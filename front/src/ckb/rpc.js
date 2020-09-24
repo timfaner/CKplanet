@@ -105,9 +105,37 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
   }
 }
 
+
+//TODO 测试
+
+const signMessage = async (msg,description,token) => {
+  try {
+    let res = await fetch(KEYPERING_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        id: 3,
+        jsonrpc: '2.0',
+        method: 'sign_message',
+        params: {
+          message:msg,
+          description,
+        }
+      }),
+    })
+    res = await res.json()
+    return res.result
+  } catch (error) {
+    console.error('error', error)
+  }
+}
+
 module.exports = {
   getCells,
   requestAuth,
   queryAddresses,
   signAndSendTransaction,
+  signMessage,
 }
