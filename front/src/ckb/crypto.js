@@ -18,6 +18,12 @@ const generatePrivKey = () =>{
     return bytesToHex(privKey)
 }
 
+const getPubKey = (privkey) =>{
+    let priv_key = hexToBytes(privkey)
+    let pub_key = secp256k1.publicKeyCreate(priv_key)
+    return(bytesToHex(pub_key))
+}
+
 const importPrivKey = () => {
 
 }
@@ -30,8 +36,8 @@ const exportPubKey = () => {
 
 }
 
-const signData = (priv_key,data) => {
-    priv_key = hexToBytes(priv_key)
+const signData = (privkey,data) => {
+    let priv_key = hexToBytes(privkey)
     let h = hashfunction.create()
     h.update(data)
     let msg = h.digest().toHex()
@@ -39,12 +45,12 @@ const signData = (priv_key,data) => {
     return bytesToHex(sig)
 }
 
-const verifyData = (sig,data,pub_key) => {
-    pub_key = hexToBytes(pub_key)
+const verifyData = (sig,data,pubkey) => {
+    let pub_key = hexToBytes(pubkey)
     let h = hashfunction.create()
     h.update(data)
     let msg = h.digest().digest()
     return secp256k1.ecdsaVerify(sig,hexToBytes("0x"+msg),pub_key)
 }
-module.exports = {hashfunction,generatePrivKey,importPrivKey,signData,verifyData,exportPrivKey,exportPubKey}
+module.exports = {hashfunction,generatePrivKey,importPrivKey,signData,verifyData,exportPrivKey,exportPubKey,getPubKey}
 

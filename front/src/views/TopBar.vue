@@ -42,7 +42,7 @@
 
 
 import { formatCkb } from '@/ckb/utils'
-//import {hashfunction,generatePrivKey,signData,verifyData} from '@/ckb/crypto'
+import {hashfunction,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
 import { getAuth, } from '@/ckb/transcation'
 
 
@@ -87,6 +87,7 @@ export default {
     data: function () {
         return {
         //hashfunction,
+        hashfunction,generatePrivKey,signData,verifyData,getPubKey,
         walletname:"选择钱包",
         showed:false,
         lockScript: undefined,
