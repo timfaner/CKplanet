@@ -17,6 +17,7 @@ package com.example.demo.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.demo.entity.*;
+
 import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.MongoDBService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,49 +114,4 @@ public class FileServerController {
         }
 
     }
-//
-//    public static void main(String[] args) {
-//        KeyPair keyPair = AuthenticationService.generateKeyPair();
-//        String csk = keyPair.getPri();
-//        String cpk = keyPair.getPub();
-//        System.out.println("客户端私钥：" + csk);
-//        System.out.println("客户端公钥：" + cpk);
-//        String msk = AuthenticationService.getMsk();
-//        String mpk = AuthenticationService.generatePublicKey();
-//        System.out.println("服务端私钥：" + msk);
-//        System.out.println("服务端公钥：" + mpk);
-//        String accessToken = AuthenticationService.sign(csk, "hello ckPlant");
-//        AuthRequestEntity authRequestEntity = new AuthRequestEntity();
-//        authRequestEntity.setAccessToken(accessToken);
-//        authRequestEntity.setCpk(cpk);
-//        authRequestEntity.setMsg("hello ckPlant");
-//        System.out.println(JSONObject.toJSON(authRequestEntity));
-//        System.out.println("客户端发送认证请求数据" + authRequestEntity.toString());
-//        System.out.println(AuthenticationService.verify(authRequestEntity.getAccessToken(), authRequestEntity.getMsg(), authRequestEntity.cpk));
-////        客户端私钥：4F09FDF7A8E7B3C437B4561897D3B613
-////        客户端公钥：03a34c143c95c71ba648b174bc1fdc489fee1423e9713e19a7a13bb03d21b438e0
-////        服务端私钥：lVKXDndWw1yJBuJXYNUxm0IA31dmOVQ1
-////        服务端公钥：03fedd16a86a9a0195a861dc5b019e319e1c91d74aba637020c7370c40be9d85c0
-////        {"msg":"hello ckPlant","accessToken":"ee4cd72091807f96c28c1a015db2aecd402bc5147c16964ede75abd360bd6bb0389420907dd02d4938a77afc659d919b72142459858e6e454ad942a1ce826038","cpk":"03a34c143c95c71ba648b174bc1fdc489fee1423e9713e19a7a13bb03d21b438e0"}
-////        {
-////            "code": 0,
-////                "pk": "0301d26b2e0514c0f40a6ec03e3e07ad0fc95104889c7e3c049503eacaafb6e3b6",
-////                "sk": "C75DEE5EDBB7A01E88DB9D69400F3378",
-////                "cert": "73b9bc1acc68b6e4426642590b38304fd8792d8ddb4cf845b6ec01c0b563a886e33633ac19516976e9d53f609b84ae118bc2386e76111322809d6cd4be09190c"
-////        }
-//        JSONObject data = new JSONObject();
-//        data.put("name", "yunfeiyang");
-//        data.put("attr", "handsome");
-//        String sig = AuthenticationService.sign("C75DEE5EDBB7A01E88DB9D69400F3378", data.toString());
-//        UploadRequestEntity uploadRequestEntity = new UploadRequestEntity();
-//        uploadRequestEntity.setData(data);
-//        uploadRequestEntity.setSig(sig);
-//        uploadRequestEntity.setPk("0301d26b2e0514c0f40a6ec03e3e07ad0fc95104889c7e3c049503eacaafb6e3b6");
-//        uploadRequestEntity.setCert("73b9bc1acc68b6e4426642590b38304fd8792d8ddb4cf845b6ec01c0b563a886e33633ac19516976e9d53f609b84ae118bc2386e76111322809d6cd4be09190c");
-//        uploadRequestEntity.setAccessToken("ee4cd72091807f96c28c1a015db2aecd402bc5147c16964ede75abd360bd6bb0389420907dd02d4938a77afc659d919b72142459858e6e454ad942a1ce826038");
-//        uploadRequestEntity.setDataId("999");
-//        System.out.println(JSONObject.toJSON(uploadRequestEntity));
-////        AuthenticationService.verify(uploadRequestEntity.getCert(),uploadRequestEntity.get,mpk);
-////        AuthenticationService.verify(entity.getSig(),entity.getData().toString(),entity.getPk());
-//    }
 }

@@ -82,6 +82,26 @@
             <version>4.5.6</version>
         </dependency>
         <dependency>
+            <groupId>net.consensys.cava</groupId>
+            <artifactId>cava-crypto</artifactId>
+            <version>0.5.0</version>
+        </dependency>
+
+        <!-- Install Web3j Crypto - secp256k1 ECDSA library -->
+        <dependency>
+            <groupId>org.web3j</groupId>
+            <artifactId>crypto</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+
+        <!-- Install Ed25519-Java - Ed25519 EdDSA library -->
+        <dependency>
+            <groupId>net.i2p.crypto</groupId>
+            <artifactId>eddsa</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
