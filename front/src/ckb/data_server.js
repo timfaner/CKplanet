@@ -54,7 +54,7 @@ const getAuth = async (server_url,access_token,msg,cpk) =>{
 }
 
 //TODO 有或者没有txid
-const uploadData = async (server_url,dataId,data,accessToken,sig,txid,dataHash,pk,cert) =>{
+const uploadData = async (server_url,dataId,data,accessToken,sig,txid="",dataHash="",pk,cert) =>{
     let payload = {
         dataId,
         data,

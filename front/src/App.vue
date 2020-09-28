@@ -1,7 +1,7 @@
 <template>
   <div id="app"   v-loading="loadings" element-loading-text="请在钱包中完成授权">
 
-
+  
   <TopBar></TopBar>
   <div class="container-fluid">
     <div class="row">
@@ -21,6 +21,7 @@
 
 import TopBar from "@/views/TopBar.vue"
 import SideBar from "@/views/SideBar.vue"
+
 
 
 
