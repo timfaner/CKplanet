@@ -40,7 +40,7 @@ const signData = (privkey,data) => {
     let priv_key = hexToBytes(privkey)
     let h = hashfunction.create()
     h.update(data)
-    let msg = h.digest().toHex()
+    let msg = h.digest.toHex()
     let sig = secp256k1.ecdsaSign(hexToBytes("0x"+msg),priv_key).signature
     return bytesToHex(sig)
 }
@@ -49,8 +49,8 @@ const verifyData = (sig,data,pubkey) => {
     let pub_key = hexToBytes(pubkey)
     let h = hashfunction.create()
     h.update(data)
-    let msg = h.digest().digest()
-    return secp256k1.ecdsaVerify(sig,hexToBytes("0x"+msg),pub_key)
+    let msg = h.digest().toHex()
+    return secp256k1.ecdsaVerify(hexToBytes(sig),hexToBytes("0x"+msg),pub_key)
 }
 module.exports = {hashfunction,generatePrivKey,importPrivKey,signData,verifyData,exportPrivKey,exportPubKey,getPubKey}
 
