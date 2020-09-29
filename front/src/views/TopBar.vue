@@ -9,11 +9,11 @@
         <b-button   @click.prevent="test()" size="md" class="ml-auto">测试</b-button>
         <b-button v-b-modal.modal-1 size="md" class="ml-auto">登陆</b-button>
             
-        <el-dialog  :visible.sync="dialogUpdateProfile" append-to-body>
+        <el-dialog  :visible.sync="dialogNewUser" append-to-body>
           <NewUserGuide></NewUserGuide>
           <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogUpdateProfile = false">取 消</el-button>
-          <el-button type="primary" @click="dialogUpdateProfile = false">确 定</el-button>
+          <el-button @click="dialogNewUser = false">取 消</el-button>
+          <el-button type="primary" @click="dialogNewUser = false">确 定</el-button>
           </div>
         </el-dialog>
 
@@ -59,7 +59,7 @@ export default {
     data: function () {
         return {
         //hashfunction,
-        dialogUpdateProfile: false,
+        dialogNewUser: false,
         hashfunction,generatePrivKey,signData,verifyData,getPubKey,
         walletname:"选择钱包",
         showed:false,
@@ -87,7 +87,7 @@ export default {
     
     test(){
       console.log(this)
-      this.dialogUpdateProfile = true
+      this.dialogNewUser = true
     },
 
     notifiy(msg,type) {
