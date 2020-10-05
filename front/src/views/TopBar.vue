@@ -50,15 +50,18 @@
 
 
 import { formatCkb } from '@/ckb/utils'
+
 import {hashfunction,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
+
 import { getAuth, } from '@/ckb/transcation'
 import NewUserGuide from "@/components/NewUserGuide.vue"
+
 
 export default {
     name: 'TopBar',
     data: function () {
         return {
-        //hashfunction,
+        hashfunction,
         dialogNewUser: false,
         hashfunction,generatePrivKey,signData,verifyData,getPubKey,
         walletname:"选择钱包",

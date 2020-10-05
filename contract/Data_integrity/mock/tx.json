@@ -1,0 +1,88 @@
+{
+  "mock_info": {
+    "inputs": [
+      {
+        "input": {
+          "previous_output": {
+            "tx_hash": "0xa98c57135830e1b91345948df6c4b8870828199a786b26f09f7dec4bc27a73da",
+            "index": "0x0"
+          },
+          "since": "0x0"
+        },
+        "output": {
+          "capacity": "0x4b9f96b00",
+          "lock": {
+            "args": "0x",
+            "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "hash_type": "data"
+          },
+          "type": null
+        },
+        "data": "0x"
+      }
+    ],
+    "cell_deps": [
+      {
+        "cell_dep": {
+          "out_point": {
+            "tx_hash": "0xfcd1b3ddcca92b1e49783769e9bf606112b3f8cf36b96cac05bf44edcf5377e6",
+            "index": "0x0"
+          },
+          "dep_type": "code"
+        },
+        "output": {
+          "capacity": "0x702198d000",
+          "lock": {
+            "args": "0x",
+            "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "hash_type": "data"
+          },
+          "type": null
+        },
+        "data": "file:../Data_integrity.o"
+      }
+    ],
+    "header_deps": []
+  },
+  "tx": {
+    "version": "0x0",
+    "cell_deps": [
+      {
+        "out_point": {
+          "tx_hash": "0xfcd1b3ddcca92b1e49783769e9bf606112b3f8cf36b96cac05bf44edcf5377e6",
+          "index": "0x0"
+        },
+        "dep_type": "code"
+      }
+    ],
+    "header_deps": [],
+    "inputs": [
+      {
+        "previous_output": {
+          "tx_hash": "0xa98c57135830e1b91345948df6c4b8870828199a786b26f09f7dec4bc27a73da",
+          "index": "0x0"
+        },
+        "since": "0x0"
+      }
+    ],
+    "outputs": [
+      {
+        "capacity": "0x0",
+        "lock": {
+          "args": "0x",
+          "code_hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "hash_type": "data"
+        },
+        "type": {
+          "args": "0x",
+          "code_hash": "blake2b:../Data_integrity.o",
+          "hash_type": "data"
+        }
+      }
+    ],
+    "witnesses": [],
+    "outputs_data": [
+      "0x636172726f74"
+    ]
+  }
+}

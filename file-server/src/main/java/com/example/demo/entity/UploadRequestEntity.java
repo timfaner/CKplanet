@@ -13,6 +13,8 @@ public class UploadRequestEntity {
     public String sig;
     public String txId;
     public String dataHash;
+    public String pk;
+    public String cert;
     public String url;
 
     @Override
@@ -24,8 +26,26 @@ public class UploadRequestEntity {
                 ", sig='" + sig + '\'' +
                 ", txId='" + txId + '\'' +
                 ", dataHash='" + dataHash + '\'' +
+                ", pk='" + pk + '\'' +
+                ", cert='" + cert + '\'' +
                 ", url='" + url + '\'' +
                 '}';
+    }
+
+    public String getPk() {
+        return pk;
+    }
+
+    public void setPk(String pk) {
+        this.pk = pk;
+    }
+
+    public String getCert() {
+        return cert;
+    }
+
+    public void setCert(String cert) {
+        this.cert = cert;
     }
 
     public String getUrl() {
