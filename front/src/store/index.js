@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { getSummary,groupCells } from '@/ckb/utils'
-
 import { getCells, queryAddresses } from '@/ckb/rpc'
+
+import ckplanet from './ckplanet' 
 
 Vue.use(Vuex)
 
@@ -22,6 +23,16 @@ export default new Vuex.Store({
     user_cells:{
       empty_cells:null,
       filled_cells:null,
+    },
+    user_data_server_info:{
+      ip:'',
+      mpk:'',
+      pk:'',
+      sk:'',
+      cert:'',
+      access_token_public:'',   //生成公有url
+      access_token_privite:'', //生成私有url
+      data_encrypted_key:'', // 加密数据用
     },
   },
   mutations: {
@@ -71,5 +82,6 @@ export default new Vuex.Store({
     
   },
   modules: {
+    ckplanet,
   }
 })

@@ -19,10 +19,10 @@
     
       <el-dialog title="设置个人信息" :visible.sync="dialogUpdateProfile">
         <UpdateInfoDialog></UpdateInfoDialog>
-                <el-button @click="dialogUpdateProfile = false">取 消</el-button>
+        <el-button @click="dialogUpdateProfile = false">取 消</el-button>
         <el-button type="primary" @click="dialogUpdateProfile = false">确 定</el-button>
         <div slot="footer" class="dialog-footer">
-    </div>
+        </div>
       </el-dialog>
   </div>
 <el-divider></el-divider>

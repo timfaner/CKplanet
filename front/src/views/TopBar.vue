@@ -9,6 +9,14 @@
         <b-button   @click.prevent="test()" size="md" class="ml-auto">测试</b-button>
         <b-button v-b-modal.modal-1 size="md" class="ml-auto">登陆</b-button>
             
+        <el-dialog  :visible.sync="dialogNewUser" append-to-body>
+          <NewUserGuide></NewUserGuide>
+          <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogNewUser = false">取 消</el-button>
+          <el-button type="primary" @click="dialogNewUser = false">确 定</el-button>
+          </div>
+        </el-dialog>
+
         <b-modal    id="modal-1" title="输入登陆信息" centered>
             <b-container fluid>
             <b-row class="mb-3">
@@ -42,13 +50,48 @@
 
 
 import { formatCkb } from '@/ckb/utils'
-//import {hashfunction,generatePrivKey,signData,verifyData} from '@/ckb/crypto'
+
+import {hashfunction,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
+
 import { getAuth, } from '@/ckb/transcation'
+import NewUserGuide from "@/components/NewUserGuide.vue"
 
 
 export default {
     name: 'TopBar',
+    data: function () {
+        return {
+        hashfunction,
+        dialogNewUser: false,
+        hashfunction,generatePrivKey,signData,verifyData,getPubKey,
+        walletname:"选择钱包",
+        showed:false,
+        lockScript: undefined,
+        lockHash: '',
+        emptyCells: [],
+        filledCells: [],
+        summary: {
+            inuse: 0,
+            free: 0,
+            capacity: 0,
+        },
+        showModel: false,
+        editData: '',
+        
+        }
+  },
+    computed: {
+    address: function (){return this.$store.state.user_chain_info.address}
+  },
+    components: {
+      NewUserGuide,
+    },
     methods:{
+    
+    test(){
+      console.log(this)
+      this.dialogNewUser = true
+    },
 
     notifiy(msg,type) {
         this.$notify.success({
@@ -84,26 +127,6 @@ export default {
       return formatCkb(value)
     },
     },
-    data: function () {
-        return {
-        //hashfunction,
-        walletname:"选择钱包",
-        showed:false,
-        lockScript: undefined,
-        lockHash: '',
-        emptyCells: [],
-        filledCells: [],
-        summary: {
-            inuse: 0,
-            free: 0,
-            capacity: 0,
-        },
-        showModel: false,
-        editData: '',
-        }
-  },
-    computed: {
-    address: function (){return this.$store.state.user_chain_info.address}
-  }
+
 }
 </script>
