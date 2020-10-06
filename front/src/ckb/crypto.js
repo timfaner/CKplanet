@@ -7,8 +7,15 @@ const hashfunction = forge.sha256
 
 
 const { bytesToHex, hexToBytes } = require('@nervosnetwork/ckb-sdk-utils')
+//const { toUnicode } = require("punycode")
 //pubkey,privkey,signature 均为hex形式的string
 
+const sha256 = (data) => {
+    let h = forge.sha256.create()
+    h.update(data)
+
+    return h.digest().toHex()
+}
 
 const generatePrivKey = () =>{
     let privKey
@@ -40,7 +47,7 @@ const signData = (privkey,data) => {
     let priv_key = hexToBytes(privkey)
     let h = hashfunction.create()
     h.update(data)
-    let msg = h.digest.toHex()
+    let msg = h.digest().toHex()
     let sig = secp256k1.ecdsaSign(hexToBytes("0x"+msg),priv_key).signature
     return bytesToHex(sig)
 }
@@ -52,5 +59,7 @@ const verifyData = (sig,data,pubkey) => {
     let msg = h.digest().toHex()
     return secp256k1.ecdsaVerify(hexToBytes(sig),hexToBytes("0x"+msg),pub_key)
 }
-module.exports = {hashfunction,generatePrivKey,importPrivKey,signData,verifyData,exportPrivKey,exportPubKey,getPubKey}
 
+
+
+module.exports = {sha256,generatePrivKey,importPrivKey,signData,verifyData,exportPrivKey,exportPubKey,getPubKey}

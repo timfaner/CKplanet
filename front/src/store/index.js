@@ -1,9 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { getSummary,groupCells } from '@/ckb/utils'
-import { getCells, queryAddresses } from '@/ckb/rpc'
+import { getCells, queryAddresses,signMessage } from '@/ckb/rpc'
 
 import ckplanet from './ckplanet' 
+
+import {getMpk,getAuth} from '@/ckb/data_server'
+
+
 
 Vue.use(Vuex)
 
@@ -26,14 +30,21 @@ export default new Vuex.Store({
     },
     user_data_server_info:{
       ip:'',
-      mpk:'',
+      mpk:'',  
+    },
+
+    user_id_public:{
+      access_token:'',
       pk:'',
       sk:'',
       cert:'',
-      access_token_public:'',   //生成公有url
-      access_token_privite:'', //生成私有url
-      data_encrypted_key:'', // 加密数据用
     },
+    user_id_private:{
+      access_token:'',
+      pk:'',
+      sk:'',
+      cert:'',
+    }
   },
   mutations: {
     updateUser(state,user_chain_info){
@@ -47,6 +58,33 @@ export default new Vuex.Store({
       if(cells && cells.length > 0){
         state.user_chain_info.balance_summary = getSummary(cells)}
     },
+    updateDataServer(state,payload){
+      state.user_data_server_info.ip = payload.ip
+      state.user_data_server_info.mpk = payload.res.mpk
+
+    },
+    updatePublicId(state,payload){
+      if ('result' in payload){
+        state.user_id_public.access_token = payload.result
+      }
+      else if ('pk' in payload && 'sk' in payload && 'cert' in payload ){
+        state.user_id_public.pk = payload.pk
+        state.user_id_public.sk = payload.sk
+        state.user_id_public.cert = payload.cert
+      }
+    },
+
+    updatePrivateId(state,payload){
+      if ('result' in payload){
+        state.user_id_private.access_token = payload.result
+      }
+      else if ('pk' in payload && 'sk' in payload && 'cert' in payload ){
+        state.user_id_private.pk = payload.pk
+        state.user_id_private.sk = payload.sk
+        state.user_id_private.cert = payload.cert
+      }
+    },
+
 
   },
   actions: {
@@ -79,6 +117,50 @@ export default new Vuex.Store({
       dispatch('getUserCells',state)
     },
         
+
+    async getDataServer({commit}){
+      // TODO ip获取
+      let ip = "127.0.0.1:8080"
+
+      let res = await getMpk(ip)
+      console.log(res)
+      commit("updateDataServer",
+      {ip,res})
+    },
+
+
+    async getPubId({commit,state}){
+      const authToken = window.localStorage.getItem('authToken')
+      const ip = state.user_data_server_info.ip
+      let res = await signMessage("public","Get public token",authToken)
+      commit("updatePublicId",res)
+
+      // TODO 测试api
+      res = await getAuth(
+        ip,
+        state.user_id_public.access_token,
+        "public",
+        state.user_chain_info.public_key
+        )
+        commit("updatePublicId",res)
+    },
+    async getPriId({commit,state}){
+
+      const authToken = window.localStorage.getItem('authToken')
+      const ip = state.user_data_server_info.ip
+      
+      let res = await signMessage("private","Get private token",authToken)
+      commit("updatePrivateId",res)
+      res = await getAuth(
+        ip,
+        state.user_id_private.access_token,
+        "private",
+        state.user_chain_info.public_key
+        )
+        commit("updatePrivateId",res)
+    },
+
+
     
   },
   modules: {

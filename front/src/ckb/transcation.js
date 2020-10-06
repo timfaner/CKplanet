@@ -6,10 +6,15 @@ import { signAndSendTransaction,requestAuth,  } from '@/ckb/rpc'
 
 
 const getAuth = async () =>{
+  try {
   console.log("geting auth....")
   const token = await requestAuth('CKplanet request login')
   // TODO 错误处理
   window.localStorage.setItem('authToken', token)
+  }
+  catch (error) {
+    console.error('error',error)
+  }
 }
 
 

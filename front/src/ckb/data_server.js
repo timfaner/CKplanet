@@ -1,17 +1,17 @@
-const {hashfunction,
-        generatePrivKey,
-        importPrivKey,
+import {
         signData,
-        verifyData,
-        exportPrivKey,
-        exportPubKey,
-        getPubKey} = require("@/ckb/crypto")
+        } from "@/ckb/crypto" 
+
+import {data_server_res,MOCK_API} from "./test"
+
 
 const getMpk = async (server_url) =>{
     let payload = {
 
     }
-
+    if (MOCK_API){
+      return  await data_server_res.getMpk()
+    }
     const body = JSON.stringify(payload, null, '  ')
     try {
         let res = await fetch(server_url, {
@@ -36,8 +36,11 @@ const getAuth = async (server_url,access_token,msg,cpk) =>{
         msg,
         cpk,
     }
-
+    if (MOCK_API){
+      return data_server_res.getAuth(payload)
+    }
     const body = JSON.stringify(payload, null, '  ')
+    console.log(body)
     try {
         let res = await fetch(server_url, {
           method: 'POST',
@@ -54,19 +57,22 @@ const getAuth = async (server_url,access_token,msg,cpk) =>{
 }
 
 //TODO 有或者没有txid
-const uploadData = async (server_url,dataId,data,accessToken,sig,txid="",dataHash="",pk,cert) =>{
+const postData = async (server_url,data_id,data,access_token,sig,txid="",dataHash="",pk,cert) =>{
     let payload = {
-        dataId,
+        data_id,
         data,
-        accessToken,
+        access_token,
         sig,
         txid,
         dataHash,
         pk,
         cert,
     }
-
+    if (MOCK_API){
+      return data_server_res.postData(payload)
+    }
     const body = JSON.stringify(payload, null, '  ')
+    console.log(body)
     try {
         let res = await fetch(server_url, {
           method: 'POST',
@@ -88,7 +94,12 @@ const getData = async (server_url,url) =>{
         url,
     }
 
+    if (MOCK_API){
+      return data_server_res.postData(payload)
+    }
+
     const body = JSON.stringify(payload, null, '  ')
+    console.log(body)
     try {
         let res = await fetch(server_url, {
           method: 'POST',
@@ -110,11 +121,6 @@ const generateDataSig = (sk,data) => {
 }
 
 
-module.exports = {
-    getMpk,
-    getAuth,
-    uploadData,
-    getData,
-    generateDataSig,
+export  {getMpk,getAuth,postData,getData,generateDataSig,
 
 }

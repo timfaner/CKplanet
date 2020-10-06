@@ -1,4 +1,6 @@
-const { KEYPERING_URL, RICH_NODE_INDEXER_URL, SECP256K1_BLAKE160_CODE_HASH, DAPP_DESCRIPTION } = require('./const')
+import { KEYPERING_URL, RICH_NODE_INDEXER_URL, SECP256K1_BLAKE160_CODE_HASH, DAPP_DESCRIPTION } from './const' 
+import {keypering_res,MOCK_API}  from "./test"
+
 
 const getCells = async lockArgs => {
   let payload = {
@@ -107,8 +109,34 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
 
 
 //TODO 测试
+/*
+### Sign Message
+
+```yaml
+# sign_message
+id: string
+jsonrpc: '2.0'
+method: sign_message
+params:
+  message: string
+  address: string | null # default to the first address
+  description: string | null
+
+# response
+id: string
+jsonrpc: '2.0'
+result: string
+*/
 
 const signMessage = async (msg,description,token) => {
+  let payload = {
+    message:msg,
+    description,
+  }
+
+  if (MOCK_API){
+    return keypering_res.signMessage(payload)
+  }
   try {
     let res = await fetch(KEYPERING_URL, {
       method: 'POST',
@@ -119,10 +147,7 @@ const signMessage = async (msg,description,token) => {
         id: 3,
         jsonrpc: '2.0',
         method: 'sign_message',
-        params: {
-          message:msg,
-          description,
-        }
+        params: payload
       }),
     })
     res = await res.json()
@@ -132,7 +157,7 @@ const signMessage = async (msg,description,token) => {
   }
 }
 
-module.exports = {
+export  {
   getCells,
   requestAuth,
   queryAddresses,

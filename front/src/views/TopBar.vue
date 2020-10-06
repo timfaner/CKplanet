@@ -50,9 +50,11 @@
 
 
 import { formatCkb } from '@/ckb/utils'
-import {hashfunction,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
+import {sha256,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
 import { getAuth, } from '@/ckb/transcation'
 import NewUserGuide from "@/components/NewUserGuide.vue"
+import {generateAESKey, encryptData_c,decryptData_c} from "@/ckb/ckplanet"
+
 
 export default {
     name: 'TopBar',
@@ -60,7 +62,8 @@ export default {
         return {
         //hashfunction,
         dialogNewUser: false,
-        hashfunction,generatePrivKey,signData,verifyData,getPubKey,
+        generateAESKey, encryptData_c,decryptData_c,
+        sha256,generatePrivKey,signData,verifyData,getPubKey,
         walletname:"选择钱包",
         showed:false,
         lockScript: undefined,
@@ -85,9 +88,20 @@ export default {
     },
     methods:{
     
-    test(){
+    async test(){
       console.log(this)
       this.dialogNewUser = true
+      generateAESKey("asas")
+
+      console.log("updateDataServer")
+      await this.$store.dispatch('getDataServer')
+      console.log("getPubId")
+      await this.$store.dispatch('getPubId')
+      console.log("getPriId")
+      await this.$store.dispatch('getPriId')
+      
+
+      console.log("")
     },
 
     notifiy(msg,type) {
@@ -104,14 +118,16 @@ export default {
       try {
         this.$parent.loadings=true 
 
-        console.log(getAuth)
-        await getAuth().then(this.$store.dispatch('getUser'))
+        console.log("getAuth")
+        await getAuth()
+        await this.$store.dispatch('getUser')
 
         this.$parent.loadings=false
         this.notifiy("连接钱包成功","Info")
         this.showed = true
 
       } catch (error) {
+        this.$parent.loadings=false
         console.error(error)
       }
     },
