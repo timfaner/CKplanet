@@ -88,7 +88,7 @@ const getTxTemplateWithCellsDeps = (tx,type) => {
 const groupCells = cells => {
   return {
     emptyCells: cells.filter(cell => (!cell.output_data || cell.output_data === '0x') && cell.output.type === null),
-    filledCells: cells.filter(cell => cell.output_data !== '0x'),
+    filledCells: cells.filter(cell => cell.output_data !== '0x' || cell.output.type !== null),
   }
 }
 

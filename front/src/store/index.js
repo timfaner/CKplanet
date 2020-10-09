@@ -10,9 +10,89 @@ import {getMpk,getAuth} from '@/ckb/data_server'
 import {changeOnChain} from "@/ckb/transaction"
 
 import {DATASERVER_INFO,DATA_INTEGRITY,DAPP_ID } from '@/ckb/const'
-import { textToHex } from '../ckb/utils'
+import { textToHex,hexToText } from '../ckb/utils'
 
 
+
+
+class User {
+  constructor(lock_args) {
+    this.lock_args = lock_args
+  }
+
+  async getCells(){
+    try {
+      this.cells = await getCellsByLocks(this.lock_args)
+      const { emptyCells, filledCells } = groupCells(this.cells)
+      this.emptyCells = emptyCells
+      this.filled_cells = filledCells
+    } catch (error) {
+      console.error("Getting cells wrong",error)
+      throw(error)
+    }
+
+
+  }
+
+  async getDataServerInfo(){
+    await this.getCells()
+    let type_script = DATASERVER_INFO.script
+    type_script.args = textToHex(DAPP_ID)
+    if(this.filled_cells.length > 0 ){
+      let cells = this.filled_cells.filter(cell => (
+          cell.output.type.args === type_script.args &&
+          cell.output.type.code_hash === type_script.codeHash &&
+          cell.output.type.hash_type === type_script.hashType)
+      )
+      if(cells.length === 1){
+        let tmp = hexToText(cells[0].output_data)
+        let res = JSON.parse(tmp)
+        this.dataserver_ip = res.dataserver_ip
+        this.access_token_public = res.access_token_public
+        this.access_token_public_pk = res.access_token_public_pk
+        return res
+      }
+      else if (cells.length === 0){
+        return null
+      }
+      else{
+        console.error("getDataServerInfo",cells)
+        throw("getDataServerInfo Wrong", cells)
+      }
+    }
+
+    return null
+  }
+
+  async getDataIntegrity(data_id){
+    await this.getCells()
+    let type_script = DATA_INTEGRITY.script
+    type_script.args = textToHex(data_id)
+
+    if(this.filled_cells.length > 0 ){
+      let cells = this.filled_cells.filter(cell => (
+          cell.output.type.args === type_script.args &&
+          cell.output.type.code_hash === type_script.codeHash &&
+          cell.output.type.hash_type === type_script.hashType)
+      )
+      if(cells.length === 1){
+        let tmp = hexToText(cells[0].output_data)
+        return JSON.parse(tmp)
+      }
+      else if (cells.length === 0){
+        return null
+      }
+      else{
+        console.error("getDataIntegrity More then one cell",cells)
+        throw("getDataIntegrity More then one cell", cells)
+      }
+    }
+
+    return null
+  }
+}
+
+User
 
 Vue.use(Vuex)
 
@@ -298,11 +378,21 @@ export default new Vuex.Store({
       )
 
       console.debug(tx_hash)
-    }
+    },
     //async getOtherUserCells({commit,state}){
       
     //}
-    
+    async test(){
+      let user = new User("0x4afb52ac8f2e01c5e4e786380bd64f1038ee4e63")
+
+      let res = await user.getDataIntegrity("12")
+      console.log(res)
+      res = await user.getDataIntegrity("2")
+      console.log(res)
+      res = await user.getDataServerInfo()
+      console.log(res)
+
+    }
   },
   modules: {
     ckplanet,
