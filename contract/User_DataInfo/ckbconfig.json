@@ -1,0 +1,13 @@
+{
+  "language": "c",
+  "main": "User_DataInfo.c",
+  "output": "",
+  "scripts": {
+    "build": ""
+  },
+  "debug": {
+    "mock": "",
+    "target": "tx.outputs[0].type",
+    "cycles": ""
+  }
+}

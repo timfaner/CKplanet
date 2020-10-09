@@ -52,19 +52,22 @@
 
 
 
+
 import { textToHex,formatCkb } from '@/ckb/utils'
 import {sha256,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
 import { getCellsByTypeScript,getAuth, jointTx,sendTx} from '../ckb/transaction'
+
 import NewUserGuide from "@/components/NewUserGuide.vue"
 import {generateAESKey, encryptData_c,decryptData_c} from "@/ckb/ckplanet"
 import {DATASERVER_INFO,DATA_INTEGRITY} from "@/ckb/const"
+
 
 
 export default {
     name: 'TopBar',
     data: function () {
         return {
-        //hashfunction,
+      
         dialogNewUser: false,
         generateAESKey, encryptData_c,decryptData_c,
         sha256,generatePrivKey,signData,verifyData,getPubKey,
