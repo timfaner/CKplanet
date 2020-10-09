@@ -87,7 +87,7 @@ const getTxTemplateWithCellsDeps = (tx,type) => {
 
 const groupCells = cells => {
   return {
-    emptyCells: cells.filter(cell => !cell.output_data || cell.output_data === '0x'),
+    emptyCells: cells.filter(cell => (!cell.output_data || cell.output_data === '0x') && cell.output.type === null),
     filledCells: cells.filter(cell => cell.output_data !== '0x'),
   }
 }
@@ -124,7 +124,7 @@ function makeId(length) {
 
  function getScriptCapacity(script){
   let args_length = 0
-  if (script.args !== "0x" && script.args === null){
+  if (script.args !== "0x" && script.args !== null){
    args_length = (script.args.length -2)/2 // strip '0x' 
   }
   

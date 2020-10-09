@@ -2,7 +2,7 @@ import { KEYPERING_URL, RICH_NODE_INDEXER_URL, SECP256K1_BLAKE160_CODE_HASH, DAP
 import {keypering_res,MOCK_API}  from "./test"
 
 
-const getCells = async lockArgs => {
+const getCellsByLocks = async lockArgs => {
   let payload = {
     id: 1,
     jsonrpc: '2.0',
@@ -83,8 +83,9 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
     inputType: '',
     outputType: '',
   }
+
   try {
-    let res = fetch(KEYPERING_URL, {
+    let res = await fetch(KEYPERING_URL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -100,8 +101,9 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
         },
       }),
     })
-    res = await res.json()
-    return res.result
+    res =  await res.json()
+    // TODO 错误码处理
+    return res
   } catch (error) {
     console.error('error', error)
   }
@@ -158,7 +160,7 @@ const signMessage = async (msg,description,token) => {
 }
 
 export  {
-  getCells,
+  getCellsByLocks,
   requestAuth,
   queryAddresses,
   signAndSendTransaction,

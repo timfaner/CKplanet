@@ -1,11 +1,16 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { getSummary,groupCells } from '@/ckb/utils'
-import { getCells, queryAddresses,signMessage } from '@/ckb/rpc'
+import { getCellsByLocks, queryAddresses,signMessage } from '@/ckb/rpc'
 
 import ckplanet from './ckplanet' 
 
 import {getMpk,getAuth} from '@/ckb/data_server'
+
+import {changeOnChain} from "@/ckb/transaction"
+
+import {DATASERVER_INFO,DATA_INTEGRITY,DAPP_ID } from '@/ckb/const'
+import { textToHex } from '../ckb/utils'
 
 
 
@@ -17,6 +22,7 @@ export default new Vuex.Store({
       address:'',
       lock_script:null,
       lock_args:'',
+      lock_hash:'',
       public_key:'',
       balance_summary:{
         inuse: 0,
@@ -89,7 +95,7 @@ export default new Vuex.Store({
   },
   actions: {
     async getUserCells({commit,state}){
-      const cells = await getCells(state.user_chain_info.lock_args)
+      const cells = await getCellsByLocks(state.user_chain_info.lock_args)
       commit("updateUserCells",cells)
     },
 
@@ -108,6 +114,7 @@ export default new Vuex.Store({
         lock_args:addresses[0].lockScript.args,
         lock_script:addresses[0].lockScript,
         public_key:addresses[0].publicKey,
+        lock_hash:addresses[0].lockHash,
         balance_summary:{
           inuse: 0,
           free: 0,
@@ -160,10 +167,145 @@ export default new Vuex.Store({
         commit("updatePrivateId",res)
     },
 
+    async createDataServerInfoOnChain({dispatch,state},DataServerInfo){
+      // 更新本用户的cell池
+      await dispatch('getUserCells',state)
+      let dappID = textToHex(DAPP_ID)
 
+      let data = JSON.stringify(DataServerInfo)
+      data = textToHex(data)
+
+      let tx_hash = await changeOnChain(
+        state.user_cells.empty_cells,
+        null,
+        DATASERVER_INFO,
+        'create',
+        state.user_chain_info.lock_args,
+        dappID,
+        state.user_chain_info.lock_hash,
+        data
+      )
+
+      console.debug(tx_hash)
+    },
+
+    async updateDataServerInfoOnChain({dispatch,state},DataServerInfo){
+      // 更新本用户的cell池
+      await dispatch('getUserCells',state)
+      let dappID = textToHex(DAPP_ID)
+
+      let data = JSON.stringify(DataServerInfo)
+      data = textToHex(data)
+
+      let tx_hash = await changeOnChain(
+        state.user_cells.empty_cells,
+        state.user_cells.filled_cells,
+        DATASERVER_INFO,
+        'update',
+        state.user_chain_info.lock_args,
+        dappID,
+        state.user_chain_info.lock_hash,
+        data
+      )
+
+      console.debug(tx_hash)
+    },
+
+    async deleteDataServerInfoOnChain({dispatch,state}){
+      // 更新本用户的cell池
+      await dispatch('getUserCells',state)
+      let dappID = textToHex(DAPP_ID)
+
+
+      let tx_hash = await changeOnChain(
+        state.user_cells.empty_cells,
+        state.user_cells.filled_cells,
+        DATASERVER_INFO,
+        'delete',
+        state.user_chain_info.lock_args,
+        dappID,
+        state.user_chain_info.lock_hash,
+        ''
+      )
+
+      console.debug(tx_hash)
+    },
+
+    async createDataIntegrityOnChain({dispatch,state},payload){
+      await dispatch('getUserCells',state)
+      let type_args = textToHex(payload.data_id)
+
+      let data = JSON.stringify(
+        {data_hash:payload.data_hash,
+          data_hash_sig:payload.data_hash_sig})
+      data = textToHex(data)
+
+      let tx_hash = await changeOnChain(
+        state.user_cells.empty_cells,
+        null,
+        DATA_INTEGRITY,
+        'create',
+        state.user_chain_info.lock_args,
+        type_args,
+        state.user_chain_info.lock_hash,
+        data
+      )
+
+      console.debug(tx_hash)
+    },
+
+    async updateDataIntegrityOnChain({dispatch,state},payload){
+      await dispatch('getUserCells',state)
+      let type_args = textToHex(payload.data_id)
+
+      let data = JSON.stringify(
+        {data_hash:payload.data_hash,
+          data_hash_sig:payload.data_hash_sig})
+      data = textToHex(data)
+
+      let tx_hash = await changeOnChain(
+        state.user_cells.empty_cells,
+        state.user_cells.filled_cells,
+        DATA_INTEGRITY,
+        'update',
+        state.user_chain_info.lock_args,
+        type_args,
+        state.user_chain_info.lock_hash,
+        data
+      )
+
+      console.debug(tx_hash)
+    },
+
+    async deleteDataIntegrityOnChain({dispatch,state},payload){
+      await dispatch('getUserCells',state)
+      let type_args = textToHex(payload.data_id)
+
+      let data = JSON.stringify(
+        {data_hash:payload.data_hash,
+          data_hash_sig:payload.data_hash_sig})
+      data = textToHex(data)
+
+      let tx_hash = await changeOnChain(
+        state.user_cells.empty_cells,
+        state.user_cells.filled_cells,
+        DATA_INTEGRITY,
+        'delete',
+        state.user_chain_info.lock_args,
+        type_args,
+        state.user_chain_info.lock_hash,
+        data
+      )
+
+      console.debug(tx_hash)
+    }
+    //async getOtherUserCells({commit,state}){
+      
+    //}
     
   },
   modules: {
     ckplanet,
   }
 })
+

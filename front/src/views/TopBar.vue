@@ -49,11 +49,15 @@
 
 
 
-import { formatCkb } from '@/ckb/utils'
+
+
+
+import { textToHex,formatCkb } from '@/ckb/utils'
 import {sha256,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
-import { getAuth, } from '@/ckb/transcation'
+import { getCellsByTypeScript,getAuth, jointTx,sendTx} from '../ckb/transaction'
 import NewUserGuide from "@/components/NewUserGuide.vue"
 import {generateAESKey, encryptData_c,decryptData_c} from "@/ckb/ckplanet"
+import {DATASERVER_INFO,DATA_INTEGRITY} from "@/ckb/const"
 
 
 export default {
@@ -89,19 +93,27 @@ export default {
     methods:{
     
     async test(){
-      console.log(this)
-      this.dialogNewUser = true
-      generateAESKey("asas")
 
-      console.log("updateDataServer")
-      await this.$store.dispatch('getDataServer')
-      console.log("getPubId")
-      await this.$store.dispatch('getPubId')
-      console.log("getPriId")
-      await this.$store.dispatch('getPriId')
+
+      let cells = getCellsByTypeScript(
+        this.$store.state.user_cells.filled_cells,
+        DATA_INTEGRITY.script,
+        textToHex("app1"))
+
+
+      let tx =  jointTx(
+        this.$store.state.user_cells.empty_cells,
+        cells[0],
+        "delete",
+        textToHex("testtest"),
+        this.$store.state.user_chain_info.lock_script,
+        DATA_INTEGRITY,
+        textToHex("app1")
+      )
       
-
-      console.log("")
+      let res = await sendTx(tx,this.$store.state.user_chain_info.lock_hash)
+      console.log(res)
+      DATASERVER_INFO,DATA_INTEGRITY
     },
 
     notifiy(msg,type) {

@@ -1,8 +1,8 @@
 import * as BN from 'bn.js'
 import { hexToBytes } from '@nervosnetwork/ckb-sdk-utils'
-import { textToHex, getRawTxTemplate,getTxTemplateWithCellsDeps,getScriptCapacity } from '@/ckb/utils'
+import {  getRawTxTemplate,getTxTemplateWithCellsDeps,getScriptCapacity,getLockScript } from '@/ckb/utils'
 import { MIN_CAPACITY, TRANSACTION_FEE, Operator } from '@/ckb/const'
-import { signAndSendTransaction,requestAuth,  } from '@/ckb/rpc'
+import { signAndSendTransaction,requestAuth,} from '@/ckb/rpc'
 
 
 const getAuth = async () =>{
@@ -22,20 +22,21 @@ const getAuth = async () =>{
 //cell池更新函数 结合vuex
 
 //从cell池收集cells，然后拼接tx，然后发送，发送完加入监测列表，检测完成后回调（是否commited）
-async function  collectCells(){
-  return
+ function  collectCells(empty_cells){
+  return empty_cells
 }
 
 
-async function jointTx(currentCell = null,mode,data,lock_script,type = null,args = '') {
+
+// args、data均为已经序列化之后的数据
+ function jointTx(empty_cells,currentCell = null,mode,data,lock_script,type = null,args = '') {
   //args 是string  , type 是定义在const中的
   const rawTx = getRawTxTemplate()
     var type_script = ''
     if (type !==null){
       getTxTemplateWithCellsDeps(rawTx,type)
       type_script = type.script
-      //  args 的类型转化
-      args = textToHex(args)
+      
       if (!args || args.length % 2 !== 0) {
         alert('The length of data must be an even number')
         return
@@ -48,7 +49,7 @@ async function jointTx(currentCell = null,mode,data,lock_script,type = null,args
     
     // Generate outputs and outputsData
     if (mode === Operator.Create || mode === Operator.Update) {
-    data = textToHex(data)
+    
       if (!data || data.length % 2 !== 0) {
         alert('The length of data must be an even number')
         return
@@ -72,7 +73,7 @@ async function jointTx(currentCell = null,mode,data,lock_script,type = null,args
     }
     outputCapacity = outputCapacity.add(TRANSACTION_FEE)
     // Collect inputs
-    let cells = await collectCells()
+    let cells =  collectCells(empty_cells)
     let inputCapacity = new BN(0)
     if (mode === Operator.Update || mode === Operator.Delete) {
       cells = [currentCell, ...cells]
@@ -112,8 +113,66 @@ async  function sendTx(rawTx,lockHash){
       console.error('No auth token')
       return
     }
-    await signAndSendTransaction(rawTx, authToken, lockHash)
+    let res = await signAndSendTransaction(rawTx, authToken, lockHash)
+    return res
   }
+
+
+function getCellsByTypeScript(cells,type_script,args){
+  type_script.args = args
+  return cells.filter(cell => (
+    cell.output.type.args === type_script.args &&
+    cell.output.type.code_hash === type_script.codeHash &&
+    cell.output.type.hash_type === type_script.hashType))
+}
+
+
+async function changeOnChain(
+  empty_cells_pool,
+  current_cells_pool,
+  current_cells_type,
+  mode,
+  lock_args,
+  type_args,
+  lock_hash,
+  data){
+
+    let current_cell = null
+    if (mode === Operator.Update || mode === Operator.Delete){
+      let cells = getCellsByTypeScript(
+        current_cells_pool,
+        current_cells_type.script,
+        type_args)
+      if (cells.length !==1){
+        //TODO 错误处理
+        console.error("found not only one focused cell",cells)
+        return null
+      }
+      current_cell = cells[0]
+    }
+
+
+  let tx =  jointTx(
+    empty_cells_pool,
+    current_cell,
+    mode,
+    data,
+    getLockScript(lock_args),
+    current_cells_type,
+    type_args
+  )
+  
+  try {
+    let res = await sendTx(tx, lock_hash)
+    console.log(res)
+    //TODO 错误处理
+    return res.txHash 
+  } catch (error) {
+    console.error(error)
+  }
+
+
+}
 
 
 export   {
@@ -121,4 +180,6 @@ export   {
     jointTx,
     getAuth,
     collectCells,
+    getCellsByTypeScript,
+    changeOnChain
 }

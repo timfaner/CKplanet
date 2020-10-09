@@ -12,6 +12,8 @@ const DATA_TYPE = {
 
 
 
+
+
 //unicode编码
 function encodeUnicode(str) {
     var res = [];

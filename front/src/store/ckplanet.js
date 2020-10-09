@@ -10,12 +10,20 @@ const ckplanet = {
         
     }),
     mutations:{
-        addCount(state){
-            state.count ++
+        updateUserInfo(state,payload){
+            if ("data_encrypted_key" in payload){
+                state.user_info.data_encrypted_key = payload.data_encrypted_key
+            }
+            else if ( "nick_name" in payload && "avatar_url" in payload){
+                state.user_info.nick_name = payload.nick_name
+                state.user_info.avatar_url = payload.avatar_url
+            }   
         }
     },
     actions:{
-    
+        getUserProfile({state,commit,rootState}){
+            commit,state,rootState
+        }
     },
 
 }
