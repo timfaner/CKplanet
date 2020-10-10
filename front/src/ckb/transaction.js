@@ -143,11 +143,30 @@ async function changeOnChain(
         current_cells_pool,
         current_cells_type.script,
         type_args)
-      if (cells.length !==1){
-        //TODO 错误处理
-        console.error("found not only one focused cell",cells)
-        return null
+      
+      // update 为空，则转成create
+      if (mode === Operator.Update){
+        if(cells.length === 0){
+          current_cell = null,
+          mode = Operator.Update
+        }
+        else  if (cells.length === 1){
+          current_cell = cells[0]
+        }
+        else{
+          console.error("More then one cells located",mode,cells)
+          return null
+        }
       }
+      // delete  为一个，则报错
+      else {
+        if(cells.length !== 1){
+          console.error("More then one cells located",mode,cells)
+          return null
+        }
+        current_cell = cells[0]
+      }
+
       current_cell = cells[0]
     }
 
