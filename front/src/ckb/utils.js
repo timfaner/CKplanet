@@ -20,14 +20,14 @@ const textToHex = text => {
   if (result.startsWith('0x')) {
     return result
   }
-  result = bytesToHex(new TextEncoder().encode(result))
+  result = bytesToHex(new TextEncoder("utf-8").encode(result))
   return result
 }
 
 const hexToText = hex => {
   let result = hex.trim()
   try {
-    result = new TextDecoder().decode(hexToBytes(result))
+    result = new TextDecoder("utf-8").decode(hexToBytes(result))
   } catch (error) {
     console.error('hexToUtf8 error:', error)
   }
@@ -134,7 +134,24 @@ function makeId(length) {
  }
 
 
+ //unicode编码
+function encodeUnicode(str) {
+  var res = [];
+  for (var i = 0; i < str.length; i++) {
+      res[i] = ( "00" + str.charCodeAt(i).toString(16) ).slice(-4);
+  }
+  return "\\u" + res.join("\\u");
+}
+
+//unicode解码
+function decodeUnicode(str) {
+  str = str.replace(/\\/g, "%");
+  return unescape(str);
+}
+
 module.exports = {
+  encodeUnicode,
+  decodeUnicode,
   formatCkb,
   textToHex,
   hexToText,
