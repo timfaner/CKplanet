@@ -15,7 +15,7 @@
     "bootstrap-vue": "^2.17.3",
     "core-js": "^3.6.5",
     "element-ui": "^2.4.5",
-    "hasha": "^5.2.0",
+    "kvdb.io": "^1.0.5",
     "node-forge": "^0.10.0",
     "secp256k1": "^4.0.2",
     "vue": "^2.6.11",
