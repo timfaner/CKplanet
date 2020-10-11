@@ -6,7 +6,7 @@
             <b-form-input size="md" class="mr-2 my-2"  placeholder="Search"></b-form-input>
             <b-button size="md" class="my-2 mr-auto" type="submit">Search</b-button>
         </b-navbar-nav>
-        <b-button   @click.prevent="test()" size="md" class="ml-auto">测试</b-button>
+        
         <b-button v-b-modal.modal-1 size="md" class="ml-auto">登陆</b-button>
             
         <el-dialog  :visible.sync="dialogNewUser" append-to-body>
@@ -49,28 +49,18 @@
 
 
 
-
-
-
-
-import { textToHex,formatCkb } from '@/ckb/utils'
-import {sha256,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
-import { getCellsByTypeScript,getAuth, jointTx,sendTx} from '../ckb/transaction'
-
+import { formatCkb } from '@/ckb/utils'
+import { getAuth} from '../ckb/transaction'
 import NewUserGuide from "@/components/NewUserGuide.vue"
-import {generateAESKey, encryptData_c,decryptData_c} from "@/ckb/ckplanet"
-import {DATASERVER_INFO,DATA_INTEGRITY} from "@/ckb/const"
-
+import {} from "@/ckb/ckplanet"
 
 
 export default {
     name: 'TopBar',
     data: function () {
         return {
-      
+          
         dialogNewUser: false,
-        generateAESKey, encryptData_c,decryptData_c,
-        sha256,generatePrivKey,signData,verifyData,getPubKey,
         walletname:"选择钱包",
         showed:false,
         lockScript: undefined,
@@ -97,26 +87,6 @@ export default {
     
     async test(){
 
-
-      let cells = getCellsByTypeScript(
-        this.$store.state.user_cells.filled_cells,
-        DATA_INTEGRITY.script,
-        textToHex("app1"))
-
-
-      let tx =  jointTx(
-        this.$store.state.user_cells.empty_cells,
-        cells[0],
-        "delete",
-        textToHex("testtest"),
-        this.$store.state.user_chain_info.lock_script,
-        DATA_INTEGRITY,
-        textToHex("app1")
-      )
-      
-      let res = await sendTx(tx,this.$store.state.user_chain_info.lock_hash)
-      console.log(res)
-      DATASERVER_INFO,DATA_INTEGRITY
     },
 
     notifiy(msg,type) {
