@@ -248,7 +248,7 @@ export default new Vuex.Store({
     },
 
     //从链上获取 lock_args 对应的 服务器信息
-    async getDataServerInfo({commit,state,dispatch},{lock_args}){
+    async getDataServerInfo({commit,state,dispatch},lock_args){
       
       await dispatch("getUserCells",lock_args)
       let filled_cells = state.cells_pool[lock_args].filled_cells

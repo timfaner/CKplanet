@@ -5,17 +5,16 @@ import {
 
 import {data_server_res,MOCK_API} from "./test"
 
-//TODO 连接数据服务器逻辑(读服务器、写服务器)
+
 class DataServer{
 
-  constructor(store,mode="write"){
+  constructor(store,lock_args){
     this.store = store
-    this.mode = mode
+    this.lock_args = lock_args
+    this.ip = ''
   }
 
-  async postOnChain(){
 
-  }
   async getAccessToken(){
 
     if (this.store.getters.getAccessToken("public") === "" || 
@@ -28,21 +27,34 @@ class DataServer{
     }
   }
 
+  async updateDataServerInfo(){
+    let user_id = this.store.state.user_id_public
 
-  async getDataServer(){
-    await this.store.dispatch("getDataServerMpk",this.ip)
+    let tx_hash = await this.store.dispatch("updateDataServerInfo",
+        {   
+            dataserver_ip:this.ip,
+            access_token_public:user_id.access_token,
+            access_token_public_pk:user_id.pk,
+        })
+    return tx_hash
   }
 
-  async getAuth(){
 
-    try {
-      
+  async getDataServer(){
+
+    let res = await this.store.dispatch("getDataServerInfo",this.lock_args)
+    return res
+
+  }
+
+
+  async getDataserverAuth(){
+
+    try {      
       await this.store.dispatch("getDataServerMpk",this.ip)
       //获取access_token_private,access_token_public
-
       this.store.dispatch("getPubId")
       this.store.dispatch("getPriId")
-
     } catch (error) {
       console.error(error)
     }
@@ -74,6 +86,8 @@ const getMpk = async (server_url) =>{
         console.error('error', error)
       }
 }
+
+
 
 
 const getAuth = async (server_url,access_token,msg,cpk) =>{

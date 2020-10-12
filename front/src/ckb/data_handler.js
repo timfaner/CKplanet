@@ -1,5 +1,5 @@
-import { groupCells } from '@/ckb/utils'
-import { getCellsByLocks,signMessage } from '@/ckb/rpc'
+
+import { signMessage } from '@/ckb/rpc'
 
 
 
@@ -11,13 +11,13 @@ import {
     } from "@/ckb/crypto" 
 
 class DataSetter {
-    constructor(store,data_server){
+    constructor(data_server){
         this.ip = data_server.ip
-        this.store = store
+        this.store = data_server.store
         this.data_server = data_server
       }
 
-      async updateDataIntegrityOnChain(data_id,data_hash){
+    async updateDataIntegrityOnChain(data_id,data_hash){
         const authToken = window.localStorage.getItem('authToken')
         let data_hash_sig = await signMessage(data_hash,"Get data_hash_sig",authToken)
         let tx_hash = await this.store.dispatch("updateDataIntegrityOnChain",
@@ -28,20 +28,8 @@ class DataSetter {
         })
         return tx_hash
       }
-      async updateDataServerInfo(){
-        let user_id = this.store.state.user_id_public
 
-        let tx_hash = await this.store.dispatch("updateDataServerInfo",
-            {   
-                dataserver_ip:this.ip,
-                access_token_public:user_id.access_token,
-                access_token_public_pk:user_id.pk,
-            })
-
-        return tx_hash
-
-      }
-      async postData(data,data_id='',access_type='public', onchain=false,txid){
+    async postData(data,data_id='',access_type='public', onchain=false,txid){
         let user_id
         
         if(access_type === "public"){
@@ -87,23 +75,6 @@ class DataGetter {
       this.ip = data_server.ip
       this.data_server = data_server
     }
-  
-    async getCells(){
-      try {
-        this.cells = await getCellsByLocks(this.lock_args)
-        const { emptyCells, filledCells } = groupCells(this.cells)
-        this.emptyCells = emptyCells
-        this.filled_cells = filledCells
-      } catch (error) {
-        console.error("Getting cells wrong",error)
-        throw(error)
-      }
-  
-  
-    }
-  
-
-
 
     static async getDataByUrl(server_ip="",url='',onchain_verify=false,txid){
     

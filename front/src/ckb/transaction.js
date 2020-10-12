@@ -5,7 +5,7 @@ import { MIN_CAPACITY, TRANSACTION_FEE, Operator } from '@/ckb/const'
 import { signAndSendTransaction,requestAuth,} from '@/ckb/rpc'
 
 
-const getAuth = async () =>{
+const getWalletAuth = async () =>{
   try {
   console.log("geting auth....")
   const token = await requestAuth('CKplanet request login')
@@ -197,7 +197,7 @@ async function changeOnChain(
 export   {
     sendTx,
     jointTx,
-    getAuth,
+    getWalletAuth,
     collectCells,
     getCellsByTypeScript,
     changeOnChain
