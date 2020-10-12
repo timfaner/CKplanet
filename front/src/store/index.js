@@ -56,6 +56,9 @@ export default new Vuex.Store({
     },
     access_token_pool:{
 
+    },
+    data_server_pool:{
+
     }
   },
   getters:{
@@ -75,6 +78,7 @@ export default new Vuex.Store({
       state.user_chain_info = user_chain_info
     },
 
+    
     updateAccessTokens(state,
       {lock_args,
       access_token_public,
@@ -123,9 +127,25 @@ export default new Vuex.Store({
         state.user_chain_info.balance_summary = getSummary(cells)}
     },
 
-    updateDataServer(state,payload){
-      state.user_data_server_info.ip = payload.ip
-      state.user_data_server_info.mpk = payload.mpk
+    updateDataServer(state,{lock_args,ip,mpk}){
+
+
+      let data_servers = {ip,mpk}
+      if ( ! (lock_args in state.data_server_pool)){
+          state.data_server_pool[lock_args] = data_servers
+        }
+      else{
+        const key = lock_args
+
+        let data_servers_old = state.data_server_pool[lock_args]
+
+        for (const key in data_servers_old){
+          if(  typeof(data_servers[key]) === "undefined"){
+            data_servers[key] = data_servers_old[key]
+          }
+        }
+        state.data_server_pool = {...state.data_server_pool,[key]:data_servers}
+      }
 
     },
     updatePublicId(state,payload){
@@ -218,12 +238,13 @@ export default new Vuex.Store({
       })
     },
 
-    async getDataServerMpk({commit},ip){
-
+    async getDataServerMpk({state,commit},lock_args){
+      let ip = state.data_server_pool[lock_args].ip
+      
       let mpk = await getMpk(ip)
-      console.log(mpk)
+      console.log("Got mpk",mpk)
       commit("updateDataServer",
-      {ip,mpk})
+      {lock_args,mpk})
     },
 
     //从链上获取 lock_args 对应的 服务器信息
@@ -243,11 +264,18 @@ export default new Vuex.Store({
         if(cells.length === 1){
           let tmp = hexToText(cells[0].output_data)
           let res = JSON.parse(tmp)
+
+          //TODO 检查返回的参数是否符合规则
           commit("updateAccessTokens",{
             lock_args,
             access_token_public:res.access_token,
             access_token_public_pk:res.access_token_pk
           })
+
+          commit("updateDataServer",
+          {lock_args,ip:res.dataserver_ip})
+
+          await dispatch("getDataServerMpk",lock_args)
 
           return res
         }
@@ -261,7 +289,7 @@ export default new Vuex.Store({
       }
   
       return null
-      // TODO
+
     },
 
     async getDataIntegrity({state,dispatch},{lock_args,data_id}){
@@ -280,6 +308,8 @@ export default new Vuex.Store({
         )
         if(cells.length === 1){
           let tmp = hexToText(cells[0].output_data)
+
+          //TODO 检查返回的参数是否符合规则
           return JSON.parse(tmp)
         }
         else if (cells.length === 0){
