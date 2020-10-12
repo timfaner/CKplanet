@@ -9,6 +9,8 @@ const TRANSACTION_FEE = new BN('10000000')
 
 const CODE_HASH_CAPACITY = new BN('3200000000')
 
+const CELLS_CACHE_TIME = 5000 //in ms
+
 const DAPP_ID = "ckplanet"
 const DAPP_DESCRIPTION = 'Simplest DApp are requesting to sign and send transactions'
 
@@ -75,5 +77,6 @@ module.exports = {
   DATASERVER_INFO,
   DATA_INTEGRITY,
   CODE_HASH_CAPACITY,
-  DAPP_ID
+  DAPP_ID,
+  CELLS_CACHE_TIME
 }

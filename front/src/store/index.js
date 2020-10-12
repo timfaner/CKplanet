@@ -9,90 +9,10 @@ import {getMpk,getAuth} from '@/ckb/data_server'
 
 import {changeOnChain} from "@/ckb/transaction"
 
-import {DATASERVER_INFO,DATA_INTEGRITY,DAPP_ID } from '@/ckb/const'
+import {DATASERVER_INFO,DATA_INTEGRITY,DAPP_ID,CELLS_CACHE_TIME } from '@/ckb/const'
 import { textToHex,hexToText } from '../ckb/utils'
 
 
-
-
-class User {
-  constructor(lock_args) {
-    this.lock_args = lock_args
-  }
-
-  async getCells(){
-    try {
-      this.cells = await getCellsByLocks(this.lock_args)
-      const { emptyCells, filledCells } = groupCells(this.cells)
-      this.emptyCells = emptyCells
-      this.filled_cells = filledCells
-    } catch (error) {
-      console.error("Getting cells wrong",error)
-      throw(error)
-    }
-
-
-  }
-
-  async getDataServerInfo(){
-    await this.getCells()
-    let type_script = DATASERVER_INFO.script
-    type_script.args = textToHex(DAPP_ID)
-    if(this.filled_cells.length > 0 ){
-      let cells = this.filled_cells.filter(cell => (
-          cell.output.type.args === type_script.args &&
-          cell.output.type.code_hash === type_script.codeHash &&
-          cell.output.type.hash_type === type_script.hashType)
-      )
-      if(cells.length === 1){
-        let tmp = hexToText(cells[0].output_data)
-        let res = JSON.parse(tmp)
-        this.dataserver_ip = res.dataserver_ip
-        this.access_token_public = res.access_token_public
-        this.access_token_public_pk = res.access_token_public_pk
-        return res
-      }
-      else if (cells.length === 0){
-        return null
-      }
-      else{
-        console.error("getDataServerInfo",cells)
-        throw("getDataServerInfo Wrong", cells)
-      }
-    }
-
-    return null
-  }
-
-  async getDataIntegrity(data_id){
-    await this.getCells()
-    let type_script = DATA_INTEGRITY.script
-    type_script.args = textToHex(data_id)
-
-    if(this.filled_cells.length > 0 ){
-      let cells = this.filled_cells.filter(cell => (
-          cell.output.type.args === type_script.args &&
-          cell.output.type.code_hash === type_script.codeHash &&
-          cell.output.type.hash_type === type_script.hashType)
-      )
-      if(cells.length === 1){
-        let tmp = hexToText(cells[0].output_data)
-        return JSON.parse(tmp)
-      }
-      else if (cells.length === 0){
-        return null
-      }
-      else{
-        console.error("getDataIntegrity More then one cell",cells)
-        throw("getDataIntegrity More then one cell", cells)
-      }
-    }
-
-    return null
-  }
-}
-
-User
 
 Vue.use(Vuex)
 
@@ -130,28 +50,87 @@ export default new Vuex.Store({
       pk:'',
       sk:'',
       cert:'',
+    },
+    cells_pool:{
+
+    },
+    access_token_pool:{
+
+    }
+  },
+  getters:{
+    getAccessToken: (state) => (lock_args,type)=>{
+      if (type === "public" || type === "private"){
+        return state.access_token_pool[lock_args]["access_token_"+ type]
+      }
+      else {
+        return ""
+      }
     }
   },
   mutations: {
+
+  
     updateUser(state,user_chain_info){
       state.user_chain_info = user_chain_info
     },
-    updateUserCells(state,cells){
+
+    updateAccessTokens(state,
+      {lock_args,
+      access_token_public,
+      access_token_public_pk,
+      access_token_private,
+      access_token_private_pk}){
+
+      let access_tokens = {access_token_public,access_token_public_pk,access_token_private,access_token_private_pk}
+      if ( ! (lock_args in state.access_token_pool)){
+          state.access_token_pool[lock_args] = access_tokens
+        }
+      else{
+        const key = lock_args
+
+        let access_tokens_old = state.access_token_pool[lock_args]
+
+        for (const key in access_tokens_old){
+          if(  typeof(access_tokens[key]) === "undefined"){
+            access_tokens[key] = access_tokens_old[key]
+          }
+        }
+        state.access_token_pool = {...state.access_token_pool,[key]:access_tokens}
+      }
+    },
+
+
+    updateUserCells(state,{lock_args,cells}){
+
       const { emptyCells, filledCells } = groupCells(cells)
-      state.user_cells.empty_cells = emptyCells
-      state.user_cells.filled_cells = filledCells
+      
+      let user_cells = {}
+      user_cells.empty_cells = emptyCells
+      user_cells.filled_cells = filledCells
+      user_cells.update_time = new Date().getTime()
+
+      if ( !(lock_args in state.cells_pool)){
+        state.cells_pool[lock_args] = user_cells
+      }
+      else{
+        const key = lock_args
+        state.cells_pool = {...state.cells_pool,[key]:user_cells}
+      }
+
 
       if(cells && cells.length > 0){
         state.user_chain_info.balance_summary = getSummary(cells)}
     },
+
     updateDataServer(state,payload){
       state.user_data_server_info.ip = payload.ip
-      state.user_data_server_info.mpk = payload.res.mpk
+      state.user_data_server_info.mpk = payload.mpk
 
     },
     updatePublicId(state,payload){
-      if ('result' in payload){
-        state.user_id_public.access_token = payload.result
+      if ('access_token' in payload){
+        state.user_id_public.access_token = payload.access_token
       }
       else if ('pk' in payload && 'sk' in payload && 'cert' in payload ){
         state.user_id_public.pk = payload.pk
@@ -161,8 +140,8 @@ export default new Vuex.Store({
     },
 
     updatePrivateId(state,payload){
-      if ('result' in payload){
-        state.user_id_private.access_token = payload.result
+      if ('access_token' in payload){
+        state.user_id_private.access_token = payload.access_token
       }
       else if ('pk' in payload && 'sk' in payload && 'cert' in payload ){
         state.user_id_private.pk = payload.pk
@@ -174,9 +153,24 @@ export default new Vuex.Store({
 
   },
   actions: {
-    async getUserCells({commit,state}){
-      const cells = await getCellsByLocks(state.user_chain_info.lock_args)
-      commit("updateUserCells",cells)
+    //从ckb-indexer 获取 lock_args 对应的cells并放入缓存池
+    async getUserCells({commit,state},lock_args){
+
+      if(lock_args in state.cells_pool){
+        let last_update_time = state.cells_pool[lock_args].update_time
+        let now_time = new Date().getTime()
+
+        if(now_time - last_update_time <= CELLS_CACHE_TIME){
+          console.log("cells pool using cache")
+          return 
+        }
+          
+      }
+
+      const cells = await getCellsByLocks(lock_args)
+      commit("updateUserCells",
+      { lock_args,
+        cells})
     },
 
     async getUser({dispatch,commit,state}){
@@ -201,62 +195,152 @@ export default new Vuex.Store({
           capacity: 0,
         }
       })}
-      dispatch('getUserCells',state)
+      dispatch('getUserCells',state.user_chain_info.lock_args)
     },
         
 
-    async getDataServer({commit}){
-      // TODO ip获取
-      let ip = "127.0.0.1:8080"
+    async getAccessToken({commit,state}){
 
-      let res = await getMpk(ip)
-      console.log(res)
+      const authToken = window.localStorage.getItem('authToken')
+
+      let access_token = await signMessage("public","Get public token",authToken)
+      commit("updatePublicId",{access_token})
+      commit("updateAccessTokens",{
+        lock_args: state.user_chain_info.lock_args,
+        access_token_public:access_token
+      })
+
+      access_token = await signMessage("private","Get access_token_private ",authToken)
+      commit("updatePrivateId",{access_token}) 
+      commit("updateAccessTokens",{
+        lock_args:state.user_chain_info.lock_args,
+        access_token_private:access_token
+      })
+    },
+
+    async getDataServerMpk({commit},ip){
+
+      let mpk = await getMpk(ip)
+      console.log(mpk)
       commit("updateDataServer",
-      {ip,res})
+      {ip,mpk})
+    },
+
+    //从链上获取 lock_args 对应的 服务器信息
+    async getDataServerInfo({commit,state,dispatch},{lock_args}){
+      
+      await dispatch("getUserCells",lock_args)
+      let filled_cells = state.cells_pool[lock_args].filled_cells
+
+      let type_script = DATASERVER_INFO.script
+      type_script.args = textToHex(DAPP_ID)
+      if(filled_cells.length > 0 ){
+        let cells = filled_cells.filter(cell => (
+            cell.output.type.args === type_script.args &&
+            cell.output.type.code_hash === type_script.codeHash &&
+            cell.output.type.hash_type === type_script.hashType)
+        )
+        if(cells.length === 1){
+          let tmp = hexToText(cells[0].output_data)
+          let res = JSON.parse(tmp)
+          commit("updateAccessTokens",{
+            lock_args,
+            access_token_public:res.access_token,
+            access_token_public_pk:res.access_token_pk
+          })
+
+          return res
+        }
+        else if (cells.length === 0){
+          return null
+        }
+        else{
+          console.error("getDataServerInfo more than one cells located",cells)
+          throw("getDataServerInfo Wrong: more than one cells located", cells)
+        }
+      }
+  
+      return null
+      // TODO
+    },
+
+    async getDataIntegrity({state,dispatch},{lock_args,data_id}){
+
+      await dispatch("getUserCells",lock_args)
+      let filled_cells = state.cells_pool[lock_args].filled_cells
+
+      let type_script = DATA_INTEGRITY.script
+      type_script.args = textToHex(data_id)
+  
+      if(filled_cells.length > 0 ){
+        let cells = filled_cells.filter(cell => (
+            cell.output.type.args === type_script.args &&
+            cell.output.type.code_hash === type_script.codeHash &&
+            cell.output.type.hash_type === type_script.hashType)
+        )
+        if(cells.length === 1){
+          let tmp = hexToText(cells[0].output_data)
+          return JSON.parse(tmp)
+        }
+        else if (cells.length === 0){
+          return null
+        }
+        else{
+          console.error("getDataIntegrity More then one cell",cells)
+          throw("getDataIntegrity More then one cell", cells)
+        }
+      }
+  
+      return null
     },
 
 
     async getPubId({commit,state}){
-      const authToken = window.localStorage.getItem('authToken')
+      
       const ip = state.user_data_server_info.ip
-      let res = await signMessage("public","Get public token",authToken)
-      commit("updatePublicId",res)
-
       // TODO 测试api
-      res = await getAuth(
+      let res = await getAuth(
         ip,
         state.user_id_public.access_token,
         "public",
         state.user_chain_info.public_key
         )
         commit("updatePublicId",res)
+        commit("updateAccessTokens",{
+          lock_args:state.user_chain_info.lock_args,
+          access_token_public_pk:res.pk
+        })
     },
     async getPriId({commit,state}){
 
-      const authToken = window.localStorage.getItem('authToken')
       const ip = state.user_data_server_info.ip
-      
-      let res = await signMessage("private","Get private token",authToken)
-      commit("updatePrivateId",res)
-      res = await getAuth(
+      let res = await getAuth(
         ip,
         state.user_id_private.access_token,
         "private",
         state.user_chain_info.public_key
         )
         commit("updatePrivateId",res)
+        commit("updateAccessTokens",{
+          lock_args:state.user_chain_info.lock_args,
+          access_token_private_pk:res.pk
+        })
     },
+
+    
+
+
 
     async createDataServerInfoOnChain({dispatch,state},DataServerInfo){
       // 更新本用户的cell池
-      await dispatch('getUserCells',state)
+      await dispatch('getUserCells',state.user_chain_info.lock_args)
       let dappID = textToHex(DAPP_ID)
 
       let data = JSON.stringify(DataServerInfo)
       data = textToHex(data)
 
       let tx_hash = await changeOnChain(
-        state.user_cells.empty_cells,
+        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
         null,
         DATASERVER_INFO,
         'create',
@@ -267,19 +351,20 @@ export default new Vuex.Store({
       )
 
       console.debug(tx_hash)
+      return tx_hash
     },
 
     async updateDataServerInfoOnChain({dispatch,state},DataServerInfo){
       // 更新本用户的cell池
-      await dispatch('getUserCells',state)
+      await dispatch('getUserCells',state.user_chain_info.lock_args)
       let dappID = textToHex(DAPP_ID)
 
       let data = JSON.stringify(DataServerInfo)
       data = textToHex(data)
 
       let tx_hash = await changeOnChain(
-        state.user_cells.empty_cells,
-        state.user_cells.filled_cells,
+        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
+        state.cells_pool[state.user_chain_info.lock_args].filled_cells,
         DATASERVER_INFO,
         'update',
         state.user_chain_info.lock_args,
@@ -289,17 +374,18 @@ export default new Vuex.Store({
       )
 
       console.debug(tx_hash)
+      return tx_hash
     },
 
     async deleteDataServerInfoOnChain({dispatch,state}){
       // 更新本用户的cell池
-      await dispatch('getUserCells',state)
+      await dispatch('getUserCells',state.user_chain_info.lock_args)
       let dappID = textToHex(DAPP_ID)
 
 
       let tx_hash = await changeOnChain(
-        state.user_cells.empty_cells,
-        state.user_cells.filled_cells,
+        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
+        state.cells_pool[state.user_chain_info.lock_args].filled_cells,
         DATASERVER_INFO,
         'delete',
         state.user_chain_info.lock_args,
@@ -309,10 +395,11 @@ export default new Vuex.Store({
       )
 
       console.debug(tx_hash)
+      return tx_hash
     },
 
     async createDataIntegrityOnChain({dispatch,state},payload){
-      await dispatch('getUserCells',state)
+      await dispatch('getUserCells',state.user_chain_info.lock_args)
       let type_args = textToHex(payload.data_id)
 
       let data = JSON.stringify(
@@ -321,7 +408,7 @@ export default new Vuex.Store({
       data = textToHex(data)
 
       let tx_hash = await changeOnChain(
-        state.user_cells.empty_cells,
+        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
         null,
         DATA_INTEGRITY,
         'create',
@@ -332,10 +419,11 @@ export default new Vuex.Store({
       )
 
       console.debug(tx_hash)
+      return tx_hash
     },
 
     async updateDataIntegrityOnChain({dispatch,state},payload){
-      await dispatch('getUserCells',state)
+      await dispatch('getUserCells',state.user_chain_info.lock_args)
       let type_args = textToHex(payload.data_id)
 
       let data = JSON.stringify(
@@ -344,8 +432,8 @@ export default new Vuex.Store({
       data = textToHex(data)
 
       let tx_hash = await changeOnChain(
-        state.user_cells.empty_cells,
-        state.user_cells.filled_cells,
+        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
+        state.cells_pool[state.user_chain_info.lock_args].filled_cells,
         DATA_INTEGRITY,
         'update',
         state.user_chain_info.lock_args,
@@ -355,10 +443,11 @@ export default new Vuex.Store({
       )
 
       console.debug(tx_hash)
+      return tx_hash
     },
 
     async deleteDataIntegrityOnChain({dispatch,state},payload){
-      await dispatch('getUserCells',state)
+      await dispatch('getUserCells',state.user_chain_info.lock_args)
       let type_args = textToHex(payload.data_id)
 
       let data = JSON.stringify(
@@ -367,8 +456,8 @@ export default new Vuex.Store({
       data = textToHex(data)
 
       let tx_hash = await changeOnChain(
-        state.user_cells.empty_cells,
-        state.user_cells.filled_cells,
+        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
+        state.cells_pool[state.user_chain_info.lock_args].filled_cells,
         DATA_INTEGRITY,
         'delete',
         state.user_chain_info.lock_args,
@@ -378,19 +467,12 @@ export default new Vuex.Store({
       )
 
       console.debug(tx_hash)
+      return tx_hash
     },
     //async getOtherUserCells({commit,state}){
       
     //}
     async test(){
-      let user = new User("0x4afb52ac8f2e01c5e4e786380bd64f1038ee4e63")
-
-      let res = await user.getDataIntegrity("12")
-      console.log(res)
-      res = await user.getDataIntegrity("2")
-      console.log(res)
-      res = await user.getDataServerInfo()
-      console.log(res)
 
     }
   },

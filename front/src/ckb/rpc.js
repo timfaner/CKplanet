@@ -83,9 +83,9 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
     inputType: '',
     outputType: '',
   }
-
+  let res = {}
   try {
-    let res = await fetch(KEYPERING_URL, {
+     res = await fetch(KEYPERING_URL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -103,9 +103,9 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
     })
     res =  await res.json()
     // TODO 错误码处理
-    return res
+    return res.result.txHash
   } catch (error) {
-    console.error('error', error)
+    console.error('error', error,res)
   }
 }
 
@@ -137,7 +137,7 @@ const signMessage = async (msg,description,token) => {
   }
 
   if (MOCK_API){
-    return keypering_res.signMessage(payload)
+    return keypering_res.signMessage(payload).result
   }
   try {
     let res = await fetch(KEYPERING_URL, {
@@ -153,6 +153,8 @@ const signMessage = async (msg,description,token) => {
       }),
     })
     res = await res.json()
+
+    //TODO 错误处理
     return res.result
   } catch (error) {
     console.error('error', error)

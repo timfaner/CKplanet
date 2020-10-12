@@ -113,8 +113,8 @@ async  function sendTx(rawTx,lockHash){
       console.error('No auth token')
       return
     }
-    let res = await signAndSendTransaction(rawTx, authToken, lockHash)
-    return res
+    let tx_hash = await signAndSendTransaction(rawTx, authToken, lockHash)
+    return tx_hash
   }
 
 
@@ -148,7 +148,7 @@ async function changeOnChain(
       if (mode === Operator.Update){
         if(cells.length === 0){
           current_cell = null,
-          mode = Operator.Update
+          mode = Operator.Create
         }
         else  if (cells.length === 1){
           current_cell = cells[0]
@@ -182,10 +182,10 @@ async function changeOnChain(
   )
   
   try {
-    let res = await sendTx(tx, lock_hash)
-    console.log(res)
+    let tx_hash = await sendTx(tx, lock_hash)
+
     //TODO 错误处理
-    return res.txHash 
+    return tx_hash
   } catch (error) {
     console.error(error)
   }

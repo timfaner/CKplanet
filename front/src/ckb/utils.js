@@ -17,9 +17,9 @@ const formatCkb = value => {
 
 const textToHex = text => {
   let result = text.trim()
-  if (result.startsWith('0x')) {
-    return result
-  }
+  //if (result.startsWith('0x')) {
+  //  return result
+  //}
   result = bytesToHex(new TextEncoder("utf-8").encode(result))
   return result
 }

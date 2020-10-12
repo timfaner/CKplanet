@@ -2,6 +2,8 @@ const MOCK_API = true
 
 
 import {sha256, signData} from './crypto' 
+import KVdb  from  "kvdb.io"
+
 let mpk = "0x0349673187530320ad095776b576ac491f6635165ae50e97c686f4c8430359d8bc"
 let msk = "0x471de43eaacd810ff93ca666f5d2146536b412db3895bca2dde7d20f921655b4"
 
@@ -22,7 +24,9 @@ let csk = "0x714faa3807cc7212e6b3bb19216ae31c825bf83b6bcea96221a1e5e0127c99d9"
 
 
 const keypering_res = {
+    
     signMessage: (body) => {
+        console.log("Mock api called: ", "signMessage", body)
         return {
             result: signData(csk,body.message)
         }
@@ -31,6 +35,7 @@ const keypering_res = {
 
 const data_server_res = {
     getAuth: (body) => {
+        console.log("Mock api called: ", "getAuth", body)
     return {
         cert:  signData(msk,pk + body.access_token),
         pk,
@@ -43,20 +48,30 @@ const data_server_res = {
     }
     },
 // TODO 字符拼接的方法确定
-    postData: (body) => {
+    postData: async (body) => {
+        console.log("Mock api called: ", "postData", body)
+
+        let url = sha256(body.access_token + body.data_id)
+        await postData(body.data)
         return {
-            url:sha256(body.access_token + body.data_id),
+            url:url,
             state:'good',
             ticket:'good',
         }
     },
 
-    getData: (body) => {
+    getData: async (body) => {
+        console.log("Mock api called: ", "getData", body)
         if ('url' in body){
             console.log("url to get data")
+            let res= await getData(body.url)
+            return res
         }
         else if ("data_id" in body && "access_token" in body){
             console.log("data_id and  access_token to get data")
+            let res =  getData( sha256(body.access_token + body.data_id))
+            return res
+
         }
         body.url
         return {
@@ -66,6 +81,23 @@ const data_server_res = {
     },
 }
 
+const bucket = KVdb.bucket("XEdPUt7zsqFAXgBkCwsBiV")
+
+const  getData = async (url)=>{
+    
+    let res = await bucket.get(url)
+    console.log(res)
+    return res
+}
+
+const  postData = async (url,data) =>{
+    if( typeof(data) === "object"){
+        data = JSON.stringify(data)
+    }
+    await  bucket.set(url,data)
+}
+
+
 export   {MOCK_API,
     data_server_res,
-    keypering_res}
+    keypering_res,getData,postData}

@@ -16,17 +16,6 @@ const DATA_TYPE = {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 export  {DATA_TYPE,
 
 }
