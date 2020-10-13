@@ -23,6 +23,7 @@ let csk = "0x714faa3807cc7212e6b3bb19216ae31c825bf83b6bcea96221a1e5e0127c99d9"
 //let data_list = []
 
 
+
 const keypering_res = {
     
     signMessage: (body) => {
@@ -52,7 +53,7 @@ const data_server_res = {
         console.log("Mock api called: ", "postData", body)
 
         let url = sha256(body.access_token + body.data_id)
-        await postData(body.data)
+        await postData(url,body.data)
         return {
             url:url,
             state:'good',

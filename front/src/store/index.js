@@ -18,7 +18,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    user_ds:null,
     user_chain_info:{
+      
       address:'',
       lock_script:null,
       lock_args:'',
@@ -30,14 +32,7 @@ export default new Vuex.Store({
         capacity: 0,
       }
     },
-    user_cells:{
-      empty_cells:null,
-      filled_cells:null,
-    },
-    user_data_server_info:{
-      ip:'',
-      mpk:'',  
-    },
+
 
     user_id_public:{
       access_token:'',
@@ -69,11 +64,29 @@ export default new Vuex.Store({
       else {
         return ""
       }
+    },
+
+    getSthFromPool: (state) => (lock_args,type) =>{
+
+      if( ["access_token","cells","data_server"].includes(type)){
+
+        try {
+          let sth = state[type + "_pool"][lock_args]
+          return sth
+        } catch (error) {
+          console.warn(error)
+        }
+      }
+      else{
+        console.warn("Unknown pool type",type)
+      }
     }
   },
   mutations: {
 
-  
+    updateUserDS(state,user_ds){
+      state.user_ds = user_ds
+    },
     updateUser(state,user_chain_info){
       state.user_chain_info = user_chain_info
     },
@@ -325,9 +338,12 @@ export default new Vuex.Store({
     },
 
 
-    async getPubId({commit,state}){
-      
-      const ip = state.user_data_server_info.ip
+    async getPubId({commit,state,getters}){
+    
+      console.log("getting Pub ID")
+      const lock_args = state.user_chain_info.lock_args
+      let sth = getters.getSthFromPool(lock_args,"data_server")
+      const ip = sth.ip
       // TODO 测试api
       let res = await getAuth(
         ip,
@@ -341,9 +357,11 @@ export default new Vuex.Store({
           access_token_public_pk:res.pk
         })
     },
-    async getPriId({commit,state}){
-
-      const ip = state.user_data_server_info.ip
+    async getPriId({commit,state,getters}){
+      console.log("getting Pri ID")
+      const lock_args = state.user_chain_info.lock_args
+      let sth = getters.getSthFromPool(lock_args,"data_server")
+      const ip = sth.ip
       let res = await getAuth(
         ip,
         state.user_id_private.access_token,
@@ -384,7 +402,7 @@ export default new Vuex.Store({
       return tx_hash
     },
 
-    async updateDataServerInfoOnChain({dispatch,state},DataServerInfo){
+    async updateDataServerInfoOnChain({commit,dispatch,state},DataServerInfo){
       // 更新本用户的cell池
       await dispatch('getUserCells',state.user_chain_info.lock_args)
       let dappID = textToHex(DAPP_ID)
@@ -402,6 +420,12 @@ export default new Vuex.Store({
         state.user_chain_info.lock_hash,
         data
       )
+
+      let ip = DataServerInfo.dataserver_ip
+      commit("updateDataServer",{
+        lock_args:state.user_chain_info.lock_args,
+        ip,
+      })
 
       console.debug(tx_hash)
       return tx_hash

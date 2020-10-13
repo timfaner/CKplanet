@@ -25,11 +25,17 @@ import {
     encryptAESKey,
     decryptAESKey} from '@/ckb/crypto'
 
+import {postData,getData}  from  '@/ckb/test'
+
+import {DataServer} from '@/ckb/data_server'
+
 export default {
     name: "Test",
     data: function(){
         return{
-
+        
+    postData,getData,
+    DataServer,
     //encrypted        
     generateAESKey, 
     encryptData_c,

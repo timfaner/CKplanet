@@ -47,7 +47,7 @@ class DataSetter {
         }
         if (typeof(data) === "object"){
           data = JSON.stringify(data)
-          console("data stringfied")
+          console.log("data stringfied")
         }
         
         let sig = signData(user_id.sk,data)
@@ -98,6 +98,6 @@ class DataGetter {
 
 
 
-exports = {
+export  {
     DataGetter,DataSetter
 }

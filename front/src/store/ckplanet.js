@@ -1,8 +1,11 @@
 const ckplanet = {
     state :() => ({
+        
+        wallet_connected:false,
+        data_server_connected:false,
 
-//TODO 存放各大类数据的缓存列表，数据分为上链类不上链类管理 （某些更新是原子的，思考如何保证）
-        user_info:{
+        
+        user_profile:{
             nick_name:'测试',
             avatar_url:'https://placekitten.com/400/400',
             data_encrypted_key:'', // 加密数据用
@@ -18,6 +21,12 @@ const ckplanet = {
                 state.user_info.nick_name = payload.nick_name
                 state.user_info.avatar_url = payload.avatar_url
             }   
+        },
+        walletConnect(state,s=false){
+            state.wallet_connected = s
+        },
+        dataServerConnect(state,s=false){
+            state.data_server_connected = s
         }
     },
     actions:{

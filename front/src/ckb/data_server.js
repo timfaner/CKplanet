@@ -11,10 +11,22 @@ class DataServer{
   constructor(store,lock_args){
     this.store = store
     this.lock_args = lock_args
-    this.ip = ''
+    try {
+      this.ip = store.state.data_server_pool[lock_args].ip
+    } catch (error) {
+      this.ip = ''
+      console.warn("Inital data_server empty, lock_args: ",lock_args)
+    }
+    
   }
 
-
+  setIp(ip){
+    this.ip = ip
+    this.store.commit("updateDataServer",{
+      lock_args:this.lock_args,
+      ip,
+    })
+  }
   async getAccessToken(){
 
     if (this.store.getters.getAccessToken("public") === "" || 
@@ -30,7 +42,7 @@ class DataServer{
   async updateDataServerInfo(){
     let user_id = this.store.state.user_id_public
 
-    let tx_hash = await this.store.dispatch("updateDataServerInfo",
+    let tx_hash = await this.store.dispatch("updateDataServerInfoOnChain",
         {   
             dataserver_ip:this.ip,
             access_token_public:user_id.access_token,
@@ -51,12 +63,13 @@ class DataServer{
   async getDataserverAuth(){
 
     try {      
-      await this.store.dispatch("getDataServerMpk",this.ip)
+      await this.store.dispatch("getDataServerMpk",this.lock_args)
       //获取access_token_private,access_token_public
-      this.store.dispatch("getPubId")
-      this.store.dispatch("getPriId")
+      await this.store.dispatch("getPubId")
+      await this.store.dispatch("getPriId")
     } catch (error) {
       console.error(error)
+      throw("get DataServer auth failed",this.ip,error)
     }
   }
 
@@ -69,7 +82,8 @@ const getMpk = async (server_url) =>{
 
     }
     if (MOCK_API){
-      return  await data_server_res.getMpk()
+      let res = await data_server_res.getMpk()
+      return res.mpk
     }
     const body = JSON.stringify(payload, null, '  ')
     try {
@@ -81,7 +95,7 @@ const getMpk = async (server_url) =>{
           body,
         })
         res = await res.json()
-        return res.result.objects
+        return res.mpk
       } catch (error) {
         console.error('error', error)
       }

@@ -13,7 +13,7 @@
         </div>
 
 
-        <UpdateInfoDialog v-if="active===2"></UpdateInfoDialog>
+        <UpdateUserProfile v-if="active===2"></UpdateUserProfile>
 
         <el-button style="margin-top: 12px;" @click="next">下一步</el-button>
 
@@ -28,7 +28,7 @@
 
 <script>
 
-import UpdateInfoDialog from '@/components/UpdateInfoDialog.vue'
+import UpdateUserProfile from '@/components/UpdateUserProfile.vue'
 export default {
     name: "NewUserGuide",
     props:{
@@ -41,7 +41,7 @@ export default {
         }
     },
     components:{
-        UpdateInfoDialog,
+        UpdateUserProfile,
     },
     methods:{
         next() {

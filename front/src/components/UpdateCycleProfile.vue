@@ -1,5 +1,5 @@
 <template>
-<div id="updateDialog">
+<div id="UpdateUserProfile">
     <el-upload
         class="avatar-uploader"
         action="''"
@@ -33,7 +33,7 @@ const client = new OSS(OSS_CONFIG)
 
 
 export default {
-  name: 'UpdateInfoDialog',
+  name: 'UpdateUserProfile',
   methods:{
     upload: async function(item){
         const key= "avatar/" + makeId(10) + '.jpeg'
@@ -85,7 +85,7 @@ export default {
 
 <style scoped>
 
-#updateDialog {
+#UpdateUserProfile {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

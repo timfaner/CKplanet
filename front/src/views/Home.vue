@@ -18,7 +18,7 @@
     </div>
     
       <el-dialog title="设置个人信息" :visible.sync="dialogUpdateProfile">
-        <UpdateInfoDialog></UpdateInfoDialog>
+        <UpdateUserProfile></UpdateUserProfile>
         <el-button @click="dialogUpdateProfile = false">取 消</el-button>
         <el-button type="primary" @click="dialogUpdateProfile = false">确 定</el-button>
         <div slot="footer" class="dialog-footer">
@@ -40,7 +40,7 @@
 
 
       <el-dialog title="创建新的圈子" :visible.sync="dialogNewCycle">
-        <UpdateInfoDialog></UpdateInfoDialog>
+        <UpdateUserProfile></UpdateUserProfile>
                 <el-button @click="dialogNewCycle = false">取 消</el-button>
         <el-button type="primary" @click="dialogNewCycle = false">确 定</el-button>
         <div slot="footer" class="dialog-footer">
@@ -120,7 +120,7 @@
 <script>
 // @ is an alias to /src
 
-import UpdateInfoDialog from "../components/UpdateInfoDialog.vue"
+import UpdateUserProfile from "../components/UpdateUserProfile.vue"
 
 export default {
   name: 'Home',
@@ -141,7 +141,7 @@ export default {
     }
   },
   components: {
-    UpdateInfoDialog
+    UpdateUserProfile
   },
 
   methods:{
