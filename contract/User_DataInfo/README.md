@@ -1,14 +1,6 @@
 # User_DataInfo
 
-个人信息更新合约
+## 个人信息更新合约
 
+### args:"ckplanet"$outputsData:{access_token_public:"0x1234",access_token_public_pl:"0x1212",dataserver_ip:"127.0.0.1:8080"}
 
-
- - 类型：type
-
- - args: app_id (由dapp自己定）
-
- - output_data ：
- - dataserver_ip :
- - access_token_public :
- - access_token_public_pk:
