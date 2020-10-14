@@ -42,13 +42,19 @@ class DataServer{
   async updateDataServerInfo(){
     let user_id = this.store.state.user_id_public
 
-    let tx_hash = await this.store.dispatch("updateDataServerInfoOnChain",
-        {   
-            dataserver_ip:this.ip,
-            access_token_public:user_id.access_token,
-            access_token_public_pk:user_id.pk,
-        })
-    return tx_hash
+    try {
+      let tx_hash = await this.store.dispatch("updateDataServerInfoOnChain",
+      {   
+          dataserver_ip:this.ip,
+          access_token_public:user_id.access_token,
+          access_token_public_pk:user_id.pk,
+      })
+      return tx_hash
+    } catch (error) {
+      console.error("update data server info failed ;user_id = ",user_id)
+      throw(error)
+    }
+
   }
 
 

@@ -10,7 +10,7 @@ import {getMpk,getAuth} from '@/ckb/data_server'
 import {changeOnChain} from "@/ckb/transaction"
 
 import {DATASERVER_INFO,DATA_INTEGRITY,DAPP_ID,CELLS_CACHE_TIME } from '@/ckb/const'
-import { textToHex,hexToText } from '../ckb/utils'
+import { textToHex,hexToText,filterCellsWithTypeScript } from '../ckb/utils'
 
 
 
@@ -268,40 +268,32 @@ export default new Vuex.Store({
 
       let type_script = DATASERVER_INFO.script
       type_script.args = textToHex(DAPP_ID)
-      if(filled_cells.length > 0 ){
-        let cells = filled_cells.filter(cell => (
-            cell.output.type.args === type_script.args &&
-            cell.output.type.code_hash === type_script.codeHash &&
-            cell.output.type.hash_type === type_script.hashType)
-        )
-        if(cells.length === 1){
+
+      let cells = filterCellsWithTypeScript(filled_cells,type_script)
+      
+      if(cells.length === 1){
           let tmp = hexToText(cells[0].output_data)
           let res = JSON.parse(tmp)
-
           //TODO 检查返回的参数是否符合规则
           commit("updateAccessTokens",{
             lock_args,
             access_token_public:res.access_token,
             access_token_public_pk:res.access_token_pk
           })
-
           commit("updateDataServer",
           {lock_args,ip:res.dataserver_ip})
-
-          await dispatch("getDataServerMpk",lock_args)
-
+          dispatch("getDataServerMpk",lock_args)
           return res
         }
-        else if (cells.length === 0){
-          return null
-        }
-        else{
-          console.error("getDataServerInfo more than one cells located",cells)
-          throw("getDataServerInfo Wrong: more than one cells located", cells)
-        }
+      else if (cells.length === 0){
+        console.info("DataServer info not found. lock_args = ",lock_args)
+        return null
       }
-  
-      return null
+      else{
+        console.error("getDataServerInfo more than one cells located",cells)
+        throw("getDataServerInfo Wrong: more than one cells located", cells)
+      }
+      
 
     },
 
@@ -312,29 +304,22 @@ export default new Vuex.Store({
 
       let type_script = DATA_INTEGRITY.script
       type_script.args = textToHex(data_id)
-  
-      if(filled_cells.length > 0 ){
-        let cells = filled_cells.filter(cell => (
-            cell.output.type.args === type_script.args &&
-            cell.output.type.code_hash === type_script.codeHash &&
-            cell.output.type.hash_type === type_script.hashType)
-        )
-        if(cells.length === 1){
-          let tmp = hexToText(cells[0].output_data)
 
-          //TODO 检查返回的参数是否符合规则
-          return JSON.parse(tmp)
-        }
-        else if (cells.length === 0){
-          return null
-        }
-        else{
-          console.error("getDataIntegrity More then one cell",cells)
-          throw("getDataIntegrity More then one cell", cells)
-        }
+      let cells = filterCellsWithTypeScript(filled_cells,type_script)
+
+      if(cells.length === 1){
+        let tmp = hexToText(cells[0].output_data)
+
+        //TODO 检查返回的参数是否符合规则
+        return JSON.parse(tmp)
       }
-  
-      return null
+      else if (cells.length === 0){
+        return null
+      }
+      else{
+        console.error("getDataIntegrity More then one cell",cells)
+        throw("getDataIntegrity More then one cell", cells)
+      }
     },
 
 
@@ -404,52 +389,64 @@ export default new Vuex.Store({
 
     async updateDataServerInfoOnChain({commit,dispatch,state},DataServerInfo){
       // 更新本用户的cell池
-      await dispatch('getUserCells',state.user_chain_info.lock_args)
-      let dappID = textToHex(DAPP_ID)
 
-      let data = JSON.stringify(DataServerInfo)
-      data = textToHex(data)
+      try {
+        await dispatch('getUserCells',state.user_chain_info.lock_args)
+        let dappID = textToHex(DAPP_ID)
 
-      let tx_hash = await changeOnChain(
-        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
-        state.cells_pool[state.user_chain_info.lock_args].filled_cells,
-        DATASERVER_INFO,
-        'update',
-        state.user_chain_info.lock_args,
-        dappID,
-        state.user_chain_info.lock_hash,
-        data
-      )
+        let data = JSON.stringify(DataServerInfo)
+        data = textToHex(data)
 
-      let ip = DataServerInfo.dataserver_ip
-      commit("updateDataServer",{
-        lock_args:state.user_chain_info.lock_args,
-        ip,
-      })
+        let tx_hash = await changeOnChain(
+          state.cells_pool[state.user_chain_info.lock_args].empty_cells,
+          state.cells_pool[state.user_chain_info.lock_args].filled_cells,
+          DATASERVER_INFO,
+          'update',
+          state.user_chain_info.lock_args,
+          dappID,
+          state.user_chain_info.lock_hash,
+          data
+        )
 
-      console.debug(tx_hash)
-      return tx_hash
+        let ip = DataServerInfo.dataserver_ip
+        commit("updateDataServer",{
+          lock_args:state.user_chain_info.lock_args,
+          ip,
+        })
+  
+        console.debug(tx_hash)
+        return tx_hash
+      } catch (error) {
+        console.error( "updateDataserver error")
+        throw(error)
+      }
+
     },
 
     async deleteDataServerInfoOnChain({dispatch,state}){
-      // 更新本用户的cell池
-      await dispatch('getUserCells',state.user_chain_info.lock_args)
-      let dappID = textToHex(DAPP_ID)
 
+      try {
+        // 更新本用户的cell池
+        await dispatch('getUserCells',state.user_chain_info.lock_args)
+        let dappID = textToHex(DAPP_ID)
 
-      let tx_hash = await changeOnChain(
-        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
-        state.cells_pool[state.user_chain_info.lock_args].filled_cells,
-        DATASERVER_INFO,
-        'delete',
-        state.user_chain_info.lock_args,
-        dappID,
-        state.user_chain_info.lock_hash,
-        ''
-      )
+        let tx_hash = await changeOnChain(
+          state.cells_pool[state.user_chain_info.lock_args].empty_cells,
+          state.cells_pool[state.user_chain_info.lock_args].filled_cells,
+          DATASERVER_INFO,
+          'delete',
+          state.user_chain_info.lock_args,
+          dappID,
+          state.user_chain_info.lock_hash,
+          ''
+        )
 
-      console.debug(tx_hash)
-      return tx_hash
+        console.debug(tx_hash)
+        return tx_hash
+      } catch (error) {
+        console.error("deleteDataServerInfoOnChain error")
+      }
+
     },
 
     async createDataIntegrityOnChain({dispatch,state},payload){
@@ -477,51 +474,72 @@ export default new Vuex.Store({
     },
 
     async updateDataIntegrityOnChain({dispatch,state},payload){
-      await dispatch('getUserCells',state.user_chain_info.lock_args)
-      let type_args = textToHex(payload.data_id)
 
-      let data = JSON.stringify(
-        {data_hash:payload.data_hash,
-          data_hash_sig:payload.data_hash_sig})
-      data = textToHex(data)
+      try {
 
-      let tx_hash = await changeOnChain(
-        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
-        state.cells_pool[state.user_chain_info.lock_args].filled_cells,
-        DATA_INTEGRITY,
-        'update',
-        state.user_chain_info.lock_args,
-        type_args,
-        state.user_chain_info.lock_hash,
-        data
-      )
+        await dispatch('getUserCells',state.user_chain_info.lock_args)
+        let type_args = textToHex(payload.data_id)
+  
+        let data = JSON.stringify(
+          {data_hash:payload.data_hash,
+            data_hash_sig:payload.data_hash_sig})
+        data = textToHex(data)
+        let tx_hash = await changeOnChain(
+          state.cells_pool[state.user_chain_info.lock_args].empty_cells,
+          state.cells_pool[state.user_chain_info.lock_args].filled_cells,
+          DATA_INTEGRITY,
+          'update',
+          state.user_chain_info.lock_args,
+          type_args,
+          state.user_chain_info.lock_hash,
+          data
+        )
+  
+        console.debug(tx_hash)
+        return tx_hash
+        
+      } catch (error) {
+        console.error("updateDataIntegrityOnChain wrong",payload)
+        throw(error)
+      }
 
-      console.debug(tx_hash)
-      return tx_hash
+
+
     },
 
     async deleteDataIntegrityOnChain({dispatch,state},payload){
-      await dispatch('getUserCells',state.user_chain_info.lock_args)
-      let type_args = textToHex(payload.data_id)
 
-      let data = JSON.stringify(
-        {data_hash:payload.data_hash,
-          data_hash_sig:payload.data_hash_sig})
-      data = textToHex(data)
+      try {
+        await dispatch('getUserCells',state.user_chain_info.lock_args)
+        let type_args = textToHex(payload.data_id)
+  
+        let data = JSON.stringify(
+          {data_hash:payload.data_hash,
+            data_hash_sig:payload.data_hash_sig})
+        data = textToHex(data)
 
-      let tx_hash = await changeOnChain(
-        state.cells_pool[state.user_chain_info.lock_args].empty_cells,
-        state.cells_pool[state.user_chain_info.lock_args].filled_cells,
-        DATA_INTEGRITY,
-        'delete',
-        state.user_chain_info.lock_args,
-        type_args,
-        state.user_chain_info.lock_hash,
-        data
-      )
+        let tx_hash = await changeOnChain(
+          state.cells_pool[state.user_chain_info.lock_args].empty_cells,
+          state.cells_pool[state.user_chain_info.lock_args].filled_cells,
+          DATA_INTEGRITY,
+          'delete',
+          state.user_chain_info.lock_args,
+          type_args,
+          state.user_chain_info.lock_hash,
+          data
+        )
+  
+        console.debug(tx_hash)
+        return tx_hash
 
-      console.debug(tx_hash)
-      return tx_hash
+
+      } catch (error) {
+        console.error("deleteDataIntegrityOnChain wrong",payload)
+        throw(error)
+      }
+
+
+
     },
     //async getOtherUserCells({commit,state}){
       

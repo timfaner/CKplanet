@@ -110,6 +110,23 @@ const getTypeScript = (args,codeHash) =>{
 
 
 
+function filterCellsWithTypeScript(filed_cells,{args,codeHash,hashType}){
+  let cells = []
+  if (filed_cells.length === 0){
+    return cells
+  }
+  for (const cell of cells){
+    if("args" in cell.output.type){
+      if( cell.output.type.args === args &&
+          cell.output.type.code_hash === codeHash &&
+          cell.output.type.hash_type === hashType){
+            cells.push(cell)
+          }
+    }
+  }
+  return cells
+}
+
 function makeId(length) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -150,6 +167,7 @@ function decodeUnicode(str) {
 }
 
 module.exports = {
+  filterCellsWithTypeScript,
   encodeUnicode,
   decodeUnicode,
   formatCkb,

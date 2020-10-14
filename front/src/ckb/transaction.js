@@ -1,6 +1,6 @@
 import * as BN from 'bn.js'
 import { hexToBytes } from '@nervosnetwork/ckb-sdk-utils'
-import {  getRawTxTemplate,getTxTemplateWithCellsDeps,getScriptCapacity,getLockScript } from '@/ckb/utils'
+import {  getRawTxTemplate,getTxTemplateWithCellsDeps,getScriptCapacity,getLockScript,filterCellsWithTypeScript } from '@/ckb/utils'
 import { MIN_CAPACITY, TRANSACTION_FEE, Operator } from '@/ckb/const'
 import { signAndSendTransaction,requestAuth,} from '@/ckb/rpc'
 
@@ -118,14 +118,6 @@ async  function sendTx(rawTx,lockHash){
   }
 
 
-function getCellsByTypeScript(cells,type_script,args){
-  type_script.args = args
-  return cells.filter(cell => (
-    cell.output.type.args === type_script.args &&
-    cell.output.type.code_hash === type_script.codeHash &&
-    cell.output.type.hash_type === type_script.hashType))
-}
-
 
 async function changeOnChain(
   empty_cells_pool,
@@ -137,12 +129,14 @@ async function changeOnChain(
   lock_hash,
   data){
 
+
     let current_cell = null
     if (mode === Operator.Update || mode === Operator.Delete){
-      let cells = getCellsByTypeScript(
+      current_cells_type.script.args = type_args
+      let cells = filterCellsWithTypeScript(
         current_cells_pool,
         current_cells_type.script,
-        type_args)
+        )
       
       // update 为空，则转成create
       if (mode === Operator.Update){
@@ -199,6 +193,5 @@ export   {
     jointTx,
     getWalletAuth,
     collectCells,
-    getCellsByTypeScript,
     changeOnChain
 }
