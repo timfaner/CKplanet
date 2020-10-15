@@ -75,10 +75,12 @@ export default new Vuex.Store({
           return sth
         } catch (error) {
           console.warn(error)
+          return null
         }
       }
       else{
         console.warn("Unknown pool type",type)
+        return null
       }
     }
   },

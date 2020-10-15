@@ -7,6 +7,7 @@ const hashfunction = forge.sha256
 import {encodeUnicode,decodeUnicode} from "./utils"
 
 const ECDH_IV = "0x253544254332253931253545772531414a25433325413625363025433325383425433325394266254332253941254333253842254332254245704f"
+const DEFAULT_IV = "0x25 3544254332253931253545772531414a25433325413625363025433325383425433325394266254332253941254333253842254332254245704f"
 
 const { bytesToHex, hexToBytes } = require('@nervosnetwork/ckb-sdk-utils')
 //const { toUnicode } = require("punycode")
@@ -35,7 +36,13 @@ const getPubKey = (privkey) =>{
 }
 
 //TODO 使用uint8 array减小签名大小
-const generateECDHKey = (privkey,pubkey) =>{
+/**
+ * 
+ * @param {string} privkey  
+ * @param {string} pubkey 
+ * @returns {string} 返回生成的key
+ */
+function generateECDHKey(privkey,pubkey) {
     let priv_key = hexToBytes(privkey)
     let pub_key = hexToBytes(pubkey)
     let share = secp256k1.ecdh(pub_key, priv_key)
@@ -46,7 +53,7 @@ const generateECDHKey = (privkey,pubkey) =>{
 
 }
 
-const encryptAESKey = (privkey = '',pubkey = '',aeskey) =>{
+function encryptAESKey(privkey = '',pubkey = '',aeskey){
     let key = generateECDHKey(privkey,pubkey)
     
     let  {encrypted_data,iv} =encryptData_c(aeskey,key,ECDH_IV)
@@ -63,17 +70,6 @@ const decryptAESKey = (privkey = '',pubkey = '',eaeskey) =>{
 }
 
 
-const importPrivKey = () => {
-
-}
-
-const exportPrivKey = () => {
-
-}
-
-const exportPubKey = () => {
-
-}
 
 
 function generateAESKey(password) {
@@ -104,10 +100,10 @@ function decryptData(key,iv,encrypted_data) {
 }//由密钥、初始向量、从服务器传回的加密数据进行解密，返回明文
 
 
-function encryptData_c(data,key,iv='') {
+function encryptData_c(data,key,iv=DEFAULT_IV) {
 
     data = encodeUnicode(data)
-    if (iv === ''){
+    if (iv !== DEFAULT_IV && iv !== ECDH_IV){
         iv = forge.random.getBytesSync(16);
         iv = forge.util.bytesToHex(iv)
     }
@@ -116,7 +112,7 @@ function encryptData_c(data,key,iv='') {
     return {encrypted_data,iv:iv}
 }
 
-function decryptData_c(e_data,key,iv){
+function decryptData_c(e_data,key,iv=DEFAULT_IV){
     let encrypted_data = forge.util.hexToBytes(e_data)
     let decrypted_data = decryptData(key,iv,encrypted_data);
     return decodeUnicode(decrypted_data)
@@ -159,11 +155,8 @@ export {
     decryptData_c,
     sha256,
     generatePrivKey,
-    importPrivKey,
     signData,
     verifyData,
-    exportPrivKey,
-    exportPubKey,
     getPubKey,
     generateECDHKey,
     encryptAESKey,

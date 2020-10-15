@@ -1,3 +1,6 @@
+import {getData} from "@/ckb/data_server"
+import { getUrl,vaildDataType } from "../ckb/ckplanet"
+
 const ckplanet = {
     state :() => ({
         
@@ -5,22 +8,31 @@ const ckplanet = {
         data_server_connected:false,
 
         
-        user_profile:{
-            nick_name:'测试',
+        user_profiles_pool:{
+            nickname:'测试',
             avatar_url:'https://placekitten.com/400/400',
-            data_encrypted_key:'', // 加密数据用
         },
+
+        joined_cycles_pool:[],
+        managed_cycles_pool:[],
+
         
     }),
     mutations:{
-        updateUserInfo(state,payload){
-            if ("data_encrypted_key" in payload){
-                state.user_info.data_encrypted_key = payload.data_encrypted_key
+        updateUserInfo(state,{lock_args,nickname,avatar_url}){
+
+            let user_profiles = {nickname,avatar_url}
+            if (! (lock_args in user_profiles)){
+                state.user_profiles_pool[lock_args] = user_profiles
             }
-            else if ( "nick_name" in payload && "avatar_url" in payload){
-                state.user_info.nick_name = payload.nick_name
-                state.user_info.avatar_url = payload.avatar_url
-            }   
+            else{
+                let user_profiles_old = state.user_profiles_pool[lock_args]
+                for(const key in user_profiles_old){
+                    if(  typeof(user_profiles[key]) === "undefined"){
+                        user_profiles[key] = user_profiles_old[key]
+                }}
+                state.user_profiles_pool = {...state.user_profiles_pool, user_profiles } 
+            }
         },
         walletConnect(state,s=false){
             state.wallet_connected = s
@@ -30,8 +42,27 @@ const ckplanet = {
         }
     },
     actions:{
-        getUserProfile({state,commit,rootState}){
-            commit,state,rootState
+        async getUserProfile({commit,getters},lock_args){
+            let res = null
+            let tmp1 = getters.getSthFromPool(lock_args,"data_server")
+            let tmp2 = getters.getSthFromPool(lock_args,"access_token")
+            if (tmp1 !== null && tmp2 !== null){
+                const server_url = tmp1.ip
+
+                try {
+                    const url = getUrl('user_profile',tmp2)
+                    res = await getData(server_url,url)
+                    if (vaildDataType("user_profile",res)){
+                        commit("updateUserInfo",res)
+                    }
+                    
+                } catch (error) {
+                    console.error("getUserProfile error",error)
+                    throw(error)
+                }
+                
+            }
+            return res
         }
     },
 
