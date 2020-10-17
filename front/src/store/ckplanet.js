@@ -1,15 +1,17 @@
 import {getData} from "@/ckb/data_server"
 import { getUrl,vaildDataType } from "../ckb/ckplanet"
-
+import Vue from 'vue'
 const ckplanet = {
     state :() => ({
-        
+        a:{
+            
+        },
         wallet_connected:false,
         data_server_connected:false,
 
         
         user_profiles_pool:{
-
+            
         },
 
         joined_cycles_pool:[],
@@ -18,10 +20,14 @@ const ckplanet = {
         
     }),
     mutations:{
+        test(state){
+            state.a = {...state.a,2:2}
+        },
         updateUserInfo(state,{lock_args,nickname,avatar_url}){
 
             let user_profiles = {nickname,avatar_url}
             if (! (lock_args in user_profiles)){
+                Vue.set(state.user_profiles_pool,lock_args,user_profiles)
                 state.user_profiles_pool[lock_args] = user_profiles
             }
             else{
@@ -30,7 +36,8 @@ const ckplanet = {
                     if(  typeof(user_profiles[key]) === "undefined"){
                         user_profiles[key] = user_profiles_old[key]
                 }}
-                state.user_profiles_pool = {...state.user_profiles_pool, user_profiles } 
+                Vue.set(state.user_profiles_pool,lock_args,user_profiles)
+                //tate.user_profiles_pool = {...state.user_profiles_pool, user_profiles } 
             }
         },
         walletConnect(state,s=false){
@@ -70,8 +77,8 @@ const ckplanet = {
     getters:{
       userProfile: (state) =>
           (lock_args) =>{
-              if(lock_args in state.user_profiles){
-                  return state.user_profiles[lock_args]
+              if(lock_args in state.user_profiles_pool){
+                  return state.user_profiles_pool[lock_args]
               }
               return null
           }

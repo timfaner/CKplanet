@@ -103,7 +103,7 @@ export default new Vuex.Store({
 
       let access_tokens = {access_token_public,access_token_public_pk,access_token_private,access_token_private_pk}
       if ( ! (lock_args in state.access_token_pool)){
-          state.access_token_pool[lock_args] = access_tokens
+          state.access_token_pool = {[lock_args]: access_tokens}
         }
       else{
         const key = lock_args
@@ -130,7 +130,7 @@ export default new Vuex.Store({
       user_cells.update_time = new Date().getTime()
 
       if ( !(lock_args in state.cells_pool)){
-        state.cells_pool[lock_args] = user_cells
+        state.cells_pool = {[lock_args]: user_cells}
       }
       else{
         const key = lock_args
@@ -147,7 +147,7 @@ export default new Vuex.Store({
 
       let data_servers = {ip,mpk}
       if ( ! (lock_args in state.data_server_pool)){
-          state.data_server_pool[lock_args] = data_servers
+        state.data_server_pool = {[lock_args]: data_servers}
         }
       else{
         const key = lock_args
