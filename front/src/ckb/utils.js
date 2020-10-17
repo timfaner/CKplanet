@@ -115,8 +115,8 @@ function filterCellsWithTypeScript(filed_cells,{args,codeHash,hashType}){
   if (filed_cells.length === 0){
     return cells
   }
-  for (const cell of cells){
-    if("args" in cell.output.type){
+  for (const cell of filed_cells){
+    if( cell.output.type !==null ){
       if( cell.output.type.args === args &&
           cell.output.type.code_hash === codeHash &&
           cell.output.type.hash_type === hashType){

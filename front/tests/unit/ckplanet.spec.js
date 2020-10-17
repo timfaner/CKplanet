@@ -13,7 +13,7 @@ describe('HelloWorld.vue', () => {
 })
 
 
-import { getUrl as getUrls, DATA_STRUCT, getDataTemplate, vaildDataType }  from "../../src/ckb/ckplanet.js"
+import { getUrl as getUrls, DATA_STRUCT, getDataTemplate, vaildDataType,getDataID }  from "../../src/ckb/ckplanet.js"
 
 DATA_STRUCT
 
@@ -50,7 +50,26 @@ let dummy_data = [
     { key: 'cycle_contents',data:[]}
 ]
 
+let data_ids = [
+    { key: 'user_profile', id: "1" },
+    { key: 'user_managed_cycle_list', id: "2" },
+    { key: 'user_joined_cycle_list', id: "3" },
+    { key: 'cycle_profile', cycleid: "12",id:"4:12" },
+    { key: 'cycle_users_list', cycleid: "12",id:"6:12" },
+    { key: 'cycle_tokens_list',  cycleid: "12",id:"7:12"},
+    { key: 'cycle_contents', cycleid: "12",id:"5:12"}
+  ]
+
+
 describe("Ckplanet data process ",function(){
+
+    describe("getDataID()",function(){
+        data_ids.forEach(function(data){
+            it(data.key+" should equal",function(){
+                return expect(getDataID(data.key,data.cycleid)).to.equal(data.id)
+            })
+        })
+    })
 
     describe("getDataTemplate()",function(){
         data_types.forEach(function(data_type){

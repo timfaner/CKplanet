@@ -29,7 +29,7 @@ import { makeId} from "@/ckb/utils"
 import {OSS_CONFIG} from "@/config"
 import {DataServer} from "@/ckb/data_server"
 import {DataSetter } from "@/ckb/data_handler"
-import { DATA_TYPE } from "@/ckb/ckplanet"
+import { getDataTemplate,getDataHash,getDataID } from "@/ckb/ckplanet"
 import {mapState} from "vuex"
 
 const OSS = require("ali-oss")
@@ -51,19 +51,23 @@ export default {
       let user_ds = new DataServer(this.$store,this.user_lock_args)
       let data_setter = new DataSetter(user_ds)
 
-      let data = {nickname:this.nickname,
-          imageUrl:this.imageUrl}
+      let data = getDataTemplate('user_profile')
+      data.nickname = this.nickname
+      data.avatar_url = this.imageUrl
 
-      let data_hash = "0x00"
+      //FIXME 获取hash的逻辑等等
+      let data_hash = getDataHash('user_profile',data)
+      let data_id = getDataID('user_profile')
       try {
+        
         let tx_id = await data_setter.updateDataIntegrityOnChain(
-        DATA_TYPE.user_profile,
+        data_id,
         data_hash)
 
         console.log("updateDataIntegrityOnChain")
         await data_setter.postData(
           data,
-          DATA_TYPE.user_profile,
+          data_id,
           'public',
           true,
           tx_id
@@ -74,6 +78,8 @@ export default {
             type: 'success'
           })
 
+        //更新vuex store
+        this.$store.dispatch("getUserProfile",this.user_lock_args).catch((e)=>{throw(e)})
         this.$emit("closedialog")
       }
        catch (error) {

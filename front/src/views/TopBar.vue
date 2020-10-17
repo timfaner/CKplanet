@@ -3,7 +3,7 @@
         <b-navbar-brand class="col-md-1 col-lg-2" href="#">CKPlanet</b-navbar-brand>
         <!-- Right aligned nav items -->
         <b-navbar-nav class="col-md-8 col-sm-4">
-            <b-form-input size="md" class="mr-2 my-2"  placeholder="Search"></b-form-input>
+            <b-form-input  size="md" class="mr-2 my-2"  placeholder="Search"></b-form-input>
             <b-button size="md" class="my-2 mr-auto" type="submit">Search</b-button>
         </b-navbar-nav>
         
@@ -18,14 +18,14 @@
             
 
         <el-dialog  :visible.sync="dialogUpdateDataServer" title="连接数据服务器" append-to-body>
-          <UpdateDataServer v-on:closedialog="finishlizeLogin"></UpdateDataServer>
+          <UpdateDataServer v-on:closedialog="finalizeUpdateDataServer"></UpdateDataServer>
           <div  slot="footer" class="dialog-footer">
           </div>
         </el-dialog>
 
         
         <el-dialog  :visible.sync="dialogNewUser" title="新建用户信息" append-to-body>
-          <UpdateUserProfile v-on:closedialog="finishlizeNewUser"></UpdateUserProfile>
+          <UpdateUserProfile v-on:closedialog="finalizeNewUser"></UpdateUserProfile>
           <div  slot="footer" class="dialog-footer">
           </div>
         </el-dialog>
@@ -146,7 +146,13 @@ export default {
 
         else{
           await user_ds.getDataserverAuth()
+          this.$message({
+            message: "成功连接服务器",
+            type:"success"
+          })
           this.dataServerConnect(true)
+
+          // TODO 开始接受信息的循环
         }
 
 
@@ -161,16 +167,19 @@ export default {
       }
     },
 
-    finishlizeLogin: function(){
+    finalizeUpdateDataServer: function(){
       if(this.ckplanet.data_server_connected)
-      this.dialogUpdateDataServer = false
-
-      //TODO 获取用户信息
-      this.dialogNewUser = true
+        {this.dialogUpdateDataServer = false
+        if(! this.$store.getters.userProfile(this.user_lock_args))
+          this.dialogNewUser = true
+        }
     },
 
-    finishlizeNewUser: function(){
+    finalizeNewUser: function(){
       this.dialogNewUser = false
+      //user_profile = ckplanet.getUser()
+      // set_user_profile
+      // 开始更新数据的循环
     },
 
     formatCkb: function (value) {

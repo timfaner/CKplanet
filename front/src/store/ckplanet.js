@@ -9,8 +9,7 @@ const ckplanet = {
 
         
         user_profiles_pool:{
-            nickname:'测试',
-            avatar_url:'https://placekitten.com/400/400',
+
         },
 
         joined_cycles_pool:[],
@@ -52,8 +51,11 @@ const ckplanet = {
                 try {
                     const url = getUrl('user_profile',tmp2)
                     res = await getData(server_url,url)
+                    if(res === null){
+                        return res
+                    }
                     if (vaildDataType("user_profile",res)){
-                        commit("updateUserInfo",res)
+                        commit("updateUserInfo",{...res,lock_args,})
                     }
                     
                 } catch (error) {
@@ -64,6 +66,16 @@ const ckplanet = {
             }
             return res
         }
+    },
+    getters:{
+      userProfile: (state) =>
+          (lock_args) =>{
+              if(lock_args in state.user_profiles){
+                  return state.user_profiles[lock_args]
+              }
+              return null
+          }
+      
     },
 
 }

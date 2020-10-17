@@ -1,7 +1,7 @@
 
-import  {postData,getData} from "./data_server"
+import  {postData,getData} from "./data_server.js"
 
-import {sha256,generateECDHKey, encryptData_c,decryptData_c} from "./crypto"
+import {sha256,generateECDHKey, encryptData_c,decryptData_c} from "./crypto.js"
 
 
 postData,getData
@@ -48,6 +48,13 @@ const DATA_STRUCT = {
         {access_token_public:'0x',  //使用access_token_public 检索对应cycle
         data_id:'0'},
     ],
+    cycle_contents:[
+        {
+            title:'',
+            conctent:'',
+            time:'',
+        }
+    ],
     cycle_profile:{
         cycle_name:'',
         introduction:'',
@@ -61,6 +68,16 @@ const DATA_STRUCT = {
         {k:'0x',v:'0x'}
     ]
 }
+
+
+function getDataTemplate(data_type){
+    
+    let raw = DATA_STRUCT[data_type]
+    let tmp = JSON.stringify(raw)
+    return JSON.parse(tmp)
+    
+}
+
 
 function encryptCycleToken(access_token_public,access_token_private,aes_key,ecdh_pk,ecdh_sk){
     let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
@@ -126,12 +143,12 @@ function vaildDataType(data_type,instance){
     var bool = false
     if ( !(data_type in DATA_ID)){
         console.error("Wrong data type : ",data_type)
-        bool = false
+        return   false
     }
 
     if (typeof(instance) !== "object"){
         // array 也是object
-        bool =  false
+        return false
     }
 
     try {
@@ -145,26 +162,36 @@ function vaildDataType(data_type,instance){
             template = template[0]
         }
         if (typeof(template) !==  typeof(instance) ){
-            bool =  false
+            return  false
         }
         if (typeof(template) === "string")
-            bool =  true
+            return  true
 
         for(const key in template){
             if(!(key in instance)){
-                bool =  false
+                 return  false
             }
         }
     } catch (error) {
         console.error(error)
-        bool = false
+        return false
     }
 
     bool = true
-    if(!bool){
-        throw("Incorrect data structure data_type : ",data_type)
-    }
     return bool
+}
+
+/**
+ * 
+ * @param {string} data_type 
+ * @param {*} data 
+ * @returns data对应的hash
+ */
+function getDataHash(data_type,data){
+    data_type
+    let jsons = JSON.stringify(data)
+    let hash= sha256(jsons)
+    return hash
 }
 
 export  {DATA_ID,
@@ -173,6 +200,7 @@ export  {DATA_ID,
         getUrl,
         vaildDataType,
         encryptCycleToken,
-        decrtptCycleToken
+        decrtptCycleToken,
+        getDataHash,getDataTemplate
 }
 
