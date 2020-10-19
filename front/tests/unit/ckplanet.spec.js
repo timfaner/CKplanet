@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { shallowMount } from '@vue/test-utils'
 import HelloWorld from '@/components/HelloWorld.vue'
 
+
 describe('HelloWorld.vue', () => {
   it('renders props.msg when passed', () => {
     const msg = 'new message'
@@ -14,14 +15,15 @@ describe('HelloWorld.vue', () => {
 
 
 import { getUrl as getUrls, DATA_STRUCT, getDataTemplate, vaildDataType,getDataID }  from "../../src/ckb/ckplanet.js"
+import { postData } from '../../src/ckb/data_server.js'
 
 DATA_STRUCT
 
 
 
 let data_types = []
-let access_token_public = 0x0354abd4f62e5e1ed2abdbc71cbb55fb0132e12ffbc25882733a79ca578a96b85bc51d43e03fed161db8ac6b23c3e03e7cbf0a43e98a316311f83f89eff2959f
-let access_token_private = 0xeb09ff23121575f3cd27a397923e7a7bad37b7fc7b394ab0417b3f06b82c9dd60c0aff13088931c385b965d8f1c86777fbc2ccb96fdbace6039396294d4e4767
+let access_token_public = '0x0354abd4f62e5e1ed2abdbc71cbb55fb0132e12ffbc25882733a79ca578a96b85bc51d43e03fed161db8ac6b23c3e03e7cbf0a43e98a316311f83f89eff2959f'
+let access_token_private = '0xeb09ff23121575f3cd27a397923e7a7bad37b7fc7b394ab0417b3f06b82c9dd60c0aff13088931c385b965d8f1c86777fbc2ccb96fdbace6039396294d4e4767'
 
 let access_token_items = {
     access_token_public,
@@ -106,11 +108,17 @@ describe("Ckplanet data process ",function(){
     })
     describe("getUrl()", function(){
 
-        data_types.forEach(function(data_type){
+        data_ids.forEach(function(data_type){
             describe("args are "+ data_type.key,function(){
-                it('',function(){
+                it('should got enough lenth',function(){
                 return expect(getUrls(data_type.key,access_token_items,"12","public")).to.have.lengthOf(64)
                 })
+                it("should same as server created",async function(){
+                    
+                    let {url} = await postData('',data_type.id,'',access_token_public)
+                    expect(getUrls(data_type.key,access_token_items,"12","public")).to.be.equal(url)
+                    
+                } )
             })
         })
     })
