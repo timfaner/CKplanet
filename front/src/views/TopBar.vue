@@ -152,6 +152,11 @@ export default {
           })
           this.dataServerConnect(true)
 
+          res = await this.$store.dispatch("getUserProfile",this.user_lock_args)
+          if(res)
+            this.loginToCkplanet()
+          else
+            this.dialogNewUser = true
           // TODO 开始接受信息的循环
         }
 
@@ -167,19 +172,25 @@ export default {
       }
     },
 
+    loginToCkplanet :   function(){
+      console.log("logged to ckplanet")
+
+    },
+
     finalizeUpdateDataServer: function(){
-      if(this.ckplanet.data_server_connected)
-        {this.dialogUpdateDataServer = false
+      if(this.ckplanet.data_server_connected){
+        this.dialogUpdateDataServer = false
         if(! this.$store.getters.userProfile(this.user_lock_args))
           this.dialogNewUser = true
         }
+        else
+          this.loginToCkplanet()
+        
     },
 
     finalizeNewUser: function(){
       this.dialogNewUser = false
-      //user_profile = ckplanet.getUser()
-      // set_user_profile
-      // 开始更新数据的循环
+      this.loginToCkplanet()
     },
 
     formatCkb: function (value) {

@@ -3,9 +3,7 @@ import { getUrl,vaildDataType } from "../ckb/ckplanet"
 import Vue from 'vue'
 const ckplanet = {
     state :() => ({
-        a:{
-            
-        },
+
         wallet_connected:false,
         data_server_connected:false,
 
@@ -13,15 +11,41 @@ const ckplanet = {
         user_profiles_pool:{
             
         },
-
-        joined_cycles_pool:[],
-        managed_cycles_pool:[],
-
         
+        user_joined_cycles:[],
+        user_managed_cycles_index:[],
+
+        cycles_pool:{},
+
+
     }),
     mutations:{
-        test(state){
-            state.a = {...state.a,2:2}
+        updateJoinedCyclesIndex(){},
+        updateCyclesPool(state,{access_token,cycle_id,cycle_props}){
+
+            if(! (access_token in state.cycles_pool)){
+                Vue.set(
+                    state.cycles_pool,
+                    access_token,
+                    {[cycle_id]:cycle_props})
+                return}
+            if(! (cycle_id in state.cycles_pool[access_token])){
+                Vue.set(
+                    state.cycles_pool[access_token],
+                    cycle_id,
+                    cycle_props)
+                return
+            }
+            let cycle = state.cycles_pool[access_token][cycle_id]
+            cycle = {...cycle,...cycle_props}
+            Vue.set(
+                state.cycles_pool[access_token],
+                cycle_id,
+                cycle
+            )
+        },
+        updateManagedCyclesIndex(state,payload){
+            state.user_managed_cycles_index = payload
         },
         updateUserInfo(state,{lock_args,nickname,avatar_url}){
 
@@ -72,7 +96,33 @@ const ckplanet = {
                 
             }
             return res
-        }
+        },
+        async getManagedCycles({commit,getters},lock_args){
+            let res = null
+            let tmp1 = getters.getSthFromPool(lock_args,"data_server")
+            let tmp2 = getters.getSthFromPool(lock_args,"access_token")
+            if (tmp1 !== null && tmp2 !== null){
+                const server_url = tmp1.ip
+
+                try {
+                    let data_type = 'user_managed_cycle_list'
+                    const url = getUrl(data_type,tmp2)
+                    res = await getData(server_url,url)
+                    if(res === null){
+                        return res
+                    }
+                    if (vaildDataType(data_type,res)){
+                        commit("updateManagedCyclesIndex",res)
+                    }
+                    
+                } catch (error) {
+                    console.error("getUserProfile error",error)
+                    throw(error)
+                }
+                
+            }
+            return res
+        },
     },
     getters:{
       userProfile: (state) =>

@@ -40,11 +40,9 @@
 
 
       <el-dialog title="创建新的圈子" :visible.sync="dialogNewCycle">
-        <UpdateUserProfile></UpdateUserProfile>
-                <el-button @click="dialogNewCycle = false">取 消</el-button>
-        <el-button type="primary" @click="dialogNewCycle = false">确 定</el-button>
+        <UpdateCycleProfile mode="create"></UpdateCycleProfile>
         <div slot="footer" class="dialog-footer">
-      </div>
+        </div>
       </el-dialog>
 
       <el-dialog  :visible.sync="dialogCycleInfo">
@@ -121,6 +119,7 @@
 // @ is an alias to /src
 
 import UpdateUserProfile from "../components/UpdateUserProfile.vue"
+import UpdateCycleProfile from "../components/UpdateCycleProfile.vue"
 
 export default {
   name: 'Home',
@@ -141,7 +140,8 @@ export default {
     }
   },
   components: {
-    UpdateUserProfile
+    UpdateUserProfile,
+    UpdateCycleProfile
   },
 
   methods:{
