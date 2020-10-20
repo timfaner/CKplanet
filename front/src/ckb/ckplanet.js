@@ -70,6 +70,24 @@ const DATA_STRUCT = {
 }
 
 
+const CYCLE = {
+    cycle_profile:{
+        cycle_name:'',
+        introduction:'',
+        avatar_url:'',
+        type:'' //enmu, open|close
+    },
+    aes_key:'',
+    user_lists:[],
+    contents:{
+        autrui:[],
+        ego:[]
+    }    
+}
+
+function getCycleTemplate(){
+    return JSON.parse(JSON.stringify(CYCLE))
+}
 function getDataTemplate(data_type){
     
     let raw = DATA_STRUCT[data_type]
@@ -194,6 +212,11 @@ function getDataHash(data_type,data){
     return hash
 }
 
+
+function getDataID(data_type,cycle_id){
+    return DATA_ID[data_type](cycle_id)
+}
+
 export  {DATA_ID,
         DATA_STRUCT,
         DATA_ACCESS,
@@ -201,6 +224,10 @@ export  {DATA_ID,
         vaildDataType,
         encryptCycleToken,
         decrtptCycleToken,
-        getDataHash,getDataTemplate
+        getDataHash,
+        getDataTemplate,
+        getDataID,
+        getCycleTemplate,
+
 }
 

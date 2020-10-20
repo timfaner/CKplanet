@@ -182,6 +182,7 @@ const getData = async (server_url,url) =>{
     const body = JSON.stringify(payload, null, '  ')
     console.log(body)
     try {
+      //TODO 如果对应url未找到，返回null
         let res = await fetch(server_url, {
           method: 'POST',
           headers: {

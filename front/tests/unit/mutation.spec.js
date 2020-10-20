@@ -7,7 +7,7 @@ const {updateCyclesPool} = ckplanet.mutations
 const state = {cycles_pool:{}}
 
 
-const access_tokens = [
+const lock_args = [
     "12",
     "13",
     "14"]
@@ -19,91 +19,163 @@ const cycle_ids = [
 ]
 
 
+const cycle_profiles = [{
+    cycle_name:'efw',
+    introduction:'gew',
+    avatar_url:'wfw',
+    type:'wef' //enmu, open|close
+},
+{
+    cycle_name:'efdsw',
+    introduction:'ggdew',
+    avatar_url:'wfsdw',
+    type:'wedsff' //enmu, open|close
+},
+{
+    cycle_name:'',
+    introduction:'',
+    avatar_url:'',
+    type:'' //enmu, open|close
+},
+    ]
 
-let updateCyclesPool_testcast = [
+let updateCyclesPool_testcase = [
     {args:[
-        access_tokens[0],
+        lock_args[0],
         cycle_ids[0],
-        {cycle_profiles:"blbl"}],
+        {cycle_profile:cycle_profiles[0]}],
     result:{
-        [access_tokens[0]]:{
+        [lock_args[0]]:{
             [cycle_ids[0]]:{
-                cycle_profiles:"blbl"
+                cycle_profile:cycle_profiles[0],
+                aes_key:'',
+                user_lists:[],
+                contents:{
+                    autrui:[],
+                    ego:[]
+                }    
             }
         }
     }
     },
 
     {args:[
-        access_tokens[0],
+        lock_args[0],
         cycle_ids[0],
         {aes_key:"biubl"}],
     result:{
-        [access_tokens[0]]:{
+        [lock_args[0]]:{
             [cycle_ids[0]]:{
-                cycle_profiles:"blbl",
-                aes_key:"biubl"
+                cycle_profile:cycle_profiles[0],
+                aes_key:'biubl',
+                user_lists:[],
+                contents:{
+                    autrui:[],
+                    ego:[]
+                }    
             }
-        }
-    }
-    },
+    }}},
     {args:[
-        access_tokens[1],
+        lock_args[1],
         cycle_ids[0],
-        {aes_key:"biubl"}],
+        {aes_key:"biubll"}],
     result:{
-        [access_tokens[0]]:{
+        [lock_args[0]]:{
             [cycle_ids[0]]:{
-                cycle_profiles:"blbl",
-                aes_key:"biubl"
+                cycle_profile:cycle_profiles[0],
+                aes_key:'biubl',
+                user_lists:[],
+                contents:{
+                    autrui:[],
+                    ego:[]
+                }    
             }
-        },
-        [access_tokens[1]]:{
-            [cycle_ids[0]]:{
-                aes_key:"biubl"
+    },
+    [lock_args[1]]:{
+        [cycle_ids[0]]:{
+            cycle_profile:cycle_profiles[2],
+            aes_key:'biubll',
+            user_lists:[],
+            contents:{
+                autrui:[],
+                ego:[]
+                }    
             }
-        }
+        } 
     }
     },
     {args:[
-        access_tokens[1],
+        lock_args[1],
         cycle_ids[1],
         {aes_key:"biubl"}],
     result:{
-        [access_tokens[0]]:{
+        [lock_args[0]]:{
             [cycle_ids[0]]:{
-                cycle_profiles:"blbl",
-                aes_key:"biubl"
+                cycle_profile:cycle_profiles[0],
+                aes_key:'biubl',
+                user_lists:[],
+                contents:{
+                    autrui:[],
+                    ego:[]
+                }    
             }
-        },
-        [access_tokens[1]]:{
-            [cycle_ids[0]]:{
-                aes_key:"biubl"
+    },
+    [lock_args[1]]:{
+        [cycle_ids[0]]:{
+            cycle_profile:cycle_profiles[2],
+            aes_key:'biubll',
+            user_lists:[],
+            contents:{
+                autrui:[],
+                ego:[]
+                }    
             },
-            [cycle_ids[1]]:{
-                aes_key:"biubl"
+        [cycle_ids[1]]:{
+            cycle_profile:cycle_profiles[2],
+            aes_key:'biubl',
+            user_lists:[],
+            contents:{
+                autrui:[],
+                ego:[]
+                }    
             }
         }
     }
     },
     {args:[
-        access_tokens[1],
+        lock_args[1],
         cycle_ids[1],
-        {aes_key:"bababa",cycle_profiles:"tatata"}],
+        {aes_key:"bababa",cycle_profile:cycle_profiles[0]}],
     result:{
-        [access_tokens[0]]:{
+        [lock_args[0]]:{
             [cycle_ids[0]]:{
-                cycle_profiles:"blbl",
-                aes_key:"biubl"
+                cycle_profile:cycle_profiles[0],
+                aes_key:'biubl',
+                user_lists:[],
+                contents:{
+                    autrui:[],
+                    ego:[]
+                }    
             }
-        },
-        [access_tokens[1]]:{
-            [cycle_ids[0]]:{
-                aes_key:"biubl"
+    },
+    [lock_args[1]]:{
+        [cycle_ids[0]]:{
+            cycle_profile:cycle_profiles[2],
+            aes_key:'biubll',
+            user_lists:[],
+            contents:{
+                autrui:[],
+                ego:[]
+                }    
             },
-            [cycle_ids[1]]:{
-                aes_key:"bababa",
-                cycle_profiles:"tatata"
+        [cycle_ids[1]]:{
+            cycle_profile:cycle_profiles[0],
+            aes_key:'bababa',
+            user_lists:[],
+            contents:{
+                autrui:[],
+                ego:[]
+                }    
             }
         }
     }
@@ -111,16 +183,38 @@ let updateCyclesPool_testcast = [
     
 ]
 
+let updateCyclePool_testcase_dummy = [
+    {args:{
+        lock_args:lock_args[0],
+        cycle_id:cycle_ids[0],
+        cycle_props:{
+            cycle_profiles:cycle_profiles[0]} //多了个s
+    },
+    result:"Invaild cycle_props"
+    },
+    {args:[
+    ],
+    result:"Lack of args " + undefined + ' ; ' + undefined + ' ; ' + undefined
+    },
+
+]
+
 describe('mutations',function(){
 
 
-    updateCyclesPool_testcast.forEach(function(test){
+    updateCyclesPool_testcase.forEach(function(test){
         it(' updateCyclesPool should equal state',function(){
             updateCyclesPool(state,
-                {access_token:test.args[0],
+                {lock_args:test.args[0],
                 cycle_id:test.args[1],
                 cycle_props:test.args[2]})
             expect(state.cycles_pool).to.deep.equal(test.result)
+        })
+    })
+
+    updateCyclePool_testcase_dummy.forEach(function(test){
+        it(' updateCyclesPool should throw error',function(){
+            expect( () => updateCyclesPool(state,{...test.args})).to.throw(test.result)
         })
     })
 

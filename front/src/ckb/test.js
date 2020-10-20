@@ -1,4 +1,5 @@
 const MOCK_API = true
+const KVDB_ENABLE = true
 
 
 import {sha256, signData} from './crypto' 
@@ -53,7 +54,8 @@ const data_server_res = {
         console.log("Mock api called: ", "postData", body)
 
         let url = sha256(body.access_token + body.data_id)
-        await postData(url,body.data)
+        if(KVDB_ENABLE)
+            await postData(url,body.data)
         return {
             url:url,
             state:'good',
@@ -65,14 +67,15 @@ const data_server_res = {
         console.log("Mock api called: ", "getData", body)
         if ('url' in body){
             console.log("url to get data")
-            let res= await getData(body.url)
-            return res
+            if(KVDB_ENABLE){
+                let res= await getData(body.url)
+                return res}
         }
         else if ("data_id" in body && "access_token" in body){
             console.log("data_id and  access_token to get data")
+            if(KVDB_ENABLE){
             let res =  getData( sha256(body.access_token + body.data_id))
-            return res
-
+            return res}
         }
         body.url
         return {
@@ -85,10 +88,18 @@ const data_server_res = {
 const bucket = KVdb.bucket("XEdPUt7zsqFAXgBkCwsBiV")
 
 const  getData = async (url)=>{
-    
-    let res = await bucket.get(url)
-    console.log(res)
-    return res
+    try {
+        let res = await bucket.get(url)
+        console.log(res)
+        return JSON.parse(res)
+    } catch (error) {
+        if(error.message === '404 - Not Found'){
+            console.warn(error)
+            return null}
+        else
+            throw(error)
+    }
+
 }
 
 const  postData = async (url,data) =>{
