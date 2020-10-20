@@ -17,17 +17,17 @@ package com.example.demo.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.demo.entity.*;
-
 import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.MongoDBService;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author Eric Zhao
- */
+import java.security.Security;
+
+
 @RestController
 public class FileServerController {
     static final int NOT_EXIST = 2;
@@ -37,31 +37,35 @@ public class FileServerController {
     static final int UNAUTHORIZED = 4;
     static final int FAILED = 5;
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @Autowired
     private MongoDBService mongoDBService;
 
-    //{"sig":"d940effaf9693993ba8c715f7233c1cc619e727dc86724605abe12dd96188937fa853f1f11ff1adcf3c7e476d88eb0217965dda065d280cfb357c7d08b776ec0","data":{"name":"yunfeiyang","attr":"handsome"},"dataId":"999","cert":"73b9bc1acc68b6e4426642590b38304fd8792d8ddb4cf845b6ec01c0b563a886e33633ac19516976e9d53f609b84ae118bc2386e76111322809d6cd4be09190c","pk":"0301d26b2e0514c0f40a6ec03e3e07ad0fc95104889c7e3c049503eacaafb6e3b6","accessToken":"ee4cd72091807f96c28c1a015db2aecd402bc5147c16964ede75abd360bd6bb0389420907dd02d4938a77afc659d919b72142459858e6e454ad942a1ce826038"}
-    @PostMapping("/upload")
-    public UploadResponseEntity upload(String request) {
+    @PostMapping("/getMpk")
+    public String getMPK() {
+        return AuthenticationService.generatePublicKey();
+    }
+   @PostMapping("/postData")
+    public UploadResponseEntity postData(String sig,String data,String dataId,String cert,String pk,String accessToken) {
         try {
-            UploadRequestEntity entity = JSONObject.parseObject(request, UploadRequestEntity.class);
-            System.out.println("上传" + entity.toString());
+            UploadRequestEntity entity=new UploadRequestEntity(dataId,accessToken,JSONObject.parseObject(data),sig,pk,cert);
             String mpk = AuthenticationService.generatePublicKey();
             String msg = entity.getPk() + entity.getAccessToken();
             if (!AuthenticationService.verify(entity.getCert(), msg, mpk)) {
-                System.out.println("1");
                 return new UploadResponseEntity(UNAUTHORIZED);
             }
             if (!AuthenticationService.verify(entity.getSig(), entity.getData().toString(), entity.getPk())) {
-                System.out.println("2");
                 return new UploadResponseEntity(UNAUTHORIZED);
             }
             if (mongoDBService.findUserByDataId(entity.getDataId()) != null) {
-                return new UploadResponseEntity(EXIST);
+                mongoDBService.deleteDataById(entity.getDataId());
             }
             String s = (entity.getDataId() + entity.getAccessToken());
-            entity.setUrl(String.valueOf(s.hashCode()));
+            String url=AuthenticationService.SHA(s, "SHA-256");
+            entity.setUrl(url);
             mongoDBService.saveData(entity);
             UploadResponseEntity response = new UploadResponseEntity(SUCCESS);
             response.setUrl(entity.getUrl());
@@ -74,9 +78,8 @@ public class FileServerController {
 
     }
 
-    //  {"msg":"hello ckPlant","accessToken":"ee4cd72091807f96c28c1a015db2aecd402bc5147c16964ede75abd360bd6bb0389420907dd02d4938a77afc659d919b72142459858e6e454ad942a1ce826038","cpk":"03a34c143c95c71ba648b174bc1fdc489fee1423e9713e19a7a13bb03d21b438e0"}
-    @GetMapping("/download")
-    public DownloadResponseEntity download(String url) {
+   @PostMapping("/getData")
+    public DownloadResponseEntity getData(String url) {
         try {
             DownloadResponseEntity response = new DownloadResponseEntity(SUCCESS);
             UploadRequestEntity entity = mongoDBService.findUserByUrl(url);
@@ -94,17 +97,17 @@ public class FileServerController {
 
     }
 
-    @PostMapping("/authorize")
-    public AuthResponseEntity auth(String request) {
+    @PostMapping("/getAuth")
+    public AuthResponseEntity getAuth(String accessToken, String msg, String cpk) {
         try {
-            AuthRequestEntity entity = JSONObject.parseObject(request, AuthRequestEntity.class);
-            if (!AuthenticationService.verify(entity.getAccessToken(), entity.getMsg(), entity.getCpk())) {
+            AuthRequestEntity entity = new AuthRequestEntity(accessToken, msg, cpk);
+            if (!AuthenticationService.verify(entity.getAccessToken(),entity.msg,entity.getCpk())) {
                 return new AuthResponseEntity(UNAUTHORIZED);
             }
             KeyPair keyPair = AuthenticationService.generateKeyPair();
             AuthResponseEntity responseEntity = new AuthResponseEntity(SUCCESS);
-            responseEntity.setPk(keyPair.getPub());
-            responseEntity.setSk(keyPair.getPri());
+            responseEntity.setPk("0x"+keyPair.getPub());
+            responseEntity.setSk("0x"+keyPair.getPri());
             String cert = AuthenticationService.sign(AuthenticationService.getMsk(), (keyPair.getPub() + entity.getAccessToken()));
             responseEntity.setCert(cert);
             return responseEntity;
@@ -112,6 +115,6 @@ public class FileServerController {
             e.printStackTrace();
             return new AuthResponseEntity(FAILED);
         }
-
     }
 }
+

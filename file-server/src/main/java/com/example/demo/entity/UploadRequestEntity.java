@@ -17,6 +17,15 @@ public class UploadRequestEntity {
     public String cert;
     public String url;
 
+    public UploadRequestEntity(String dataId, String accessToken, JSONObject data, String sig, String pk, String cert) {
+        this.dataId = dataId;
+        this.accessToken = accessToken;
+        this.data = data;
+        this.sig = sig;
+        this.pk = pk.substring(2,pk.length());
+        this.cert = cert;
+    }
+
     @Override
     public String toString() {
         return "UploadRequestEntity{" +

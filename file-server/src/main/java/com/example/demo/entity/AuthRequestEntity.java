@@ -8,6 +8,13 @@ public class AuthRequestEntity {
     public String msg;
     public String cpk;
 
+    public AuthRequestEntity(String accessToken, String msg, String cpk) {
+        this.accessToken = accessToken;
+        this.msg = msg;
+        int len=cpk.length();
+        this.cpk = cpk.substring(2,len);
+    }
+
     public String getAccessToken() {
         return accessToken;
     }
