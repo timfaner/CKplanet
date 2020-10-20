@@ -1,108 +1,75 @@
 <template>
 
+
 <div class="home py-4" >
 
-<div class="container my-4 col-8" style="border-radius: 4px;">
-  <div class="container my-4 border" style="border-radius: 30px;background-color: #EBEEF5">
-    <div class="row my-3 ml-3">
-      <el-avatar   shape="square" :size="100"  :src="url"></el-avatar>
-      <div class="mx-4 my-2 profile">
-        <h4> 昵称
-        </h4>
-        <h6>  0xckt121212
-        </h6>
-        
-        
-      </div>
-      <el-button class="col-2 mx-3 ml-auto minbutton" icon="el-icon-setting" plain style="border-radius: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);background-color: #EBEEF5" @click="dialogUpdateProfile = true"> 更新个人信息</el-button>
-    </div>
-    
-      <el-dialog title="设置个人信息" :visible.sync="dialogUpdateProfile">
-        <UpdateUserProfile></UpdateUserProfile>
-        <el-button @click="dialogUpdateProfile = false">取 消</el-button>
-        <el-button type="primary" @click="dialogUpdateProfile = false">确 定</el-button>
-        <div slot="footer" class="dialog-footer">
-        </div>
-      </el-dialog>
+<div v-if="loged_in" class="container my-4 col-8" style="border-radius: 4px;">
+
+  <div class="row">
+    <h3> Planets </h3>
+    <el-button class="ml-auto" plain @click="dialogNewCycle = true" style="border-radius: 10px;background-color: #FFFFFF;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3)">
+      create planets
+    </el-button>
   </div>
-<el-divider></el-divider>
-  <el-tabs type="card" style="border-radius: 4px">
-  <el-tab-pane> <p class="t2" slot="label"> 圈子 </p>
+
+  <el-dialog title="创建新的圈子" :visible.sync="dialogNewCycle">
+    <UpdateCycleProfile mode="create" ></UpdateCycleProfile>
+    <div slot="footer" class="dialog-footer">
+    </div>
+  </el-dialog>
+
+
+  <el-tabs style="border-radius: 4px">
+  <el-tab-pane> <p  slot="label"> My Planets ({{cycles.ego_cycles.length}}) </p>
   <div class="container">
-    <p class="row ml-2 t2"> 我管理的 </p>
-    <div style="border-radius: 20px;background-color: #EBEEF5" class="row py-3 px-3">
-      
-      <el-button type="primary"  class="col-2 mx-3 minbutton" style="border-radius: 10px;background-color: #4BA0B5;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3)"  @click="dialogCycleInfo = true">
-      <el-avatar shape="square" :size="80" :src="url" style="border-radius: 5px;"></el-avatar>
-      <span class="row justify-content-md-center mt-2">圈子A <el-divider direction="vertical"></el-divider>17人加入</span>
-      </el-button>
-      <el-button class="col-2 mx-3 minbutton" icon="el-icon-circle-plus" type="info" style="border-radius: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3)" @click="dialogNewCycle = true"> 创建新的圈子</el-button>
 
+  <div/>
+  <CycleItem
+    v-for="cycle in cycles.ego_cycles"
+    :key="cycle"
+    :cycle_profile="cycle.cycle_profile"
+    :lock_args="cycle.lock_args"
+    :cycles_id="cycle.cycles_id"
+    :cycle_member_num="cycle.user_lists.length"
+    
+  />
+  <div
+    v-for="cycle in cycles.ego_cycles"
+    :is="CycleItem"
+    :key="cycle"
+  />
 
-      <el-dialog title="创建新的圈子" :visible.sync="dialogNewCycle">
-        <UpdateCycleProfile mode="create"></UpdateCycleProfile>
-        <div slot="footer" class="dialog-footer">
-        </div>
-      </el-dialog>
-
-      <el-dialog  :visible.sync="dialogCycleInfo">
-        <el-avatar shape="square" :size="100"  :src="url"></el-avatar>
-       <h5> 圈子A <el-divider direction="vertical"></el-divider>88人加入</h5>
-       <h6> id: 1232435542</h6>
-       <p>这个圈子的简介,,,,,</p>
-        <div slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogCycleInfo = false">确 定</el-button>
-        </div>
-      </el-dialog>
-
-      
-    </div>
-  
   </div>
     
-  <div class="container my-3">
-    <p class="row ml-2 t2"> 我加入的 </p>
-    <div style="border-radius: 20px;background-color: #EBEEF5" class="row py-3 px-3">
-      
-      <el-button type="primary"  class="col-2 mx-3 minbutton" style="border-radius: 10px;background-color: #4BA0B5;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3)"  @click="dialogCycleInfo = true">
-      <el-avatar shape="square" :size="80" :src="url" style="border-radius: 5px;"></el-avatar>
-      <span class="row justify-content-md-center mt-2">圈子B <el-divider direction="vertical"></el-divider>17人加入</span>
-      </el-button>
-      <el-button class="col-2 mx-3 minbutton" icon="el-icon-circle-plus" type="info" style="border-radius: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3)" @click="dialogJoinCycle = true"> 加入新的圈子</el-button>
 
-      <el-dialog title="加入新的圈子" :visible.sync="dialogJoinCycle">
-
-        <el-form :model="form">
-          <el-form-item label="圈子id" :label-width="formLabelWidth">
-            
-            <el-input  autocomplete="off"></el-input>
-          </el-form-item>
-            <el-avatar shape="square" :size="100"  :src="url"></el-avatar>
-            <h5> 圈子B <el-divider direction="vertical"></el-divider>17人加入</h5>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogJoinCycle = false">取 消</el-button>
-          <el-button type="primary" @click="dialogJoinCycle = false">确 定</el-button>
-        </div>
-      </el-dialog>
-
-      <el-dialog  :visible.sync="dialogInfoVisible">
-        <el-avatar shape="square" :size="100"  :src="url"></el-avatar>
-       <h5> 圈子B <el-divider direction="vertical"></el-divider>17人加入</h5>
-       <p>这个圈子的简介,,,,,</p>
-        <div slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogInfoVisible = false">确 定</el-button>
-        </div>
-      </el-dialog>
-
-      
-    </div>
-  </div>
 
   </el-tab-pane>
-  <el-tab-pane> <p class="t2 my-2 mx-2" slot="label"> <el-badge is-dot class="item">动态</el-badge> </p>
+  <el-tab-pane> <p  slot="label">  Joined Planets ({{cycles.autrui_cycles.length}}) </p>
 
   <div class="container"> 
+
+  <div/>
+  <CycleItem
+    v-for="cycle in cycles.autrui_cycles"
+    :key="cycle"
+    :cycle_profile="cycle.cycle_profile"
+    :lock_args="cycle.lock_args"
+    :cycles_id="cycle.cycles_id"
+    :cycle_member_num="cycle.user_lists.length"
+    
+  />
+  <div
+    v-for="cycle in cycles.autrui_cycles"
+    :is="CycleItem"
+    :key="cycle"
+  />
+    
+
+  </div>
+  </el-tab-pane>
+  <el-tab-pane> <p  slot="label">  Pending ({{pending_cycles_num}}) </p>
+
+  <div class="container">
     <div  class="px-4 py-2 my-2 row" style="border-radius: 10px;background-color: #EBEEF5">
     <span class="px-2 py-2 t1" > xx 申请加入圈子 x </span>
       <el-button class="ml-auto" type="danger">否认</el-button>
@@ -110,22 +77,69 @@
     </div>
   </div>
   </el-tab-pane>
-</el-tabs>
+  </el-tabs>
+
+</div>
+
+<div v-else>
+  <p>
+    please setup the wallet and dataserver and go on
+  </p>
 </div>
 </div>
+
 </template>
 
 <script>
 // @ is an alias to /src
 
-import UpdateUserProfile from "../components/UpdateUserProfile.vue"
+
 import UpdateCycleProfile from "../components/UpdateCycleProfile.vue"
+import CycleItem from "../components/CycleItem.vue"
+
+import {mapState} from "vuex"
 
 export default {
   name: 'Home',
+  computed:{
+    localComputed(){return{
+       ego_cycles_num: ()=>1,
+       autrui_cycles_num : ()=>1,
+       pending_cycles_num : ()=>1,
+       }
+    },
+    ...mapState({
+      loged_in : state => { return state.ckplanet.wallet_connected && state.ckplanet.data_server_connected},
+      user_lock_args : state => state.user_chain_info.lock_args,
+      cycles : function(state){
+        let user_lock_args = state.user_chain_info.lock_args
+        let cycles = state.ckplanet.cycles_pool
+        let ego_cycles = []
+        let autrui_cycles = []
+        let tmp = []
+        for(const lock_args in cycles){
+          for(const cycle_id in cycles[lock_args]){
+            let cycle = cycles[lock_args][cycle_id]
+            cycle = {...cycle,...{lock_args,cycle_id}}
+            tmp.push(cycle)
+          }
+        }
+        ego_cycles = tmp.filter(function(cycle){
+          return cycle.lock_args===user_lock_args
+        })
+        autrui_cycles = tmp.filter(function(cycle){
+          return cycle.lock_args!==user_lock_args
+        })
+        return {ego_cycles,autrui_cycles}
+      }
+  })
+  },
   data() {
     return{
-      imageUrl:'',
+      cycle_name: "Cycle Placeholder",
+      cycle_member_num :32,
+      cycle_introduction: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio velit, cursus et vas lacus efficitur nec.",
+      imageUrl:'https://placekitten.com/400/400',
       form:null,
       textarea:'',
       test:null,
@@ -140,7 +154,7 @@ export default {
     }
   },
   components: {
-    UpdateUserProfile,
+    CycleItem,
     UpdateCycleProfile
   },
 
