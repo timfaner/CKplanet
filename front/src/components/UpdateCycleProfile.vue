@@ -107,11 +107,8 @@ export default {
           data_id = getDataID(data_type)
           data_hash = getDataHash(data_type,managed_list)
 
-          tx_id = await data_setter.updateDataIntegrityOnChain(
-          data_id,
-          data_hash)
+          tx_id = ''
 
-          console.log("DataIntegrity of " + data_type + " updated")
           await data_setter.postData(
             managed_list,
             data_id,
@@ -134,7 +131,7 @@ export default {
           this.user_lock_args
         ).catch((e)=>{throw(e)})
         }
-        
+
         this.$store.dispatch("getCycle",
           {lock_args:this.user_lock_args,cycle_id:cycle_id}
         ).catch((e)=>{throw(e)})

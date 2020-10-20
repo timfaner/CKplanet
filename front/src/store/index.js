@@ -119,7 +119,12 @@ export default new Vuex.Store({
       }
     },
 
+    deleteUserCells(state,{lock_args,cells}){
+      //TODO
+      state,lock_args,cells
+    },
 
+    
     updateUserCells(state,{lock_args,cells}){
 
       const { emptyCells, filledCells } = groupCells(cells)
@@ -130,7 +135,7 @@ export default new Vuex.Store({
       user_cells.update_time = new Date().getTime()
 
       if ( !(lock_args in state.cells_pool)){
-        state.cells_pool = {[lock_args]: user_cells}
+        Vue.set(state.cells_pool,lock_args,user_cells)
       }
       else{
         const key = lock_args
@@ -366,7 +371,7 @@ export default new Vuex.Store({
 
 
 
-    async createDataServerInfoOnChain({dispatch,state},DataServerInfo){
+    async createDataServerInfoOnChain({dispatch,state,commit},DataServerInfo){
       // 更新本用户的cell池
       await dispatch('getUserCells',state.user_chain_info.lock_args)
       let dappID = textToHex(DAPP_ID)
@@ -374,7 +379,7 @@ export default new Vuex.Store({
       let data = JSON.stringify(DataServerInfo)
       data = textToHex(data)
 
-      let tx_hash = await changeOnChain(
+      let {tx_hash,cells_to_delete} = await changeOnChain(
         state.cells_pool[state.user_chain_info.lock_args].empty_cells,
         null,
         DATASERVER_INFO,
@@ -384,6 +389,7 @@ export default new Vuex.Store({
         state.user_chain_info.lock_hash,
         data
       )
+      commit("deleteUserCells",{lock_args:state.user_chain_info.lock_args,cells:cells_to_delete})
 
       console.debug(tx_hash)
       return tx_hash
@@ -399,7 +405,7 @@ export default new Vuex.Store({
         let data = JSON.stringify(DataServerInfo)
         data = textToHex(data)
 
-        let tx_hash = await changeOnChain(
+        let {tx_hash,cells_to_delete} = await changeOnChain(
           state.cells_pool[state.user_chain_info.lock_args].empty_cells,
           state.cells_pool[state.user_chain_info.lock_args].filled_cells,
           DATASERVER_INFO,
@@ -409,6 +415,7 @@ export default new Vuex.Store({
           state.user_chain_info.lock_hash,
           data
         )
+        commit("deleteUserCells",{lock_args:state.user_chain_info.lock_args,cells:cells_to_delete})
 
         let ip = DataServerInfo.dataserver_ip
         commit("updateDataServer",{
@@ -425,14 +432,14 @@ export default new Vuex.Store({
 
     },
 
-    async deleteDataServerInfoOnChain({dispatch,state}){
+    async deleteDataServerInfoOnChain({dispatch,state,commit}){
 
       try {
         // 更新本用户的cell池
         await dispatch('getUserCells',state.user_chain_info.lock_args)
         let dappID = textToHex(DAPP_ID)
 
-        let tx_hash = await changeOnChain(
+        let {tx_hash,cells_to_delete} = await changeOnChain(
           state.cells_pool[state.user_chain_info.lock_args].empty_cells,
           state.cells_pool[state.user_chain_info.lock_args].filled_cells,
           DATASERVER_INFO,
@@ -442,6 +449,7 @@ export default new Vuex.Store({
           state.user_chain_info.lock_hash,
           ''
         )
+        commit("deleteUserCells",{lock_args:state.user_chain_info.lock_args,cells:cells_to_delete})
 
         console.debug(tx_hash)
         return tx_hash
@@ -451,7 +459,7 @@ export default new Vuex.Store({
 
     },
 
-    async createDataIntegrityOnChain({dispatch,state},payload){
+    async createDataIntegrityOnChain({dispatch,state,commit},payload){
       await dispatch('getUserCells',state.user_chain_info.lock_args)
       let type_args = textToHex(payload.data_id)
 
@@ -460,7 +468,7 @@ export default new Vuex.Store({
           data_hash_sig:payload.data_hash_sig})
       data = textToHex(data)
 
-      let tx_hash = await changeOnChain(
+      let {tx_hash,cells_to_delete} = await changeOnChain(
         state.cells_pool[state.user_chain_info.lock_args].empty_cells,
         null,
         DATA_INTEGRITY,
@@ -470,12 +478,13 @@ export default new Vuex.Store({
         state.user_chain_info.lock_hash,
         data
       )
+      commit("deleteUserCells",{lock_args:state.user_chain_info.lock_args,cells:cells_to_delete})
 
       console.debug(tx_hash)
       return tx_hash
     },
 
-    async updateDataIntegrityOnChain({dispatch,state},payload){
+    async updateDataIntegrityOnChain({dispatch,state,commit},payload){
 
       try {
 
@@ -486,7 +495,7 @@ export default new Vuex.Store({
           {data_hash:payload.data_hash,
             data_hash_sig:payload.data_hash_sig})
         data = textToHex(data)
-        let tx_hash = await changeOnChain(
+        let {tx_hash,cells_to_delete} = await changeOnChain(
           state.cells_pool[state.user_chain_info.lock_args].empty_cells,
           state.cells_pool[state.user_chain_info.lock_args].filled_cells,
           DATA_INTEGRITY,
@@ -496,7 +505,7 @@ export default new Vuex.Store({
           state.user_chain_info.lock_hash,
           data
         )
-  
+        commit("deleteUserCells",{lock_args:state.user_chain_info.lock_args,cells:cells_to_delete})
         console.debug(tx_hash)
         return tx_hash
         
@@ -509,7 +518,7 @@ export default new Vuex.Store({
 
     },
 
-    async deleteDataIntegrityOnChain({dispatch,state},payload){
+    async deleteDataIntegrityOnChain({dispatch,state,commit},payload){
 
       try {
         await dispatch('getUserCells',state.user_chain_info.lock_args)
@@ -520,7 +529,7 @@ export default new Vuex.Store({
             data_hash_sig:payload.data_hash_sig})
         data = textToHex(data)
 
-        let tx_hash = await changeOnChain(
+        let {tx_hash,cells_to_delete} = await changeOnChain(
           state.cells_pool[state.user_chain_info.lock_args].empty_cells,
           state.cells_pool[state.user_chain_info.lock_args].filled_cells,
           DATA_INTEGRITY,
@@ -530,6 +539,7 @@ export default new Vuex.Store({
           state.user_chain_info.lock_hash,
           data
         )
+        commit("deleteUserCells",{lock_args:state.user_chain_info.lock_args,cells:cells_to_delete})
   
         console.debug(tx_hash)
         return tx_hash

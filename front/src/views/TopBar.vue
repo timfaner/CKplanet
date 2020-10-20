@@ -60,6 +60,7 @@ import UpdateDataServer from "@/components/UpdateDataServer.vue"
 
 
 
+
 export default {
     name: 'TopBar',
     data: function () {
@@ -152,12 +153,17 @@ export default {
           })
           this.dataServerConnect(true)
 
-          res = await this.$store.dispatch("getUserProfile",this.user_lock_args)
-          if(res)
-            this.loginToCkplanet()
-          else
-            this.dialogNewUser = true
-          // TODO 开始接受信息的循环
+
+          
+          this.$store.dispatch("getUserProfile",this.user_lock_args).then(
+            function(res){
+              if(res)
+                this.loginToCkplanet()
+              else
+                this.dialogNewUser = true
+              // TODO 开始接受信息的循环
+            }).catch( e=> {throw(e)})
+          
         }
 
 
