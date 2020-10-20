@@ -13,7 +13,7 @@ const ckplanet = {
             
         },
         
-        user_joined_cycles:[],
+        user_joined_cycles_index:[],
         user_managed_cycles_index:[],
 
         cycles_pool:{},
@@ -85,6 +85,21 @@ const ckplanet = {
         }
     },
     actions:{
+        async getManageCycles({state,dispatch,rootState}){
+            try {
+                let lock_args = rootState.user_chain_info.lock_args
+                await dispatch("getManagedCyclesIndex",lock_args)
+                let index = state.user_managed_cycles_index
+                index.forEach(cycle_id => {
+                    dispatch("getCycle",{lock_args,cycle_id})
+                });
+                
+            } catch (error) {
+                throw("getManageCycles error",error)
+            }
+            
+
+        },
         async getUserProfile({commit,getters},lock_args){
             let res = null
             let tmp1 = getters.getSthFromPool(lock_args,"data_server")
@@ -134,7 +149,7 @@ const ckplanet = {
         }
     },
 
-        async getManagedCycles({commit,getters},lock_args){
+        async getManagedCyclesIndex({commit,getters},lock_args){
             let res = null
             let tmp1 = getters.getSthFromPool(lock_args,"data_server")
             let tmp2 = getters.getSthFromPool(lock_args,"access_token")

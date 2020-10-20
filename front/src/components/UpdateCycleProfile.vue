@@ -123,11 +123,10 @@ export default {
             type: 'success'
           })
 
-        //更新vuex store
-        //FIXME 
+
 
         if(this.mode==="create"){
-            this.$store.dispatch("getManagedCycles",
+            this.$store.dispatch("getManagedCyclesIndex",
           this.user_lock_args
         ).catch((e)=>{throw(e)})
         }

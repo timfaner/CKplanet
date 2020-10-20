@@ -51,7 +51,7 @@ import { formatCkb } from '@/ckb/utils'
 import { getWalletAuth} from '../ckb/transaction'
 
 import {} from "@/ckb/ckplanet"
-import {mapState,mapMutations} from "vuex"
+import {mapState,mapMutations, mapActions} from "vuex"
 import {DataServer} from "@/ckb/data_server"
 //import {DataSetter } from "@/ckb/data_handler"
 
@@ -88,8 +88,8 @@ export default {
     computed: mapState({
         user_address: state=>state.user_chain_info.address,
         user_lock_args : state => state.user_chain_info.lock_args,
-        ckplanet : state => state.ckplanet
-
+        ckplanet : state => state.ckplanet,
+        user_managed_cycles_index: state => state.ckplanet.user_managed_cycles_index
       }),
     components: {
       UpdateUserProfile,
@@ -100,6 +100,10 @@ export default {
       ...mapMutations([
         "walletConnect",
         "dataServerConnect"
+      ]),
+      ...mapActions([
+        "getManageCycles",
+        "getCycle"
       ]),
     
     async test(){
@@ -156,9 +160,10 @@ export default {
 
           
           this.$store.dispatch("getUserProfile",this.user_lock_args).then(
-            function(res){
-              if(res)
-                this.loginToCkplanet()
+            (res) => {
+              if(res){
+                console.log(this)
+                this.loginToCkplanet()}
               else
                 this.dialogNewUser = true
               // TODO 开始接受信息的循环
@@ -180,6 +185,8 @@ export default {
 
     loginToCkplanet :   function(){
       console.log("logged to ckplanet")
+      this.getManageCycles()
+      
 
     },
 
