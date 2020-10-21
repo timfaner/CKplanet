@@ -78,7 +78,9 @@ const getWalletAuth = async () =>{
     if (mode === Operator.Update || mode === Operator.Delete) {
       cells = [currentCell, ...cells]
     }
+    let cells_to_delete = []
     for (let cell of cells) {
+      cells_to_delete.push(cell)
       rawTx.inputs.push({
         previousOutput: {
           txHash: cell.out_point.tx_hash,
@@ -102,7 +104,7 @@ const getWalletAuth = async () =>{
       alert('You have not enough CKB!')
       return
     }
-    return rawTx
+    return {rawTx,cells_to_delete}
   }
 
 
@@ -165,7 +167,7 @@ async function changeOnChain(
     }
 
 
-  let tx =  jointTx(
+  let {rawTx,cells_to_delete} =  jointTx(
     empty_cells_pool,
     current_cell,
     mode,
@@ -174,12 +176,13 @@ async function changeOnChain(
     current_cells_type,
     type_args
   )
+  let tx = rawTx
   
   try {
     let tx_hash = await sendTx(tx, lock_hash)
 
     //TODO 错误处理
-    return tx_hash
+    return {tx_hash,cells_to_delete}
   } catch (error) {
     console.error(error)
   }

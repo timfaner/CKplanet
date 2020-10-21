@@ -6,7 +6,7 @@
         <p> mode is {{modes}} </p>
 
         <h3> {{lists}} </h3>
-
+        <router-link :to="url">Go to about</router-link>
         <b-button   @click.prevent="test()" size="md" class="mr-auto">测试</b-button>
     </div>
 </template>
@@ -37,11 +37,13 @@ export default {
     methods:{
         test(){
             
-            this.$store.commit("updateManagedCyclesIndex",[1,2,3])
+            this.id = this.id + "1"
+            
         }
     },
     data: function(){
         return{
+    id:'1',
     DATA_STRUCT,        
     vaildDataType,
     postData,getData,
@@ -64,7 +66,8 @@ export default {
         "modes"
     ],
     computed:{
-        lists : function(){ return this.$store.state.ckplanet.user_managed_cycles_index}
+        lists : function(){ return this.$store.state.ckplanet.user_managed_cycles_index},
+        url: function(){return "/cycles/"+this.id+"/"+this.id}
     }
 }
 </script>

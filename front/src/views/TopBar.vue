@@ -13,7 +13,7 @@
 
         
         <div  >   <p> {{user_address}} </p>
-                <el-button @click="dialogUpdateDataServer=true"> 数据服务器 </el-button>
+               
         </div>
             
 

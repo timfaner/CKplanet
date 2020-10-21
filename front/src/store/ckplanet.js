@@ -1,5 +1,5 @@
 import {getData} from "@/ckb/data_server"
-import { getCycleTemplate, getUrl,vaildDataType } from "../ckb/ckplanet"
+import { decryptContent, getCycleTemplate, getUrl,vaildDataType } from "../ckb/ckplanet"
 import Vue from 'vue'
 import { generateAESKey, sha256 } from "../ckb/crypto"
 const ckplanet = {
@@ -85,6 +85,71 @@ const ckplanet = {
         }
     },
     actions:{
+        async getContentsList({state,commit,dispatch},{lock_args,cycle_id}){
+            let data_type  = "cycle_contents_list"
+            if(lock_args in state.cycles_pool)
+                if(cycle_id in state.cycles_pool[lock_args]){
+                    let cycle = state.cycles_pool[lock_args][cycle_id]
+
+                    let access_type=''
+                    if(cycle.cycle_profile.type==="open")
+                        access_type="public"
+                    else if (cycle.cycle_profile.type==="close")
+                        access_type="private"
+
+                    try {
+                        let contents_list = await dispatch("getDataByType",{lock_args,data_type,cycle_id,access_type})
+
+                        vaildDataType(data_type,contents_list)
+    
+                        commit("updateCyclesPool",{lock_args,cycle_id,cycle_props:{
+                            contents_list,
+                        }})
+                    } catch (error) {
+                        console.error("getContentsList failed",lock_args,cycle_id)
+                        throw(error)
+                    }
+                }
+            else
+                console.warn("Cycle not found. lock_args: "+lock_args + " cycle_id: "+ cycle_id)
+        },
+        async getContent({state,commit,dispatch},{lock_args,cycle_id,content_id}){
+
+            let data_type  = "cycle_content"
+            if(lock_args in state.cycles_pool)
+                if(cycle_id in state.cycles_pool[lock_args]){
+                    let cycle = state.cycles_pool[lock_args][cycle_id]
+
+                    let access_type=''
+                    if(cycle.cycle_profile.type==="open")
+                        access_type="public"
+                    else if (cycle.cycle_profile.type==="close")
+                        access_type="private"
+
+                    let aes_key = cycle.aes_key
+                    try {
+                        let content_encypted = await dispatch("getDataByType",{lock_args,data_type,cycle_id,content_id,access_type})
+                        let content = decryptContent(content_encypted,aes_key)
+                        vaildDataType(data_type,content)
+    
+                        let contents = cycle.contents
+                        contents = {...contents,[content_id]:content}
+                        commit("updateCyclesPool",{lock_args,cycle_id,cycle_props:{
+                            contents,
+                        }})
+                    } catch (error) {
+                        console.error("getContents failed",lock_args,cycle_id,content_id)
+                        throw(error)
+                    }
+                }
+                
+            else
+                console.warn("Cycle not found. lock_args: "+lock_args + " cycle_id: "+ cycle_id)
+
+            
+            
+
+        },
         async getManageCycles({state,dispatch,rootState}){
             try {
                 let lock_args = rootState.user_chain_info.lock_args
@@ -126,14 +191,16 @@ const ckplanet = {
             return res
         },
 
-        async getDataByType({getters},{lock_args,data_type,cycle_id}){
+        async getDataByType({getters},{lock_args,data_type,cycle_id,content_id,access_type}){
             let res = null
             let tmp1 = getters.getSthFromPool(lock_args,"data_server")
             let tmp2 = getters.getSthFromPool(lock_args,"access_token")
             if (tmp1 !== null && tmp2 !== null){
                 const server_url = tmp1.ip
                 try {
-                    const url = getUrl(data_type,tmp2,cycle_id)
+                    if(typeof(access_type)===undefined)
+                        access_type="public" 
+                    const url = getUrl(data_type,tmp2,cycle_id,content_id,access_type)
                     res = await getData(server_url,url)
                     if(res === null){
                         return res

@@ -51,8 +51,10 @@ let updateCyclesPool_testcase = [
                 aes_key:'',
                 user_lists:[],
                 contents:{
-                    autrui:[],
-                    ego:[]
+
+                },
+                contents_list:{
+
                 }    
             }
         }
@@ -70,9 +72,11 @@ let updateCyclesPool_testcase = [
                 aes_key:'biubl',
                 user_lists:[],
                 contents:{
-                    autrui:[],
-                    ego:[]
-                }    
+
+                },
+                contents_list:{
+
+                }
             }
     }}},
     {args:[
@@ -86,9 +90,11 @@ let updateCyclesPool_testcase = [
                 aes_key:'biubl',
                 user_lists:[],
                 contents:{
-                    autrui:[],
-                    ego:[]
-                }    
+
+                },
+                contents_list:{
+
+                }
             }
     },
     [lock_args[1]]:{
@@ -97,9 +103,11 @@ let updateCyclesPool_testcase = [
             aes_key:'biubll',
             user_lists:[],
             contents:{
-                autrui:[],
-                ego:[]
-                }    
+
+            },
+            contents_list:{
+
+            }
             }
         } 
     }
@@ -115,9 +123,11 @@ let updateCyclesPool_testcase = [
                 aes_key:'biubl',
                 user_lists:[],
                 contents:{
-                    autrui:[],
-                    ego:[]
-                }    
+
+                },
+                contents_list:{
+
+                }
             }
     },
     [lock_args[1]]:{
@@ -126,18 +136,22 @@ let updateCyclesPool_testcase = [
             aes_key:'biubll',
             user_lists:[],
             contents:{
-                autrui:[],
-                ego:[]
-                }    
+
+            },
+            contents_list:{
+
+            }
             },
         [cycle_ids[1]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubl',
             user_lists:[],
             contents:{
-                autrui:[],
-                ego:[]
-                }    
+
+            },
+            contents_list:{
+
+            }
             }
         }
     }
@@ -153,9 +167,11 @@ let updateCyclesPool_testcase = [
                 aes_key:'biubl',
                 user_lists:[],
                 contents:{
-                    autrui:[],
-                    ego:[]
-                }    
+
+                },
+                contents_list:{
+
+                }
             }
     },
     [lock_args[1]]:{
@@ -164,18 +180,22 @@ let updateCyclesPool_testcase = [
             aes_key:'biubll',
             user_lists:[],
             contents:{
-                autrui:[],
-                ego:[]
-                }    
+
+            },
+            contents_list:{
+
+            }
             },
         [cycle_ids[1]]:{
             cycle_profile:cycle_profiles[0],
             aes_key:'bababa',
             user_lists:[],
             contents:{
-                autrui:[],
-                ego:[]
-                }    
+
+            },
+            contents_list:{
+
+            }
             }
         }
     }

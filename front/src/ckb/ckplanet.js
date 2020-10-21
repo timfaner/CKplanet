@@ -13,7 +13,8 @@ const DATA_ID = {
     user_managed_cycle_list: () => "2",
     user_joined_cycle_list: () => "3",
     cycle_profile:(cycleid) =>{return "4:"+ cycleid},
-    cycle_contents:(cycleid) =>{return "5:"+ cycleid},
+    cycle_contents_list:(cycleid) =>{return "5:"+ cycleid},
+    cycle_content:(cycleid,contendid) => {return "50:" + cycleid+ ':' + contendid},
     cycle_users_list:(cycleid) => {return "6:" + cycleid},
     cycle_tokens_list:(cycleid) => {return "7:" + cycleid}
 }
@@ -29,7 +30,8 @@ const DATA_ACCESS = {
     user_managed_cycle_list:DATA_ACCESS_TYPE.PUBLIC,
     user_joined_cycle_list:DATA_ACCESS_TYPE.PUBLIC,
     cycle_profile:DATA_ACCESS_TYPE.PUBLIC,
-    cycle_contents:DATA_ACCESS_TYPE.DEPENDS,
+    cycle_contents_list:DATA_ACCESS_TYPE.DEPENDS,
+    cycle_content:DATA_ACCESS_TYPE.DEPENDS,
     cycle_users_list:DATA_ACCESS_TYPE.DEPENDS,
     cycle_tokens_list:DATA_ACCESS_TYPE.PUBLIC,
 }
@@ -48,13 +50,14 @@ const DATA_STRUCT = {
         {access_token_public:'0x',  //使用access_token_public 检索对应cycle
         data_id:'0'},
     ],
-    cycle_contents:[
-        {
-            title:'',
-            conctent:'',
-            time:'',
-        }
+    cycle_contents_list:[
+        '0','1'
     ],
+    cycle_content:{
+        title:'',
+        content:'',
+        time:''
+    },
     cycle_profile:{
         cycle_name:'',
         introduction:'',
@@ -79,12 +82,22 @@ const CYCLE = {
     },
     aes_key:'',
     user_lists:[],
+    contents_list:[],
     contents:{
-        autrui:[],
-        ego:[]
     }    
 }
 
+function encryptContent(content,aes_key){
+    content,aes_key
+    //TODO 
+    return content
+}
+
+function decryptContent(content,aes_key){
+    // TODO
+    content,aes_key
+    return content
+}
 function getCycleTemplate(){
     return JSON.parse(JSON.stringify(CYCLE))
 }
@@ -128,7 +141,7 @@ function decrtptCycleToken(k,v,ecdh_pk,ecdh_sk){
  * @param {string=string} cycle_id 
  * @param {number=1} depends  仅在权限为`0`时生效
  */
-function getUrl(data_type,access_token_items,cycle_id='',depends='public' ){
+function getUrl(data_type,access_token_items,cycle_id='',content_id='',depends='public' ){
     
     if( !(data_type in DATA_ID)){
         throw("Invaild data_type : ",data_type)
@@ -145,9 +158,9 @@ function getUrl(data_type,access_token_items,cycle_id='',depends='public' ){
         access_token = access_token_items['access_token_' + DATA_ACCESS[data_type] ]
     
     if(access_token === ''){
-        throw("empty depends type")
+        throw(" access_token not found : " +arguments ,access_token_items)
     }
-    let url = sha256(access_token + DATA_ID[data_type](cycle_id))
+    let url = sha256(access_token + DATA_ID[data_type](cycle_id,content_id))
     return url
 }
 
@@ -213,8 +226,8 @@ function getDataHash(data_type,data){
 }
 
 
-function getDataID(data_type,cycle_id){
-    return DATA_ID[data_type](cycle_id)
+function getDataID(data_type,cycle_id,content_id){
+    return DATA_ID[data_type](cycle_id,content_id)
 }
 
 export  {DATA_ID,
@@ -228,6 +241,7 @@ export  {DATA_ID,
         getDataTemplate,
         getDataID,
         getCycleTemplate,
-
+        encryptContent,
+        decryptContent
 }
 

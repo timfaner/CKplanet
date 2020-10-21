@@ -13,8 +13,8 @@
   </div>
 
   <el-dialog title="创建新的圈子" :visible.sync="dialogNewCycle">
-    <UpdateCycleProfile mode="create" ></UpdateCycleProfile>
-    <div slot="footer" class="dialog-footer">
+    <UpdateCycleProfile v-on:closedialog="dialogNewCycle=false" mode="create" ></UpdateCycleProfile>
+    <div slot="footer"  class="dialog-footer">
     </div>
   </el-dialog>
 
@@ -23,21 +23,17 @@
   <el-tab-pane> <p  slot="label"> My Planets ({{cycles.ego_cycles.length}}) </p>
   <div class="container">
 
-  <div/>
+
   <CycleItem
     v-for="cycle in cycles.ego_cycles"
-    :key="cycle"
+    :key="cycle.cycle_id"
     :cycle_profile="cycle.cycle_profile"
     :lock_args="cycle.lock_args"
-    :cycles_id="cycle.cycles_id"
+    :cycle_id="cycle.cycle_id"
     :cycle_member_num="cycle.user_lists.length"
     
   />
-  <div
-    v-for="cycle in cycles.ego_cycles"
-    :is="CycleItem"
-    :key="cycle"
-  />
+
 
   </div>
     
@@ -51,18 +47,14 @@
   <div/>
   <CycleItem
     v-for="cycle in cycles.autrui_cycles"
-    :key="cycle"
+    :key="cycle.cycle_id"
     :cycle_profile="cycle.cycle_profile"
     :lock_args="cycle.lock_args"
-    :cycles_id="cycle.cycles_id"
+    :cycle_id="cycle.cycle_id"
     :cycle_member_num="cycle.user_lists.length"
     
   />
-  <div
-    v-for="cycle in cycles.autrui_cycles"
-    :is="CycleItem"
-    :key="cycle"
-  />
+
     
 
   </div>
@@ -105,10 +97,11 @@ export default {
     localComputed(){return{
        ego_cycles_num: ()=>1,
        autrui_cycles_num : ()=>1,
-       pending_cycles_num : ()=>1,
+       
        }
     },
     ...mapState({
+      pending_cycles_num : ()=>1,
       loged_in : state => { return state.ckplanet.wallet_connected && state.ckplanet.data_server_connected},
       user_lock_args : state => state.user_chain_info.lock_args,
       cycles : function(state){
@@ -137,7 +130,6 @@ export default {
   data() {
     return{
       cycle_name: "Cycle Placeholder",
-      cycle_member_num :32,
       cycle_introduction: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut odio velit, cursus et vas lacus efficitur nec.",
       imageUrl:'https://placekitten.com/400/400',
       form:null,
@@ -159,8 +151,6 @@ export default {
   },
 
   methods:{
-
-
 
     }
   

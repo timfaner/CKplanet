@@ -39,7 +39,8 @@ data_types = [
     { key: 'cycle_profile', nth: 0 },
     { key: 'cycle_users_list', nth: 0 },
     { key: 'cycle_tokens_list', nth: 0 },
-    { key: 'cycle_contents',nth:0}
+    { key: 'cycle_contents_list',nth:0},
+    { key: 'cycle_content',nth:0}
   ]
 
 let dummy_data = [
@@ -49,7 +50,8 @@ let dummy_data = [
     { key: 'cycle_profile', data: ["xxx"] },
     { key: 'cycle_users_list', data: {u:"user"} },
     { key: 'cycle_tokens_list', data: ['sdsd'] },
-    { key: 'cycle_contents',data:[]}
+    { key: 'cycle_contents_list',data:{}},
+    { key: 'cycle_content', data:{time:"12",title:"title",content:"content"}} // time is number,not string
 ]
 
 let data_ids = [
@@ -59,8 +61,11 @@ let data_ids = [
     { key: 'cycle_profile', cycleid: "12",id:"4:12" },
     { key: 'cycle_users_list', cycleid: "12",id:"6:12" },
     { key: 'cycle_tokens_list',  cycleid: "12",id:"7:12"},
-    { key: 'cycle_contents', cycleid: "12",id:"5:12"}
+    { key: 'cycle_content', cycleid: "12", contentid: "4", id:"50:12:4"},
+    { key: 'cycle_contents_list', cycleid: "12",id:"5:12"}
   ]
+
+
 
 
 describe("Ckplanet data process ",function(){
@@ -68,14 +73,14 @@ describe("Ckplanet data process ",function(){
     describe("getDataID()",function(){
         data_ids.forEach(function(data){
             it(data.key+" should equal",function(){
-                return expect(getDataID(data.key,data.cycleid)).to.equal(data.id)
+                return expect(getDataID(data.key,data.cycleid,data.contentid)).to.equal(data.id)
             })
         })
     })
 
     describe("getDataTemplate()",function(){
         data_types.forEach(function(data_type){
-            it("should diffent with raw",function(){
+            it("should diffent with raw : "+data_type.key,function(){
                 let tmp = getDataTemplate(data_type.key)
                 let raw = DATA_STRUCT[data_type.key]
                 if (typeof(tmp) ==="object"){
@@ -116,7 +121,7 @@ describe("Ckplanet data process ",function(){
                 it("should same as server created",async function(){
                     
                     let {url} = await postData('',data_type.id,'',access_token_public)
-                    expect(getUrls(data_type.key,access_token_items,"12","public")).to.be.equal(url)
+                    expect(getUrls(data_type.key,access_token_items,data_type.cycleid,data_type.contentid,"public")).to.be.equal(url)
                     
                 } )
             })
