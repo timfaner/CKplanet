@@ -19,7 +19,9 @@ class DataSetter {
 
     async updateDataIntegrityOnChain(data_id,data_hash){
         const authToken = window.localStorage.getItem('authToken')
-        let data_hash_sig = await signMessage(data_hash,"Get data_hash_sig",authToken)
+
+        let address = this.store.state.user_chain_info.address
+        let data_hash_sig = await signMessage(data_hash,address,authToken)
         let tx_hash = await this.store.dispatch("updateDataIntegrityOnChain",
         {   
             data_id,

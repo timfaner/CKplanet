@@ -31,6 +31,12 @@ import {postData,getData}  from  '@/ckb/test'
 import {DataServer} from '@/ckb/data_server'
 import {vaildDataType,DATA_STRUCT} from    '@/ckb/ckplanet'
 
+import {  getCellsByLocks,
+  requestAuth,
+  queryAddresses,
+  signAndSendTransaction,
+  signMessage,} from "@/ckb/rpc.js"
+
 
 export default {
     name: "Test",
@@ -43,6 +49,12 @@ export default {
     },
     data: function(){
         return{
+
+              getCellsByLocks,
+  requestAuth,
+  queryAddresses,
+  signAndSendTransaction,
+  signMessage,
     id:'1',
     DATA_STRUCT,        
     vaildDataType,

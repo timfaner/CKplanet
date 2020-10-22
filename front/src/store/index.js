@@ -242,15 +242,15 @@ export default new Vuex.Store({
     async getAccessToken({commit,state}){
 
       const authToken = window.localStorage.getItem('authToken')
-
-      let access_token = await signMessage("public","Get public token",authToken)
+      let address = state.user_chain_info.address
+      let access_token = await signMessage("public",address,authToken)
       commit("updatePublicId",{access_token})
       commit("updateAccessTokens",{
         lock_args: state.user_chain_info.lock_args,
         access_token_public:access_token
       })
 
-      access_token = await signMessage("private","Get access_token_private ",authToken)
+      access_token = await signMessage("private",address,authToken)
       commit("updatePrivateId",{access_token}) 
       commit("updateAccessTokens",{
         lock_args:state.user_chain_info.lock_args,

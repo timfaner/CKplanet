@@ -8,8 +8,11 @@
         </b-navbar-nav>
         
 
-        <el-button @click="dialogSelectWallet = true"> 连接钱包 </el-button>
+        <el-button v-if="!wallet_connected" @click="dialogSelectWallet = true"> 连接钱包 </el-button>
+
+        <el-button v-if="wallet_connected" @click="dialogSelectWallet = true"> 切换钱包 </el-button>
          
+        <el-button v-if="data_server_connected" @click="dialogUpdateDataServer = true"> 切换数服务器 </el-button>
 
         
         <div  >   <p> {{user_address}} </p>
@@ -89,7 +92,10 @@ export default {
         user_address: state=>state.user_chain_info.address,
         user_lock_args : state => state.user_chain_info.lock_args,
         ckplanet : state => state.ckplanet,
-        user_managed_cycles_index: state => state.ckplanet.user_managed_cycles_index
+        user_managed_cycles_index: state => state.ckplanet.user_managed_cycles_index,
+        wallet_connected: state => state.ckplanet.wallet_connected,
+        data_server_connected : state => state.ckplanet.data_server_connected
+
       }),
     components: {
       UpdateUserProfile,

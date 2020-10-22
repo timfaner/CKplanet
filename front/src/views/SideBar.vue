@@ -77,7 +77,7 @@ export default {
         else
           return {
             nickname:"请填写昵称",
-            avatar_url:"https://placekitten.com/400/400"
+            avatar_url:"https://hiltonsheartland.com/wp-content/uploads/2013/08/unknown-avatar.jpg"
             }
         
           

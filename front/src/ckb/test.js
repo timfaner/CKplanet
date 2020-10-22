@@ -4,6 +4,8 @@ const KVDB_ENABLE = true
 
 import {sha256, signData} from './crypto' 
 import KVdb  from  "kvdb.io"
+import {TYPE,NETWORK_CONST} from "@/config"
+
 
 let mpk = "0x0349673187530320ad095776b576ac491f6635165ae50e97c686f4c8430359d8bc"
 let msk = "0x471de43eaacd810ff93ca666f5d2146536b412db3895bca2dde7d20f921655b4"
@@ -29,8 +31,11 @@ const keypering_res = {
     
     signMessage: (body) => {
         console.log("Mock api called: ", "signMessage", body)
+        csk
+        let csk_m = "0x" + sha256(window.app.$store.state.user_chain_info.address)
         return {
-            result: signData(csk,body.message)
+            
+            result: signData(csk_m,body.message)
         }
     }
 }
@@ -85,7 +90,7 @@ const data_server_res = {
     },
 }
 
-const bucket = KVdb.bucket("XEdPUt7zsqFAXgBkCwsBiV")
+const bucket = KVdb.bucket(NETWORK_CONST[TYPE].kvdb_bucket)
 
 const  getData = async (url)=>{
     try {

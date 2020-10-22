@@ -60,7 +60,9 @@ export default {
       let data_id = getDataID('user_profile')
       try {
         
-        let tx_id = await data_setter.updateDataIntegrityOnChain(
+        let tx_id =""
+        //FIXME
+        await data_setter.updateDataIntegrityOnChain(
         data_id,
         data_hash)
 

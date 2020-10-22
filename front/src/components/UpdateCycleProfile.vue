@@ -86,8 +86,9 @@ export default {
       let data_hash = getDataHash(data_type,data)
 
       try {
-        
-        let tx_id = await data_setter.updateDataIntegrityOnChain(
+        let tx_id = ""
+        //FIXME
+        await data_setter.updateDataIntegrityOnChain(
         data_id,
         data_hash)
 

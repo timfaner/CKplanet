@@ -129,11 +129,11 @@ id: string
 jsonrpc: '2.0'
 result: string
 */
-
-const signMessage = async (msg,description,token) => {
+//TODO 测试
+const signMessage = async (msg,address,token) => {
   let payload = {
     message:msg,
-    description,
+    address,
   }
 
   if (MOCK_API){
@@ -148,6 +148,7 @@ const signMessage = async (msg,description,token) => {
       body: JSON.stringify({
         id: 3,
         jsonrpc: '2.0',
+        
         method: 'sign_message',
         params: payload
       }),
@@ -155,7 +156,7 @@ const signMessage = async (msg,description,token) => {
     res = await res.json()
 
     //TODO 错误处理
-    return res.result
+    return res.result.sig
   } catch (error) {
     console.error('error', error)
   }
