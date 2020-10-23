@@ -80,6 +80,7 @@ const CYCLE = {
         avatar_url:'',
         type:'' //enmu, open|close
     },
+    joined_status:'', //enmu , joined|pending|disjointed
     aes_key:'',
     user_lists:[],
     contents_list:[],

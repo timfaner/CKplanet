@@ -49,13 +49,12 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'',
+                joined_status: "",
                 user_lists:[],
                 contents:{
 
                 },
-                contents_list:{
-
-                }    
+                contents_list:[]    
             }
         }
     }
@@ -70,13 +69,12 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
+                joined_status: "",
                 user_lists:[],
                 contents:{
 
                 },
-                contents_list:{
-
-                }
+                contents_list:[]
             }
     }}},
     {args:[
@@ -88,26 +86,24 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
+                joined_status: "",
                 user_lists:[],
                 contents:{
 
                 },
-                contents_list:{
-
-                }
+                contents_list:[]
             }
     },
     [lock_args[1]]:{
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
+            joined_status: "",
             user_lists:[],
             contents:{
 
             },
-            contents_list:{
-
-            }
+            contents_list:[]
             }
         } 
     }
@@ -121,37 +117,34 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
+                joined_status: "",
                 user_lists:[],
                 contents:{
 
                 },
-                contents_list:{
-
-                }
+                contents_list:[]
             }
     },
     [lock_args[1]]:{
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
+            joined_status: "",
             user_lists:[],
             contents:{
 
             },
-            contents_list:{
-
-            }
+            contents_list:[]
             },
         [cycle_ids[1]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubl',
+            joined_status: "",
             user_lists:[],
             contents:{
 
             },
-            contents_list:{
-
-            }
+            contents_list:[]
             }
         }
     }
@@ -165,37 +158,34 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
+                joined_status: "",
                 user_lists:[],
                 contents:{
 
                 },
-                contents_list:{
-
-                }
+                contents_list:[]
             }
     },
     [lock_args[1]]:{
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
+            joined_status: "",
             user_lists:[],
             contents:{
 
             },
-            contents_list:{
-
-            }
+            contents_list:[]
             },
         [cycle_ids[1]]:{
             cycle_profile:cycle_profiles[0],
             aes_key:'bababa',
+            joined_status: "",
             user_lists:[],
             contents:{
 
             },
-            contents_list:{
-
-            }
+            contents_list:[]
             }
         }
     }

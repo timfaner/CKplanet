@@ -19,9 +19,25 @@ const ckplanet = {
         cycles_pool:{},
 
 
+
     }),
     mutations:{
         updateJoinedCyclesIndex(){},
+        updateCycleContents(state,{lock_args,cycle_id,content_id,content,mode}){
+            if(lock_args in state.cycles_pool)
+                if(cycle_id in state.cycles_pool[lock_args]){
+
+                    if(mode==="create" || mode==="update")
+                        Vue.set(state.cycles_pool[lock_args][cycle_id].contents,content_id,content)
+                    else if (mode === "delete")
+                        Vue.delete(state.cycles_pool[lock_args][cycle_id].contents,content_id)
+                    
+                }
+
+            console.error("updateCycleContents faild",arguments)
+
+        },
+
         updateCyclesPool(state,{lock_args,cycle_id,cycle_props}){
             let tmp = getCycleTemplate()
             if(typeof(lock_args)==="undefined" || typeof(cycle_id) === "undefined" || typeof(cycle_props) ==="undefined")
@@ -132,11 +148,14 @@ const ckplanet = {
                         let content = decryptContent(content_encypted,aes_key)
                         vaildDataType(data_type,content)
     
-                        let contents = cycle.contents
-                        contents = {...contents,[content_id]:content}
-                        commit("updateCyclesPool",{lock_args,cycle_id,cycle_props:{
-                            contents,
-                        }})
+                        commit("updateCycleContents",{
+                            lock_args,
+                            cycle_id,
+                            content_id,
+                            content,
+                            mode:"update"
+
+                        })
                     } catch (error) {
                         console.error("getContents failed",lock_args,cycle_id,content_id)
                         throw(error)
@@ -149,6 +168,19 @@ const ckplanet = {
             
             
 
+        },
+        async getCycleContents({dispatch,state},{lock_args,cycle_id}){
+            try {
+                await dispatch("getContentsList",{lock_args,cycle_id})
+                let contents_list = state.cycles_pool[lock_args][cycle_id].contents_list
+                contents_list.forEach(function(content_id){
+                    dispatch("getContent",{lock_args,cycle_id,content_id})
+                })
+            } catch (error) {
+                console.warn("getCyclesContents failed")
+                throw(error)
+            }
+        
         },
         async getManageCycles({state,dispatch,rootState}){
             try {
@@ -191,13 +223,22 @@ const ckplanet = {
             return res
         },
 
-        async getDataByType({getters},{lock_args,data_type,cycle_id,content_id,access_type}){
+        async getDataByType({getters,dispatch},{lock_args,data_type,cycle_id,content_id,access_type}){
             let res = null
             let tmp1 = getters.getSthFromPool(lock_args,"data_server")
             let tmp2 = getters.getSthFromPool(lock_args,"access_token")
-            if (tmp1 !== null && tmp2 !== null){
-                const server_url = tmp1.ip
+            if (tmp1 === undefined || tmp2 === undefined ){
+                let res = await dispatch("getDataServerInfo",lock_args)
+                tmp1 = getters.getSthFromPool(lock_args,"data_server")
+                tmp2 = getters.getSthFromPool(lock_args,"access_token")
+                if (res===null){
+                    throw("DataServer info of "+ lock_args +" not found")
+                }
+            }
+                
+ 
                 try {
+                    const server_url = tmp1.ip
                     if(typeof(access_type)===undefined)
                         access_type="public" 
                     const url = getUrl(data_type,tmp2,cycle_id,content_id,access_type)
@@ -210,10 +251,10 @@ const ckplanet = {
                     }
                     
                 } catch (error) {
-                    console.error("get Data of "+ data_type + "error",error)
+                    console.error("get Data of "+ data_type + " error",error)
                     throw(error)
                 }
-        }
+        
     },
 
         async getManagedCyclesIndex({commit,getters},lock_args){
