@@ -52,13 +52,16 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 
 import PublishCycleContent from "../components/PublishCycleContent.vue"
 import UpdateCycleProfile from "../components/UpdateCycleProfile.vue"
 import ContentItem from "../components/ContentItem.vue"
-import {getCycleTemplate} from "@/ckb/ckplanet.js"
+import {getCycleTemplate,getDataID} from "@/ckb/ckplanet.js"
+
+import {DataServer,DataSetter} from "@/ckb/data_handler"
+
 
 
 export default {
@@ -74,6 +77,13 @@ export default {
         UpdateCycleProfile,
         PublishCycleContent,
         ContentItem
+    },
+    created (){
+        this.fetchData()
+    },
+    watch: {
+        // 如果路由有变化，会再次执行该方法
+        '$route': 'fetchData'
     },
     computed:{
         
@@ -102,8 +112,66 @@ export default {
             return contents}
     },
     methods:{
+        ...mapActions([
+            "getCycle",
+            "getCycleContents",
+
+
+        ]),
+        joinCycle:function(){
+        // TODO join\leave\dispend 。。。
+        let user_ds = new DataServer(this.$store,this.user_lock_args)
+        let data_setter = new DataSetter(user_ds)
+        let joined_cycle = this.$store.ckplanet.user_joined_cycles_index
+            if(this.cycle.joined_status==="disjointed"){
+                joined_cycle.push({
+                    lock_args:this.lock_args,
+                    cycle_id:this.cycle_id})
+                
+                }
+        let data_type = "user_joined_cycle_list"
+        let data_id = getDataID(data_type)
+
+        data_setter.postData(
+            joined_cycle,
+            data_id,
+            "public",
+            false,
+            ""
+        ).catch((e) => console.error(e))
+        //TODO 发送给cycle 拥有者
+
+        //TODO 更新列表，更新cycle状态
+
+        },
         test:function(){
             this.PublishCycleContent
+        },
+        fetchData:async function(){
+            console.log("fetch date of " + this.lock_args + " "+ this.cycle_id)
+//添加loading遮罩与错误提醒
+            try {
+                let pools = this.$store.state.ckplanet.cycles_pool
+                if(this.lock_args in pools)
+                    if(this.cycle_id in pools[this.lock_args]){
+                    let res = await this.getCycle({
+                        lock_args:this.lock_args,
+                        cycle_id:this.cycle_id
+                    })
+                    if(res===null){
+                        return
+                    }
+                }
+                this.getCycleContents({
+                    lock_args:this.lock_args,
+                    cycle_id:this.cycle_id
+                    }).catch((error)=> console.error("Loding contents error",error))
+            } catch (error) {
+                console.log(error)
+            }
+
+
+            
         }
     },
 

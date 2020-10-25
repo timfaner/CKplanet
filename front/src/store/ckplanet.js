@@ -315,6 +315,10 @@ const ckplanet = {
                 if(cycle_profile === null)
                     return cycle_profile
                 
+                data_type = 'cycle_tokens_list'
+                
+                let cycle_tokens_list = await dispatch("getDataByType",{lock_args,data_type,cycle_id})
+
                 
                 commit("updateCyclesPool",{
                     lock_args,
@@ -323,6 +327,9 @@ const ckplanet = {
                         cycle_profile
                     }
                 })
+
+
+                //TODO if(joined)
                 //获取或生成key
                 await dispatch("getCycleAesKey",{lock_args,cycle_id})
                 

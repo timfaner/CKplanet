@@ -19,7 +19,7 @@
               default-active="2"
               class="el-menu-vertical-demo"
               router>
-              <el-menu-item route="/cycles" index="1">
+              <el-menu-item route="/LiveFeeds" index="1">
               <i class="el-icon-connection"></i>
               <span slot="title">我的圈子</span>
               </el-menu-item>
