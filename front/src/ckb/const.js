@@ -1,7 +1,11 @@
 const BN = require('bn.js')
 
-const RICH_NODE_RPC_URL = 'https://prototype.ckbapp.dev/testnet/rpc'
-const RICH_NODE_INDEXER_URL = 'https://prototype.ckbapp.dev/testnet/indexer'
+import {TYPE,NETWORK_CONST} from "@/config.js"
+
+const RICH_NODE_RPC_URL = NETWORK_CONST[TYPE].rpc_url
+const RICH_NODE_INDEXER_URL = NETWORK_CONST[TYPE].indexer_url
+
+
 const KEYPERING_URL = 'http://localhost:3102'
 
 const MIN_CAPACITY = new BN('6100000000')
@@ -9,7 +13,9 @@ const TRANSACTION_FEE = new BN('10000000')
 
 const CODE_HASH_CAPACITY = new BN('3200000000')
 
+const CELLS_CACHE_TIME = 5000 //in ms
 
+const DAPP_ID = "ckplanet"
 const DAPP_DESCRIPTION = 'Simplest DApp are requesting to sign and send transactions'
 
 const Operator = {
@@ -18,12 +24,18 @@ const Operator = {
   Delete: 'delete',
 }
 
-const SECP256K1_BLAKE160_CODE_HASH = '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8'
-const SECP256K1_BLAKE160_DEP_TXHASH = '0xf8de3bb47d055cdf460d93a2a6e1b05f7432f9777c8c474abf4eec1d4aee5d37'
-const DATASERVER_INFO_CODE_HASH = ''
-const DATA_INTEGRITY_CODE_HASH = ''
-const DATASERVER_INFO_DEP_TXHASH = ''
-const DATA_INTEGRITY_DEP_TXHASH = ''
+const SECP256K1_BLAKE160_CODE_HASH =  NETWORK_CONST[TYPE].secp256k1.codeh
+const SECP256K1_BLAKE160_DEP_TXHASH = NETWORK_CONST[TYPE].secp256k1.txh
+
+const DATASERVER_INFO_DEP_TXHASH = NETWORK_CONST[TYPE].dataserver_info.txh
+const DATASERVER_INFO_CODE_HASH = NETWORK_CONST[TYPE].dataserver_info.codeh
+
+
+
+
+const DATA_INTEGRITY_DEP_TXHASH = NETWORK_CONST[TYPE].data_interity.txh
+const DATA_INTEGRITY_CODE_HASH = NETWORK_CONST[TYPE].data_interity.codeh
+
 
 
 const DATASERVER_INFO = {
@@ -35,9 +47,9 @@ const DATASERVER_INFO = {
     depType:'code'
   },
   script:{
-    code_hash:DATASERVER_INFO_CODE_HASH,
+    codeHash:DATASERVER_INFO_CODE_HASH,
     args:'',
-    hash_type:'data'
+    hashType:'data'
   },
 }
 
@@ -50,9 +62,9 @@ const DATA_INTEGRITY = {
     depType:'code'
   },
   script:{
-    code_hash:DATA_INTEGRITY_CODE_HASH,
+    codeHash:DATA_INTEGRITY_CODE_HASH,
     args:'',
-    hash_type:'data'
+    hashType:'data'
   },
 }
 
@@ -60,7 +72,7 @@ const DATA_INTEGRITY = {
 
 
 
-module.exports = {
+ export  {
   RICH_NODE_RPC_URL,
   RICH_NODE_INDEXER_URL,
   MIN_CAPACITY,
@@ -73,4 +85,6 @@ module.exports = {
   DATASERVER_INFO,
   DATA_INTEGRITY,
   CODE_HASH_CAPACITY,
+  DAPP_ID,
+  CELLS_CACHE_TIME
 }

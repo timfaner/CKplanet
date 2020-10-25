@@ -1,5 +1,5 @@
 <template>
-<div id="updateDialog">
+<div id="UpdateUserProfile">
     <el-upload
         class="avatar-uploader"
         action="''"
@@ -13,9 +13,11 @@
     </el-upload>
     <el-form :model="form">
         <el-form-item label="昵称" :label-width="formLabelWidth">
-        <el-input  autocomplete="off"></el-input>
+        <el-input v-model="nickname" autocomplete="off"></el-input>
         </el-form-item>
-
+          <el-form-item>
+        <el-button type="primary" @click="updateUserProfile()">保存</el-button>
+         </el-form-item>
     </el-form>
 
 </div>
@@ -25,6 +27,10 @@
 
 import { makeId} from "@/ckb/utils"
 import {OSS_CONFIG} from "@/config"
+import {DataServer} from "@/ckb/data_server"
+import {DataSetter } from "@/ckb/data_handler"
+import { getDataTemplate,getDataHash,getDataID } from "@/ckb/ckplanet"
+import {mapState} from "vuex"
 
 const OSS = require("ali-oss")
 
@@ -33,8 +39,56 @@ const client = new OSS(OSS_CONFIG)
 
 
 export default {
-  name: 'UpdateInfoDialog',
+  name: 'UpdateUserProfile',
+    computed: mapState({
+        user_address: state=>state.user_chain_info.address,
+        user_lock_args : state => state.user_chain_info.lock_args,
+
+      }),
   methods:{
+
+    updateUserProfile : async function(){
+      let user_ds = new DataServer(this.$store,this.user_lock_args)
+      let data_setter = new DataSetter(user_ds)
+
+      let data = getDataTemplate('user_profile')
+      data.nickname = this.nickname
+      data.avatar_url = this.imageUrl
+
+      //FIXME 获取hash的逻辑等等
+      let data_hash = getDataHash('user_profile',data)
+      let data_id = getDataID('user_profile')
+      try {
+        
+        let tx_id =""
+        //FIXME
+        await data_setter.updateDataIntegrityOnChain(
+        data_id,
+        data_hash)
+
+        console.log("updateDataIntegrityOnChain")
+        await data_setter.postData(
+          data,
+          data_id,
+          'public',
+          true,
+          tx_id
+        )
+
+        this.$message({
+            message: '成功更新个人信息',
+            type: 'success'
+          })
+
+        //更新vuex store
+        this.$store.dispatch("getUserProfile",this.user_lock_args).catch((e)=>{throw(e)})
+        this.$emit("closedialog")
+      }
+       catch (error) {
+        this.$message.error(error)
+      }
+      
+    },
     upload: async function(item){
         const key= "avatar/" + makeId(10) + '.jpeg'
         try {
@@ -58,12 +112,12 @@ export default {
         const isLt2M = file.size / 1024 / 1024 < 2;
 
         if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
+          //this.$message.error('上传头像图片只能是 JPG 格式!');
         }
         if (!isLt2M) {
           this.$message.error('上传头像图片大小不能超过 2MB!');
         }
-        return isJPG && isLt2M;
+        return isLt2M;
       }
   },
   data: function(){
@@ -73,7 +127,7 @@ export default {
       form:null,
       formLabelWidth:'100',
       test:null,
-      loading:false,
+      nickname:'',
     }
   },
   props: {
@@ -85,7 +139,7 @@ export default {
 
 <style scoped>
 
-#updateDialog {
+#UpdateUserProfile {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

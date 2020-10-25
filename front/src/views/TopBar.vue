@@ -3,44 +3,45 @@
         <b-navbar-brand class="col-md-1 col-lg-2" href="#">CKPlanet</b-navbar-brand>
         <!-- Right aligned nav items -->
         <b-navbar-nav class="col-md-8 col-sm-4">
-            <b-form-input size="md" class="mr-2 my-2"  placeholder="Search"></b-form-input>
+            <b-form-input  size="md" class="mr-2 my-2"  placeholder="Search"></b-form-input>
             <b-button size="md" class="my-2 mr-auto" type="submit">Search</b-button>
         </b-navbar-nav>
-        <b-button   @click.prevent="test()" size="md" class="ml-auto">测试</b-button>
-        <b-button v-b-modal.modal-1 size="md" class="ml-auto">登陆</b-button>
+        
+
+        <el-button v-if="!wallet_connected" @click="dialogSelectWallet = true"> 连接钱包 </el-button>
+
+        <el-button v-if="wallet_connected" @click="dialogSelectWallet = true"> 切换钱包 </el-button>
+         
+        <el-button v-if="data_server_connected" @click="dialogUpdateDataServer = true"> 切换数服务器 </el-button>
+
+        
+        <div  >   <p> {{user_address}} </p>
+               
+        </div>
             
-        <el-dialog  :visible.sync="dialogNewUser" append-to-body>
-          <NewUserGuide></NewUserGuide>
-          <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogNewUser = false">取 消</el-button>
-          <el-button type="primary" @click="dialogNewUser = false">确 定</el-button>
+
+        <el-dialog  :visible.sync="dialogUpdateDataServer" title="连接数据服务器" append-to-body>
+          <UpdateDataServer v-on:closedialog="finalizeUpdateDataServer"></UpdateDataServer>
+          <div  slot="footer" class="dialog-footer">
           </div>
         </el-dialog>
 
-        <b-modal    id="modal-1" title="输入登陆信息" centered>
-            <b-container fluid>
-            <b-row class="mb-3">
-            <b-col>
-            <b-dropdown block  menu-class="w-100" id="dropdown-wallet"  :text=walletname class="mx-auto">
-                <b-dropdown-item  @click.prevent="connectWallet()" v-model="walletname" >Keypering</b-dropdown-item>
-            </b-dropdown>
-            </b-col>
-            </b-row>
-            <b-col>
-            <el-link :href="'https://explorer.nervos.org/address/'+address" >{{address}}</el-link>
-            </b-col>
-            <el-collapse-transition>
-            <b-row class="my-3" v-show="showed">
-            <b-col>
-            <b-dropdown  block menu-class="w-100" id="dropdown-dataserver"  text="选择数据服务器" class="mx-auto">
-                <b-dropdown-item href="#">CKdata</b-dropdown-item>
-            </b-dropdown>
-            </b-col>
-            </b-row>
-            </el-collapse-transition>
-            
-            </b-container>
-        </b-modal>
+        
+        <el-dialog  :visible.sync="dialogNewUser" title="新建用户信息" append-to-body>
+          <UpdateUserProfile v-on:closedialog="finalizeNewUser"></UpdateUserProfile>
+          <div  slot="footer" class="dialog-footer">
+          </div>
+        </el-dialog>
+
+
+        <el-dialog :visible.sync="dialogSelectWallet" title="选择钱包" :modal=false >
+          <el-button @click="login()">  Keypering</el-button>
+          <div slot="footer" class="dialog-footer">
+          </div>
+        </el-dialog>
+
+
+
     </b-navbar>
 </template>
 
@@ -50,20 +51,27 @@
 
 
 import { formatCkb } from '@/ckb/utils'
+import { getWalletAuth} from '../ckb/transaction'
 
-import {hashfunction,generatePrivKey,signData,verifyData,getPubKey} from '@/ckb/crypto'
+import {} from "@/ckb/ckplanet"
+import {mapState,mapMutations, mapActions} from "vuex"
+import {DataServer} from "@/ckb/data_server"
+//import {DataSetter } from "@/ckb/data_handler"
 
-import { getAuth, } from '@/ckb/transcation'
-import NewUserGuide from "@/components/NewUserGuide.vue"
+import UpdateUserProfile from "@/components/UpdateUserProfile.vue"
+import UpdateDataServer from "@/components/UpdateDataServer.vue"
+
+
 
 
 export default {
     name: 'TopBar',
     data: function () {
         return {
-        hashfunction,
+        data_server_ip:'',
+        dialogSelectWallet : false,
+        dialogUpdateDataServer: false,
         dialogNewUser: false,
-        hashfunction,generatePrivKey,signData,verifyData,getPubKey,
         walletname:"选择钱包",
         showed:false,
         lockScript: undefined,
@@ -80,11 +88,18 @@ export default {
         
         }
   },
-    computed: {
-    address: function (){return this.$store.state.user_chain_info.address}
-  },
+    computed: mapState({
+        user_address: state=>state.user_chain_info.address,
+        user_lock_args : state => state.user_chain_info.lock_args,
+        ckplanet : state => state.ckplanet,
+        user_managed_cycles_index: state => state.ckplanet.user_managed_cycles_index,
+        wallet_connected: state => state.ckplanet.wallet_connected,
+        data_server_connected : state => state.ckplanet.data_server_connected
+
+      }),
     components: {
-      NewUserGuide,
+      UpdateUserProfile,
+      UpdateDataServer,
     },
     methods:{
     
@@ -92,6 +107,17 @@ export default {
       console.log(this)
       this.dialogNewUser = true
     },
+
+      ...mapMutations([
+        "walletConnect",
+        "dataServerConnect"
+      ]),
+      ...mapActions([
+        "getManageCycles",
+        "getCycle"
+      ]),
+    
+
 
     notifiy(msg,type) {
         this.$notify.success({
@@ -102,25 +128,91 @@ export default {
       },
     
 
-    connectWallet: async function (){
+    login: async function (){
       this.walletname="Keypering"
       try {
         this.$parent.loadings=true 
 
-        console.log(getAuth)
-        await getAuth().then(this.$store.dispatch('getUser'))
+        console.log("getting wallet auth...")
+        await getWalletAuth()
+        this.walletConnect(true)
+
+        console.log("getting user  onchain info")
+        await this.$store.dispatch('getUser')
+        
+        this.user_ds 
+        let user_ds = new DataServer(this.$store,this.user_lock_args)
+        //let data_setter = new DataSetter(user_ds)
+
+        //获取用户自己的access_token
+
+        await user_ds.getAccessToken()
+
+
+        //获取服务器信息
+        let res = await user_ds.getDataServer()
+        console.log(res)
+
+        if(res === null){
+          console.log("new user to  Data Server")
+          this.dialogUpdateDataServer = true
+        }
+
+        else{
+          await user_ds.getDataserverAuth()
+          this.$message({
+            message: "成功连接服务器",
+            type:"success"
+          })
+          this.dataServerConnect(true)
+
+
+          
+          this.$store.dispatch("getUserProfile",this.user_lock_args).then(
+            (res) => {
+              if(res){
+                console.log(this)
+                this.loginToCkplanet()}
+              else
+                this.dialogNewUser = true
+              // TODO 开始接受信息的循环
+            }).catch( e=> {throw(e)})
+          
+        }
+
 
         this.$parent.loadings=false
         this.notifiy("连接钱包成功","Info")
-        this.showed = true
+        this.dialogSelectWallet=false
 
       } catch (error) {
+        this.$parent.loadings=false
+        this.notifiy("连接钱包失败","Error")
         console.error(error)
       }
     },
 
-    connectDataserver: function(){
+    loginToCkplanet :   function(){
+      console.log("logged to ckplanet")
+      this.getManageCycles()
+      
 
+    },
+
+    finalizeUpdateDataServer: function(){
+      if(this.ckplanet.data_server_connected){
+        this.dialogUpdateDataServer = false
+        if(! this.$store.getters.userProfile(this.user_lock_args))
+          this.dialogNewUser = true
+        }
+        else
+          this.loginToCkplanet()
+        
+    },
+
+    finalizeNewUser: function(){
+      this.dialogNewUser = false
+      this.loginToCkplanet()
     },
 
     formatCkb: function (value) {

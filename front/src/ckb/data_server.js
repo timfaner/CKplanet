@@ -1,17 +1,96 @@
-const {hashfunction,
-        generatePrivKey,
-        importPrivKey,
+import {
         signData,
-        verifyData,
-        exportPrivKey,
-        exportPubKey,
-        getPubKey} = require("@/ckb/crypto")
+        
+        } from "@/ckb/crypto" 
+
+import {data_server_res,MOCK_API} from "./test"
+
+
+class DataServer{
+
+  constructor(store,lock_args){
+    this.store = store
+    this.lock_args = lock_args
+    try {
+      this.ip = store.state.data_server_pool[lock_args].ip
+    } catch (error) {
+      this.ip = ''
+      console.warn("Inital data_server empty, lock_args: ",lock_args)
+    }
+    
+  }
+
+  setIp(ip){
+    this.ip = ip
+    this.store.commit("updateDataServer",{
+      lock_args:this.lock_args,
+      ip,
+    })
+  }
+  async getAccessToken(){
+
+    if (this.store.getters.getAccessToken("public") === "" || 
+      this.store.getters.getAccessToken("private") === "" ){
+      try {
+        await this.store.dispatch("getAccessToken")
+      } catch (error) {
+          console.error(error)
+      }
+    }
+  }
+
+  async updateDataServerInfo(){
+    let user_id = this.store.state.user_id_public
+
+    try {
+      let tx_hash = await this.store.dispatch("updateDataServerInfoOnChain",
+      {   
+          dataserver_ip:this.ip,
+          access_token_public:user_id.access_token,
+          access_token_public_pk:user_id.pk,
+      })
+      return tx_hash
+    } catch (error) {
+      console.error("update data server info failed ;user_id = ",user_id)
+      throw(error)
+    }
+
+  }
+
+
+  async getDataServer(){
+
+    let res = await this.store.dispatch("getDataServerInfo",this.lock_args)
+    return res
+
+  }
+
+
+  async getDataserverAuth(){
+
+    try {      
+      await this.store.dispatch("getDataServerMpk",this.lock_args)
+      //获取access_token_private,access_token_public
+      await this.store.dispatch("getPubId")
+      await this.store.dispatch("getPriId")
+    } catch (error) {
+      console.error(error)
+      throw("get DataServer auth failed",this.ip,error)
+    }
+  }
+
+}
+
+
 
 const getMpk = async (server_url) =>{
     let payload = {
 
     }
-
+    if (MOCK_API){
+      let res = await data_server_res.getMpk()
+      return res.mpk
+    }
     const body = JSON.stringify(payload, null, '  ')
     try {
         let res = await fetch(server_url, {
@@ -22,11 +101,13 @@ const getMpk = async (server_url) =>{
           body,
         })
         res = await res.json()
-        return res.result.objects
+        return res.mpk
       } catch (error) {
         console.error('error', error)
       }
 }
+
+
 
 
 const getAuth = async (server_url,access_token,msg,cpk) =>{
@@ -36,8 +117,11 @@ const getAuth = async (server_url,access_token,msg,cpk) =>{
         msg,
         cpk,
     }
-
+    if (MOCK_API){
+      return data_server_res.getAuth(payload)
+    }
     const body = JSON.stringify(payload, null, '  ')
+    console.log(body)
     try {
         let res = await fetch(server_url, {
           method: 'POST',
@@ -54,19 +138,22 @@ const getAuth = async (server_url,access_token,msg,cpk) =>{
 }
 
 //TODO 有或者没有txid
-const uploadData = async (server_url,dataId,data,accessToken,sig,txid="",dataHash="",pk,cert) =>{
+const postData = async (server_url,data_id,data,access_token,sig,txid="",dataHash="",pk,cert) =>{
     let payload = {
-        dataId,
+        data_id,
         data,
-        accessToken,
+        access_token,
         sig,
         txid,
         dataHash,
         pk,
         cert,
     }
-
+    if (MOCK_API){
+      return data_server_res.postData(payload)
+    }
     const body = JSON.stringify(payload, null, '  ')
+    console.log(body)
     try {
         let res = await fetch(server_url, {
           method: 'POST',
@@ -88,8 +175,14 @@ const getData = async (server_url,url) =>{
         url,
     }
 
+    if (MOCK_API){
+      return data_server_res.getData(payload)
+    }
+
     const body = JSON.stringify(payload, null, '  ')
+    console.log(body)
     try {
+      //TODO 如果对应url未找到，返回null
         let res = await fetch(server_url, {
           method: 'POST',
           headers: {
@@ -110,11 +203,6 @@ const generateDataSig = (sk,data) => {
 }
 
 
-module.exports = {
-    getMpk,
-    getAuth,
-    uploadData,
-    getData,
-    generateDataSig,
+export  {DataServer,getMpk,getAuth,postData,getData,generateDataSig,
 
 }

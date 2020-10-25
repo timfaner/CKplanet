@@ -1,27 +1,41 @@
 <template>
     <nav id="sidebarMenu" class="col-md-1 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="sidebar-sticky">
-            <el-menu
-                default-active="2"
-                class="el-menu-vertical-demo"
-                router>
-                <el-menu-item route="/cycles" index="1">
-                <i class="el-icon-connection"></i>
-                <span slot="title">我的圈子</span>
-                </el-menu-item>
-                <el-menu-item route="/" index="2">
-                <i class="el-icon-user"></i>
-                <span slot="title">我的主页</span>
-                </el-menu-item>
-                <el-menu-item  route="/more" index="3">
-                <i class="el-icon-search"></i>
-                <span slot="title">发现更多</span>
-                </el-menu-item>
-                <el-menu-item route="about" index="4">
-                <i class="el-icon-star-on"></i>
-                <span slot="title">关于CKplant</span>
-                </el-menu-item>
-            </el-menu>
+          <div>
+             <el-button plain @click.prevent="updateUser()">
+            <el-avatar shape="square" :src="user_profile.avatar_url" :size=100>
+            </el-avatar>
+            
+            </el-button>
+            <p> {{user_profile.nickname}} </p>
+          </div>
+
+          <el-dialog  :visible.sync="dialogNewUser" title="新建用户信息" append-to-body>
+            <UpdateUserProfile v-on:closedialog="finalizeNewUser"></UpdateUserProfile>
+            <div  slot="footer" class="dialog-footer">
+          </div>
+        </el-dialog>
+          <el-menu
+              default-active="2"
+              class="el-menu-vertical-demo"
+              router>
+              <el-menu-item route="/LiveFeeds" index="1">
+              <i class="el-icon-connection"></i>
+              <span slot="title">我的圈子</span>
+              </el-menu-item>
+              <el-menu-item route="/" index="2">
+              <i class="el-icon-user"></i>
+              <span slot="title">我的主页</span>
+              </el-menu-item>
+              <el-menu-item  route="/more" index="3">
+              <i class="el-icon-search"></i>
+              <span slot="title">发现更多</span>
+              </el-menu-item>
+              <el-menu-item route="about" index="4">
+              <i class="el-icon-star-on"></i>
+              <span slot="title">关于CKplant</span>
+              </el-menu-item>
+          </el-menu>
         </div>
     </nav>
 </template>
@@ -29,8 +43,48 @@
 
 
 <script>
+import { mapState } from 'vuex'
+import UpdateUserProfile from "@/components/UpdateUserProfile.vue"
+
 export default {
     name:"SideBar",
+    data: function(){
+      return{
+        dialogNewUser:false
+      }
+    },
+    components:{
+      UpdateUserProfile
+    },
+    methods:{
+      updateUser: function(){
+        this.dialogNewUser = true
+      },
+      finalizeNewUser: function(){
+        //this.dialogNewUser = false
+      }
+      //nickname: function(){return this.user_profile.nickname},
+      //avatar_url : function(){return this.user_profile.avatar_url},
+
+    },
+    //FIXME user_profile不能实时更新
+    computed:mapState({
+        user_lock_args : state => state.user_chain_info.lock_args,
+        user_profiles_pool: state => state.ckplanet.user_profiles_pool,
+        user_profile:function () {
+        if(this.user_lock_args in this.user_profiles_pool)
+          return this.user_profiles_pool[this.user_lock_args]
+        else
+          return {
+            nickname:"请填写昵称",
+            avatar_url:"https://hiltonsheartland.com/wp-content/uploads/2013/08/unknown-avatar.jpg"
+            }
+        
+          
+          },
+
+    }),
+
 }
 </script>
 

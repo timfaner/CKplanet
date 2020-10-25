@@ -1,85 +1,248 @@
-const forge = require("node-forge")
+import  {postData,getData} from "./data_server.js"
+
+import {sha256,generateECDHKey, encryptData_c,decryptData_c} from "./crypto.js"
 
 
-const DATA_TYPE = {
-    user_profile:"1",
-    user_managed_cycle_list:"2",
-    user_joined_cycle_list:"3",
-    cycle_profile:(cycleid) =>{return "4"+ cycleid},
-    cycle_contents:(cycleid) =>{return "5"+ cycleid},
-    cycle_users:(cycleid) => {return "6" + cycleid}
+postData,getData
+
+
+
+const DATA_ID = {
+    user_profile: () => "1",
+    user_managed_cycle_list: () => "2",
+    user_joined_cycle_list: () => "3",
+    cycle_profile:(cycleid) =>{return "4:"+ cycleid},
+    cycle_contents_list:(cycleid) =>{return "5:"+ cycleid},
+    cycle_content:(cycleid,contendid) => {return "50:" + cycleid+ ':' + contendid},
+    cycle_users_list:(cycleid) => {return "6:" + cycleid},
+    cycle_tokens_list:(cycleid) => {return "7:" + cycleid}
+}
+
+const DATA_ACCESS_TYPE = {
+    PUBLIC:'public',
+    PRIVATE:'private',
+    DEPENDS:'depends'
+}
+
+const DATA_ACCESS = {
+    user_profile:DATA_ACCESS_TYPE.PUBLIC,
+    user_managed_cycle_list:DATA_ACCESS_TYPE.PUBLIC,
+    user_joined_cycle_list:DATA_ACCESS_TYPE.PUBLIC,
+    cycle_profile:DATA_ACCESS_TYPE.PUBLIC,
+    cycle_contents_list:DATA_ACCESS_TYPE.DEPENDS,
+    cycle_content:DATA_ACCESS_TYPE.DEPENDS,
+    cycle_users_list:DATA_ACCESS_TYPE.DEPENDS,
+    cycle_tokens_list:DATA_ACCESS_TYPE.PUBLIC,
 }
 
 
 
-//unicode编码
-function encodeUnicode(str) {
-    var res = [];
-    for (var i = 0; i < str.length; i++) {
-        res[i] = ( "00" + str.charCodeAt(i).toString(16) ).slice(-4);
-    }
-    return "\\u" + res.join("\\u");
-  }
-
-  //unicode解码
-function decodeUnicode(str) {
-    str = str.replace(/\\/g, "%");
-    return unescape(str);
- }
-
-
-
-
-
-
-function generateAESKey(password) {
-        var salt = 'salt';
-        var key = forge.pkcs5.pbkdf2(password, salt, 10, 16);
-        return forge.util.bytesToHex(key);
-    }//盐值固定为'salt'，由初始密码生成固定的加解密密钥
-
-function encryptData(key,iv,data){
-        var cipher = forge.cipher.createCipher('AES-CBC', key);
-        cipher.start({iv: iv});
-        cipher.update(forge.util.createBuffer(data));
-        cipher.finish();
-        var encrypted_data = cipher.output;
-        return encrypted_data.toHex();
-    }//由密钥、初始向量、数据进行加密，返回加密数据的hex传输至服务器
-
-function decryptData(key,iv,encrypted_data) {
-        var decipher = forge.cipher.createDecipher('AES-CBC', key);
-        decipher.start({iv: iv});
-        decipher.update(forge.util.createBuffer(encrypted_data));
-        let result = decipher.finish(); // check 'result' for true/false
-        if (result)
-         {var decrypted_data = decipher.output;
-            return forge.util.decodeUtf8(decrypted_data)}
-        //return forge.util.hexToBytes(decrypted_data)}
-        
-    }//由密钥、初始向量、从服务器传回的加密数据进行解密，返回明文
-
-
-function encryptData_c(data,key) {
-
-    data = encodeUnicode(data)
-    let iv = forge.random.getBytesSync(16);
-    iv = forge.util.bytesToHex(iv)
-
-    //let  iv_hex = bytesToHex(iv)
-    let encrypted_data = encryptData(key,iv,data);
-    return {encrypted_data,iv:iv}
+const DATA_STRUCT = {
+    user_profile:{
+        nickname:'',
+        avatar_url:''
+    },
+    user_managed_cycle_list:[
+        '0','1'
+    ],
+    user_joined_cycle_list:[
+        {lock_args:'0x',  //使用lock_args 检索对应cycle
+        cycle_id:'0'},
+    ],
+    cycle_contents_list:[
+        '0','1'
+    ],
+    cycle_content:{
+        title:'',
+        content:'',
+        time:''
+    },
+    cycle_profile:{
+        cycle_name:'',
+        introduction:'',
+        avatar_url:'',
+        type:'' //enmu, open|close
+    },
+    cycle_users_list:[
+        '0x','0x'
+    ],
+    cycle_tokens_list:[
+        {k:'0x',v:'0x'}
+    ]
 }
 
-function decryptData_c(e_data,key,iv){
-    let encrypted_data = forge.util.hexToBytes(e_data)
-    let decrypted_data = decryptData(key,iv,encrypted_data);
-    return decodeUnicode(decrypted_data)
+
+const CYCLE = {
+    cycle_profile:{
+        cycle_name:'',
+        introduction:'',
+        avatar_url:'',
+        type:'' //enmu, open|close
+    },
+    joined_status:'disjointed', //enmu , joined|pending|disjointed
+    aes_key:'',
+    user_lists:[],
+    contents_list:[],
+    contents:{
+    }    
+}
+
+function encryptContent(content,aes_key){
+    content,aes_key
+    //TODO 
+    return content
+}
+
+function decryptContent(content,aes_key){
+    // TODO
+    content,aes_key
+    return content
+}
+function getCycleTemplate(){
+    return JSON.parse(JSON.stringify(CYCLE))
+}
+function getDataTemplate(data_type){
+    
+    let raw = DATA_STRUCT[data_type]
+    let tmp = JSON.stringify(raw)
+    return JSON.parse(tmp)
     
 }
-module.exports = {DATA_TYPE,
-    generateAESKey, 
-    encryptData_c,
-    decryptData_c,
+
+
+function encryptCycleToken(access_token_public,access_token_private,aes_key,ecdh_pk,ecdh_sk){
+    let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
+    let k = encryptData_c(access_token_public,ecdh_key)
+    let v = encryptData_c(access_token_private + ":" + aes_key,ecdh_key)
+    return{
+        k,
+        v,
+    }
+
+}
+
+
+function decrtptCycleToken(k,v,ecdh_pk,ecdh_sk){
+       let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
+       let access_token_public = decryptData_c(k,ecdh_key)
+       let tmp = decryptData_c(v,ecdh_key)
+       let [access_token_private,aes_key] = tmp.split(":")
+       return{
+           access_token_public,
+           access_token_private,
+           aes_key
+       }
+}
+
+/**
+ * 
+ * @param {string} data_type 
+ * @param {object} access_token_items 
+ * @param {string=string} cycle_id 
+ * @param {number=1} depends  仅在权限为`0`时生效
+ */
+function getUrl(data_type,access_token_items,cycle_id='',content_id='',depends='public' ){
+    
+    if( !(data_type in DATA_ID)){
+        throw("Invaild data_type : ",data_type)
+    }
+
+    let access_token = ''
+    if (DATA_ACCESS[data_type] === 'depends'){
+        if(depends === 'public' || depends === 'private')
+            access_token = access_token_items['access_token_' + depends]
+        else
+            throw("Invaild depends type")
+    }
+    else
+        access_token = access_token_items['access_token_' + DATA_ACCESS[data_type] ]
+    
+    if(access_token === ''){
+        throw(" access_token not found : " +arguments ,access_token_items)
+    }
+    let url = sha256(access_token + DATA_ID[data_type](cycle_id,content_id))
+    return url
+}
+
+/**
+ * 检查输入是否符合格式
+ * @param {string} data_type 
+ * @param {object} instance 
+ * @returns {boolean} boolean
+ */
+function vaildDataType(data_type,instance){
+    var bool = false
+    if ( !(data_type in DATA_ID)){
+        console.error("Wrong data type : ",data_type)
+        return   false
+    }
+
+    if (typeof(instance) !== "object"){
+        // array 也是object
+        return false
+    }
+
+    try {
+        let template = DATA_STRUCT[data_type]
+        if (  data_type.search("list") !== -1){ 
+            // 是list
+            if (instance.length === 1){
+                bool= true
+            }
+            instance = instance[0]
+            template = template[0]
+        }
+        if (typeof(template) !==  typeof(instance) ){
+            return  false
+        }
+        if (typeof(template) === "string")
+            return  true
+
+        for(const key in template){
+            if(!(key in instance)){
+                 return  false
+            }
+        }
+    } catch (error) {
+        console.error(error)
+        return false
+    }
+
+    bool = true
+    return bool
+}
+
+/**
+ * 
+ * @param {string} data_type 
+ * @param {*} data 
+ * @returns data对应的hash
+ */
+function getDataHash(data_type,data){
+    data_type
+    let jsons = JSON.stringify(data)
+    let hash= sha256(jsons)
+    return hash
+}
+
+
+function getDataID(data_type,cycle_id,content_id){
+    return DATA_ID[data_type](cycle_id,content_id)
+}
+
+export  {DATA_ID,
+        DATA_STRUCT,
+        DATA_ACCESS,
+        getUrl,
+        vaildDataType,
+        encryptCycleToken,
+        decrtptCycleToken,
+        getDataHash,
+        getDataTemplate,
+        getDataID,
+        getCycleTemplate,
+        encryptContent,
+        decryptContent
+
 }
 

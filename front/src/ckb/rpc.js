@@ -1,6 +1,8 @@
-const { KEYPERING_URL, RICH_NODE_INDEXER_URL, SECP256K1_BLAKE160_CODE_HASH, DAPP_DESCRIPTION } = require('./const')
+import { KEYPERING_URL, RICH_NODE_INDEXER_URL, SECP256K1_BLAKE160_CODE_HASH, DAPP_DESCRIPTION } from './const' 
+import {keypering_res,MOCK_API}  from "./test"
 
-const getCells = async lockArgs => {
+
+const getCellsByLocks = async lockArgs => {
   let payload = {
     id: 1,
     jsonrpc: '2.0',
@@ -81,8 +83,9 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
     inputType: '',
     outputType: '',
   }
+  let res = {}
   try {
-    let res = fetch(KEYPERING_URL, {
+     res = await fetch(KEYPERING_URL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -98,17 +101,44 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
         },
       }),
     })
-    res = await res.json()
-    return res.result
+    res =  await res.json()
+    // TODO 错误码处理
+    return res.result.txHash
   } catch (error) {
-    console.error('error', error)
+    console.error('error', error,res)
   }
 }
 
 
 //TODO 测试
+/*
+### Sign Message
 
-const signMessage = async (msg,description,token) => {
+```yaml
+# sign_message
+id: string
+jsonrpc: '2.0'
+method: sign_message
+params:
+  message: string
+  address: string | null # default to the first address
+  description: string | null
+
+# response
+id: string
+jsonrpc: '2.0'
+result: string
+*/
+//TODO 测试
+const signMessage = async (msg,address,token) => {
+  let payload = {
+    message:msg,
+    address,
+  }
+
+  if (MOCK_API){
+    return keypering_res.signMessage(payload).result
+  }
   try {
     let res = await fetch(KEYPERING_URL, {
       method: 'POST',
@@ -118,22 +148,22 @@ const signMessage = async (msg,description,token) => {
       body: JSON.stringify({
         id: 3,
         jsonrpc: '2.0',
+        
         method: 'sign_message',
-        params: {
-          message:msg,
-          description,
-        }
+        params: payload
       }),
     })
     res = await res.json()
-    return res.result
+
+    //TODO 错误处理
+    return res.result.sig
   } catch (error) {
     console.error('error', error)
   }
 }
 
-module.exports = {
-  getCells,
+export  {
+  getCellsByLocks,
   requestAuth,
   queryAddresses,
   signAndSendTransaction,

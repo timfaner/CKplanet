@@ -17,17 +17,17 @@ const formatCkb = value => {
 
 const textToHex = text => {
   let result = text.trim()
-  if (result.startsWith('0x')) {
-    return result
-  }
-  result = bytesToHex(new TextEncoder().encode(result))
+  //if (result.startsWith('0x')) {
+  //  return result
+  //}
+  result = bytesToHex(new TextEncoder("utf-8").encode(result))
   return result
 }
 
 const hexToText = hex => {
   let result = hex.trim()
   try {
-    result = new TextDecoder().decode(hexToBytes(result))
+    result = new TextDecoder("utf-8").decode(hexToBytes(result))
   } catch (error) {
     console.error('hexToUtf8 error:', error)
   }
@@ -87,8 +87,8 @@ const getTxTemplateWithCellsDeps = (tx,type) => {
 
 const groupCells = cells => {
   return {
-    emptyCells: cells.filter(cell => !cell.output_data || cell.output_data === '0x'),
-    filledCells: cells.filter(cell => cell.output_data !== '0x'),
+    emptyCells: cells.filter(cell => (!cell.output_data || cell.output_data === '0x') && cell.output.type === null),
+    filledCells: cells.filter(cell => cell.output_data !== '0x' || cell.output.type !== null),
   }
 }
 
@@ -110,6 +110,23 @@ const getTypeScript = (args,codeHash) =>{
 
 
 
+function filterCellsWithTypeScript(filed_cells,{args,codeHash,hashType}){
+  let cells = []
+  if (filed_cells.length === 0){
+    return cells
+  }
+  for (const cell of filed_cells){
+    if( cell.output.type !==null ){
+      if( cell.output.type.args === args &&
+          cell.output.type.code_hash === codeHash &&
+          cell.output.type.hash_type === hashType){
+            cells.push(cell)
+          }
+    }
+  }
+  return cells
+}
+
 function makeId(length) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -124,7 +141,7 @@ function makeId(length) {
 
  function getScriptCapacity(script){
   let args_length = 0
-  if (script.args !== "0x" && script.args === null){
+  if (script.args !== "0x" && script.args !== null){
    args_length = (script.args.length -2)/2 // strip '0x' 
   }
   
@@ -134,7 +151,25 @@ function makeId(length) {
  }
 
 
+ //unicode编码
+function encodeUnicode(str) {
+  var res = [];
+  for (var i = 0; i < str.length; i++) {
+      res[i] = ( "00" + str.charCodeAt(i).toString(16) ).slice(-4);
+  }
+  return "\\u" + res.join("\\u");
+}
+
+//unicode解码
+function decodeUnicode(str) {
+  str = str.replace(/\\/g, "%");
+  return unescape(str);
+}
+
 module.exports = {
+  filterCellsWithTypeScript,
+  encodeUnicode,
+  decodeUnicode,
   formatCkb,
   textToHex,
   hexToText,
