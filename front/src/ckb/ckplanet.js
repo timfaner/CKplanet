@@ -47,8 +47,8 @@ const DATA_STRUCT = {
         '0','1'
     ],
     user_joined_cycle_list:[
-        {access_token_public:'0x',  //使用access_token_public 检索对应cycle
-        data_id:'0'},
+        {lock_args:'0x',  //使用lock_args 检索对应cycle
+        cycle_id:'0'},
     ],
     cycle_contents_list:[
         '0','1'
@@ -80,7 +80,7 @@ const CYCLE = {
         avatar_url:'',
         type:'' //enmu, open|close
     },
-    joined_status:'', //enmu , joined|pending|disjointed
+    joined_status:'disjointed', //enmu , joined|pending|disjointed
     aes_key:'',
     user_lists:[],
     contents_list:[],
