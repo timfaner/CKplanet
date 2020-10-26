@@ -1,7 +1,7 @@
 import {getData} from "@/ckb/data_server"
 import { decryptContent, getCycleTemplate, getUrl,vaildDataType } from "../ckb/ckplanet"
 import Vue from 'vue'
-import { generateAESKey, sha256 } from "../ckb/crypto"
+import { generateAESKey, hash } from "../ckb/crypto"
 const ckplanet = {
     state :() => ({
 
@@ -288,7 +288,7 @@ const ckplanet = {
 
             if(rootState.user_chain_info.lock_args === lock_args){
                 //FIXME aes_key生成方法改进
-                let aes_key =  generateAESKey(sha256(cycle_id))
+                let aes_key =  generateAESKey(hash(cycle_id))
                 commit("updateCyclesPool",{
                     lock_args,
                     cycle_id,
@@ -318,8 +318,10 @@ const ckplanet = {
                 data_type = 'cycle_tokens_list'
                 
                 let cycle_tokens_list = await dispatch("getDataByType",{lock_args,data_type,cycle_id})
-
                 
+                cycle_tokens_list,
+                //TODO 
+
                 commit("updateCyclesPool",{
                     lock_args,
                     cycle_id,

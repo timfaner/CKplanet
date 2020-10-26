@@ -7,7 +7,7 @@ import { DataServer,postData,getData } from "./data_server"
 
 import {
     signData,
-    sha256
+    hash
     } from "@/ckb/crypto" 
 
 class DataSetter {
@@ -53,7 +53,7 @@ class DataSetter {
         }
         
         let sig = signData(user_id.sk,data)
-        let dataHash = sha256(data)
+        let dataHash = hash(data).slice(2)
         
         let res = await postData(
           this.ip,
@@ -92,7 +92,7 @@ class DataGetter {
 
       static async getDataById(server_ip,data_id='',access_token='',onchain_verify=false,txid){
 
-        let url = sha256(access_token + data_id) 
+        let url = hash(access_token + data_id).slice(2)
         return DataServer.getDataByUrl(server_ip,url,onchain_verify,txid)
       }
     

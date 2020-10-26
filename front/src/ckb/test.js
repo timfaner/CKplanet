@@ -1,8 +1,8 @@
-const MOCK_API = true
+const MOCK_API = false
 const KVDB_ENABLE = false
 
 
-import {sha256, signData} from './crypto' 
+import {hash, signData} from './crypto' 
 import KVdb  from  "kvdb.io"
 import {TYPE,NETWORK_CONST} from "@/config"
 
@@ -32,7 +32,7 @@ const keypering_res = {
     signMessage: (body) => {
         console.log("Mock api called: ", "signMessage", body)
         csk
-        let csk_m = "0x" + sha256(window.app.$store.state.user_chain_info.address)
+        let csk_m = hash(window.app.$store.state.user_chain_info.address)
         return {
             
             result: signData(csk_m,body.message)
@@ -58,7 +58,7 @@ const data_server_res = {
     postData: async (body) => {
         console.log("Mock api called: ", "postData", body)
 
-        let url = sha256(body.access_token + body.data_id)
+        let url = hash(body.access_token + body.data_id).slice(2)
         if(KVDB_ENABLE)
             await postData(url,body.data)
         return {
@@ -79,7 +79,7 @@ const data_server_res = {
         else if ("data_id" in body && "access_token" in body){
             console.log("data_id and  access_token to get data")
             if(KVDB_ENABLE){
-            let res =  getData( sha256(body.access_token + body.data_id))
+            let res =  getData( hash(body.access_token + body.data_id).splice(2))
             return res}
         }
         body.url

@@ -1,7 +1,7 @@
 
 import  {postData,getData} from "./data_server.js"
 
-import {sha256,generateECDHKey, encryptData_c,decryptData_c} from "./crypto.js"
+import {hash,generateECDHKey, encryptData_c,decryptData_c} from "./crypto.js"
 
 
 postData,getData
@@ -110,10 +110,15 @@ function getDataTemplate(data_type){
     
 }
 
-
-function encryptCycleToken(access_token_public,access_token_private,aes_key,ecdh_pk,ecdh_sk){
+/**
+ * 
+ * @param {object} param0 primative token,consists of {lock_args,access_token_private,aes_key}
+ * @param {string} ecdh_pk public key of   access_token_public  owned by lock_args
+ * @param {string} ecdh_sk private key of the  users, which is associtaed with access_token_private
+ */
+function encryptCycleToken({lock_args,access_token_private,aes_key},ecdh_pk,ecdh_sk){
     let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
-    let k = encryptData_c(access_token_public,ecdh_key)
+    let k = encryptData_c(lock_args,ecdh_key)
     let v = encryptData_c(access_token_private + ":" + aes_key,ecdh_key)
     return{
         k,
@@ -122,14 +127,19 @@ function encryptCycleToken(access_token_public,access_token_private,aes_key,ecdh
 
 }
 
-
-function decrtptCycleToken(k,v,ecdh_pk,ecdh_sk){
+/**
+ * 
+ * @param {object} param0 cycle_token item, `{k,v}`
+ * @param {*} ecdh_pk public key of   access_token_public  owned by lock_args
+ * @param {*} ecdh_sk  private key of the  users, which is associtaed with access_token_private
+ */
+function decrtptCycleToken({k,v},ecdh_pk,ecdh_sk){
        let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
-       let access_token_public = decryptData_c(k,ecdh_key)
+       let lock_args = decryptData_c(k,ecdh_key)
        let tmp = decryptData_c(v,ecdh_key)
        let [access_token_private,aes_key] = tmp.split(":")
        return{
-           access_token_public,
+            lock_args,
            access_token_private,
            aes_key
        }
@@ -161,7 +171,7 @@ function getUrl(data_type,access_token_items,cycle_id='',content_id='',depends='
     if(access_token === ''){
         throw(" access_token not found : " +arguments ,access_token_items)
     }
-    let url = sha256(access_token + DATA_ID[data_type](cycle_id,content_id))
+    let url = hash(access_token + DATA_ID[data_type](cycle_id,content_id)).slice(2) //去掉0x
     return url
 }
 
@@ -222,7 +232,7 @@ function vaildDataType(data_type,instance){
 function getDataHash(data_type,data){
     data_type
     let jsons = JSON.stringify(data)
-    let hash= sha256(jsons)
+    let hash= hash(jsons)
     return hash
 }
 

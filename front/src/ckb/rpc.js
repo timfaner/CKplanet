@@ -156,7 +156,7 @@ const signMessage = async (msg,address,token) => {
     res = await res.json()
 
     //TODO 错误处理
-    return res.result.sig
+    return res.result.sig.slice(0,130) //不要最后的bytes
   } catch (error) {
     console.error('error', error)
   }
