@@ -51,6 +51,7 @@ let updateCyclesPool_testcase = [
                 aes_key:'',
                 joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
                 contents:{
 
                 },
@@ -71,6 +72,7 @@ let updateCyclesPool_testcase = [
                 aes_key:'biubl',
                 joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
                 contents:{
 
                 },
@@ -88,6 +90,7 @@ let updateCyclesPool_testcase = [
                 aes_key:'biubl',
                 joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
                 contents:{
 
                 },
@@ -100,6 +103,7 @@ let updateCyclesPool_testcase = [
             aes_key:'biubll',
             joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
             contents:{
 
             },
@@ -119,6 +123,7 @@ let updateCyclesPool_testcase = [
                 aes_key:'biubl',
                 joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
                 contents:{
 
                 },
@@ -131,6 +136,8 @@ let updateCyclesPool_testcase = [
             aes_key:'biubll',
             joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
+
             contents:{
 
             },
@@ -141,6 +148,8 @@ let updateCyclesPool_testcase = [
             aes_key:'biubl',
             joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
+
             contents:{
 
             },
@@ -160,6 +169,8 @@ let updateCyclesPool_testcase = [
                 aes_key:'biubl',
                 joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
+
                 contents:{
 
                 },
@@ -172,6 +183,8 @@ let updateCyclesPool_testcase = [
             aes_key:'biubll',
             joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
+
             contents:{
 
             },
@@ -182,6 +195,7 @@ let updateCyclesPool_testcase = [
             aes_key:'bababa',
             joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
             contents:{
 
             },

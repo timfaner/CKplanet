@@ -284,8 +284,8 @@ export default new Vuex.Store({
           //TODO 检查返回的参数是否符合规则
           commit("updateAccessTokens",{
             lock_args,
-            access_token_public:res.access_token,
-            access_token_public_pk:res.access_token_pk
+            access_token_public:res.access_token_public,
+            access_token_public_pk:res.access_token_public_pk
           })
           commit("updateDataServer",
           {lock_args,ip:res.dataserver_ip})

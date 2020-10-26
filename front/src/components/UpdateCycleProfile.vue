@@ -117,8 +117,44 @@ export default {
             true,
             tx_id
           )
-        }
+        // 新建token_list
+          data_type = "cycle_tokens_list"
+          data_id = getDataID(data_type,cycle_id)
+          tx_id = ''
 
+          await data_setter.postData(
+            [],
+            data_id,
+            'public',
+            true,
+            tx_id
+          )
+        // 新建user_list
+          data_type = "cycle_users_list"
+          data_id = getDataID(data_type,cycle_id)
+          tx_id = ''
+          let access_type = ''
+          if(this.close_checked)
+            access_type = "private"
+          else
+            access_type = "public"
+          await data_setter.postData(
+            [],
+            data_id,
+            access_type,
+            true,
+            tx_id
+          )
+          data_type = "cycle_contents_list"
+          data_id = getDataID(data_type,cycle_id)
+          await data_setter.postData(
+            [],
+            data_id,
+            access_type,
+            true,
+            tx_id
+          )
+        }
         this.$message({
             message: '成功'+ this.mode +'圈子信息',
             type: 'success'
@@ -138,6 +174,7 @@ export default {
         this.$emit("closedialog")
       }
        catch (error) {
+         console.error(error)
         this.$message.error(error)
       }
       

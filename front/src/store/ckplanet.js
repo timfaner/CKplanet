@@ -1,7 +1,7 @@
 import {getData} from "@/ckb/data_server"
-import { decryptContent, getCycleTemplate, getUrl,vaildDataType } from "../ckb/ckplanet"
+import { decryptContent, getCycleTemplate, getUrl,vaildDataType,inJoinedList,inTokenList, getTokenItem, decrtptCycleToken } from "../ckb/ckplanet"
 import Vue from 'vue'
-import { generateAESKey, hash } from "../ckb/crypto"
+import { generateAESKey, hashFunc } from "../ckb/crypto"
 const ckplanet = {
     state :() => ({
 
@@ -284,28 +284,13 @@ const ckplanet = {
             return res
         },
 
-        async getCycleAesKey({dispatch,commit,rootState},{lock_args,cycle_id}){
-
-            if(rootState.user_chain_info.lock_args === lock_args){
-                //FIXME aes_key生成方法改进
-                let aes_key =  generateAESKey(hash(cycle_id))
-                commit("updateCyclesPool",{
-                    lock_args,
-                    cycle_id,
-                    cycle_props:{
-                        aes_key
-                    }
-                })
-            }
-            else{
-                let data_type = "cycle_tokens_list"
-                let cycle_tokens_list = await dispatch("getDataByType",{lock_args,data_type,cycle_id})
-                //TODO 解析aes_key 
-                cycle_tokens_list
-            }
+        async generateCycleAesKey({state},{lock_args,cycle_id}){
+            //FIXME cycle key 生成方法
+            state
+            return generateAESKey(hashFunc(lock_args+cycle_id))
         },
 
-        async getCycle({commit,dispatch},{lock_args,cycle_id}){
+        async getCycle({commit,dispatch,rootState,getters},{lock_args,cycle_id}){
 
             try {
                 let data_type = 'cycle_profile'
@@ -314,13 +299,6 @@ const ckplanet = {
                 let cycle_profile = await dispatch("getDataByType",{lock_args,data_type,cycle_id})
                 if(cycle_profile === null)
                     return cycle_profile
-                
-                data_type = 'cycle_tokens_list'
-                
-                let cycle_tokens_list = await dispatch("getDataByType",{lock_args,data_type,cycle_id})
-                
-                cycle_tokens_list,
-                //TODO 
 
                 commit("updateCyclesPool",{
                     lock_args,
@@ -330,13 +308,79 @@ const ckplanet = {
                     }
                 })
 
+                data_type = 'cycle_tokens_list'
+                let token_list = await dispatch("getDataByType",{lock_args,data_type,cycle_id})
 
-                //TODO if(joined)
+
+
+                commit("updateCyclesPool",{
+                    lock_args,
+                    cycle_id,
+                    cycle_props:{
+                        token_list,
+                    }
+                })
+
+            
                 //获取或生成key
-                await dispatch("getCycleAesKey",{lock_args,cycle_id})
+                if(getters.cycle_joined_status(lock_args,cycle_id)==='joined' || lock_args===rootState.user_chain_info.lock_args){
+                    
+                    let aes_key = ''
+                    let access_token_private = ''
+                    if(lock_args===rootState.user_chain_info.lock_args)
+                        aes_key = dispatch("generateCycleAesKey",{lock_args,cycle_id})
+                    else{
+                        let tmp = getters.getSthFromPool(lock_args,"access_token")
+                        let pk = tmp.access_token_public_pk
+                        let sk = rootState.user_id_public.sk
+                        let token_item = getTokenItem(lock_args,token_list,pk,sk)
+                        let res =  decrtptCycleToken(token_item,pk,sk)
+                        access_token_private = res.access_token_private
+                        aes_key = res.aes_key
+                        // 更新对应access_token_private
+                        commit("updateAccessTokens",{
+                            lock_args,
+                            access_token_private
+                        })
+                        }
+
+                    commit("updateCyclesPool",{
+                        lock_args,
+                        cycle_id,
+                        cycle_props:{
+                            aes_key,
+                        }
+                    })
+                }
+
+                if(  cycle_profile.type==='open' ||   //公开的
+                     getters.cycle_joined_status(lock_args,cycle_id)==='joined' ||  //已经加入的
+                     lock_args===rootState.user_chain_info.lock_args) { //自己创建的
+                    data_type = 'cycle_users_list'
+                    let access_type = ''
+                    if(cycle_profile.type==='open'){
+                         access_type = "public"
+                    }
+                    else if (cycle_profile.type ==="close"){
+                         access_type = "pricate"
+                    }
+                    
+                    let user_lists = await dispatch("getDataByType",{lock_args,data_type,cycle_id,access_type})
+                    commit("updateCyclesPool",{
+                        lock_args,
+                        cycle_id,
+                        cycle_props:{
+                            user_lists,
+                        }
+                    })
+                    //获取圈子信息
+                    dispatch("getCycleContents",{lock_args,cycle_id})
+                }
+
+                
                 
             } catch (error) {
-                console.error("updateCyclesPool error",error)
+                console.error("getCycle base info error",error)
                 throw(error)
             }
                 
@@ -344,7 +388,26 @@ const ckplanet = {
 
     },
     getters:{
-      userProfile: (state) =>
+        cycle_joined_status : (state,rootState,getters) => (lock_args,cycle_id) =>{
+            let token_list = state.cycles_pool[lock_args][cycle_id]['token_list']
+
+            let inlocal = inJoinedList(lock_args,cycle_id,state.user_joined_cycles_index)
+            let tmp = getters.getSthFromPool(lock_args,"access_token")
+            let pk = tmp.access_token_public_pk
+            let sk = rootState.user_id_public.sk
+
+            let inRemote = inTokenList(lock_args,token_list,pk,sk)
+
+            let joined_status = 'disjointed'
+            if(!inlocal)
+                joined_status = 'disjointed'
+            else if(inlocal && !inRemote)
+                joined_status = 'pending'
+            else if (inlocal && inRemote)
+                joined_status = 'joined'
+            return joined_status
+        },
+        userProfile: (state) =>
           (lock_args) =>{
               if(lock_args in state.user_profiles_pool){
                   return state.user_profiles_pool[lock_args]

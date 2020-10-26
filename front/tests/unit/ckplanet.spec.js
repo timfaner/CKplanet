@@ -20,12 +20,13 @@ import { getUrl as getUrls,
         vaildDataType,
         getDataID,
         encryptCycleToken,
-        decrtptCycleToken,}  from "../../src/ckb/ckplanet.js"
+        decrtptCycleToken,
+        inTokenList}  from "../../src/ckb/ckplanet.js"
 
 
         
 import { postData } from '../../src/ckb/data_server.js'
-import {    generateAESKey, generatePrivKey, getPubKey, signData } from '../../src/ckb/crypto.js'
+import {    generateAESKey, generatePrivKey, getPubKey, hashFunc, signData } from '../../src/ckb/crypto.js'
 
 DATA_STRUCT
 
@@ -166,4 +167,53 @@ describe("Cycle token encrypt and decrypt",function(){
 
         expect(output).to.deep.equal(input)
     })
+})
+
+
+
+describe("Cycle token_list discover",function(){
+
+    let user_list = [
+    ]
+    
+    for(let i=0;i<5;i++){
+        let csk = generatePrivKey()
+        let cpk = getPubKey(csk)
+        let sk = generatePrivKey()
+        let pk = getPubKey(sk)
+        let lock_args = hashFunc(cpk)
+        let access_token_pk = signData(sk,"public")
+        let aes_key = generateAESKey(access_token_pk)
+        user_list.push({
+            csk,cpk,sk,pk,access_token_pk,lock_args,aes_key
+        })
+    }
+    
+    let token_list = []
+    let main_user = user_list[0]
+    let exclude_user = user_list[4]
+    for(let i=1;i<4;i++){
+        token_list.push(
+            encryptCycleToken(
+                {   lock_args:user_list[i].lock_args,
+                    access_token_private:user_list[i].access_token_pk,
+                    aes_key:user_list[i].aes_key,
+                },
+                user_list[i].pk,
+                main_user.sk)
+        )
+
+
+    user_list.slice(1,4).forEach(function(user){
+        it("should include in token_list",function(){
+            expect(inTokenList(user.lock_args,token_list,main_user.pk,user.sk)).to.equal(true)
+        })
+    })
+
+    it(" exclude user should not in token_list",function(){
+        expect(inTokenList(exclude_user.lock_args,token_list,main_user.pk,exclude_user.sk)).to.equal(false)
+    })
+    
+    }
+    
 })

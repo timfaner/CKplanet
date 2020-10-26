@@ -11,6 +11,9 @@
             <div class="col ml-auto">
             <el-button @click="dialogPublish=true"> Share your thoughts </el-button>
             <el-button @click="dialogUpdateCycleProfile=true"> Settings </el-button>
+
+            <input v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
+            <el-button @clik="addUser"> Add user </el-button>
             </div>
         </div>
         <el-dialog title="Share your thoughts" :visible.sync="dialogPublish">
@@ -58,9 +61,10 @@ import { mapActions, mapState } from 'vuex'
 import PublishCycleContent from "../components/PublishCycleContent.vue"
 import UpdateCycleProfile from "../components/UpdateCycleProfile.vue"
 import ContentItem from "../components/ContentItem.vue"
-import {getCycleTemplate,getDataID} from "@/ckb/ckplanet.js"
+import {getCycleTemplate,getDataID,encryptCycleToken,inTokenList} from "@/ckb/ckplanet.js"
 
-import {DataServer,DataSetter} from "@/ckb/data_handler"
+import {DataServer} from "@/ckb/data_server"
+import {DataSetter } from "@/ckb/data_handler"
 
 
 
@@ -70,7 +74,8 @@ export default {
         return{
             data:"1",
             dialogPublish:false,
-            dialogUpdateCycleProfile:false
+            dialogUpdateCycleProfile:false,
+            userToAdd:'',
         }
     },
     components:{
@@ -91,6 +96,7 @@ export default {
         lock_args: function(){return this.$route.params.lock_args},
         
         ...mapState({
+            user_lock_args: (state) => state.user_chain_info.lock_args,
             cycle: function(state) {
                 let pools = state.ckplanet.cycles_pool
                 if(this.lock_args in pools)
@@ -99,31 +105,139 @@ export default {
                 return  getCycleTemplate()
                 
                 }
-        }),
-        profile: function(){ return this.cycle.cycle_profile},
-        contents: function(){ 
-            let contents = []
-            for(const content_id in this.cycle.contents){
-                
-                contents.push(
-                    {...this.cycle.contents[content_id],content_id}
-                )
-            }
-            return contents}
+            }),
+            profile: function(){ return this.cycle.cycle_profile},
+            contents: function(){ 
+                let contents = []
+                for(const content_id in this.cycle.contents){
+                    
+                    contents.push(
+                        {...this.cycle.contents[content_id],content_id}
+                    )
+                }
+                return contents},
+            
     },
     methods:{
         ...mapActions([
             "getCycle",
             "getCycleContents",
+            "getDataServerInfo",
+            "getSthFromPool"
+
 
 
         ]),
+        addUser: async function(){
+            try {
+                await this.updateTokenList()
+                await this.addUserToUserList()
+            } catch (error) {
+
+                //错误显示
+                console.error(error)
+            }
+
+            
+        },
+
+        addUserToUserList:async function(){
+            try{
+
+                let user_list  = this.cycle.user_lists
+
+                if(user_list.includes(this.userToAdd))
+                    return
+
+                user_list.push(this.userToAdd)
+                let user_ds = new DataServer(this.$store,this.user_lock_args)
+                let data_setter = new DataSetter(user_ds)
+
+
+                let data_type = "cycle_users_list"
+                let data_id = getDataID(data_type,this.cycle_id)
+
+                let access_type = ""
+                if(this.profile.type === "open")
+                    access_type = "public"
+                else if (this.profile.type === "close")
+                    access_type = "private"    
+
+                await data_setter.postData(
+                    user_list,
+                    data_id,
+                    access_type,
+                    false,
+                    ""
+                )
+
+
+            } catch (error) {
+                console.error("addUserToUserList failed",error)
+                throw(error)
+            }
+        },
+        updateTokenList:async function(){
+            try {
+                
+                if(this.cycle.cycle_profile.type==="open"){
+                    console.log("current cycle is open")
+                    return
+                }
+
+                await this.getDataServerInfo(this.userToAdd)
+                let access_token_items = this.$store.getters.getSthFromPool(this.userToAdd,"access_token")
+                let pk = access_token_items.access_token_public_pk
+                let sk = this.$store.state.user_id_public.sk
+
+                let token_list = this.cycle.token_list
+
+                if(inTokenList(this.userToAdd,token_list,pk,sk)){
+                    return
+                }
+
+                
+                let aes_key = this.cycle.aes_key
+                let input = {
+                    lock_args: this.lock_args,
+                    access_token_private:access_token_items.access_token_private,
+                    aes_key,
+                    }
+                let token = encryptCycleToken(input,pk,sk)
+                
+                token_list.push(token)
+                let user_ds = new DataServer(this.$store,this.user_lock_args)
+                let data_setter = new DataSetter(user_ds)
+
+
+                let data_type = "cycle_tokens_list"
+                let data_id = getDataID(data_type,this.cycle_id)
+
+
+                await data_setter.postData(
+                    token_list,
+                    data_id,
+                    "public",
+                    false,
+                    ""
+                )
+
+
+            } catch (error) {
+                console.error("updateTokenlist failed",error)
+                throw(error)
+            }
+
+        },
+
+
         joinCycle:function(){
         // TODO join\leave\dispend 。。。
         let user_ds = new DataServer(this.$store,this.user_lock_args)
         let data_setter = new DataSetter(user_ds)
+        
         let joined_cycle = this.$store.ckplanet.user_joined_cycles_index
-            if(this.cycle.joined_status==="disjointed"){
+            if(this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id) ==="disjointed"){
                 joined_cycle.push({
                     lock_args:this.lock_args,
                     cycle_id:this.cycle_id})

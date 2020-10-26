@@ -45,7 +45,7 @@ class Blake2b {
     }
 }
 
-function hash(data){
+function hashFunc(data){
     return Blake2b.digest(data)
 }
 
@@ -161,7 +161,7 @@ const signData = (privkey,data) => {
     }
     let priv_key = hexToBytes(privkey)
 
-    let msg = hash(data)
+    let msg = hashFunc(data)
     let sig = secp256k1.ecdsaSign(hexToBytes(msg),priv_key).signature
     return bytesToHex(sig)
 }
@@ -178,7 +178,7 @@ function exportSinature(sig){
 
 const verifyData = (sig,data,pubkey) => {
     let pub_key = hexToBytes(pubkey)
-    let msg = hash(data)
+    let msg = hashFunc(data)
     return secp256k1.ecdsaVerify(hexToBytes(sig),hexToBytes(msg),pub_key)
 }
 
@@ -198,6 +198,6 @@ export {
     decryptAESKey,
     importSignature,
     exportSinature,
-    hash
+    hashFunc
 }
 

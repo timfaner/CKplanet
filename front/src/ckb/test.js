@@ -2,7 +2,7 @@ const MOCK_API = true
 const KVDB_ENABLE = false
 
 
-import {hash, signData} from './crypto' 
+import {hashFunc, signData} from './crypto' 
 import KVdb  from  "kvdb.io"
 import {TYPE,NETWORK_CONST} from "@/config"
 
@@ -30,9 +30,9 @@ let csk = "0x714faa3807cc7212e6b3bb19216ae31c825bf83b6bcea96221a1e5e0127c99d9"
 const keypering_res = {
     
     signMessage: (body) => {
-        console.log("Mock api called: ", "signMessage", body)
+        console.debug("Mock api called: ", "signMessage", body)
         csk
-        let csk_m = hash(window.app.$store.state.user_chain_info.address)
+        let csk_m = hashFunc(window.app.$store.state.user_chain_info.address)
         return {
             
             result: signData(csk_m,body.message)
@@ -42,7 +42,7 @@ const keypering_res = {
 
 const data_server_res = {
     getAuth: (body) => {
-        console.log("Mock api called: ", "getAuth", body)
+        console.debug("Mock api called: ", "getAuth", body)
     return {
         cert:  signData(msk,pk + body.access_token),
         pk,
@@ -56,9 +56,9 @@ const data_server_res = {
     },
 // TODO 字符拼接的方法确定
     postData: async (body) => {
-        console.log("Mock api called: ", "postData", body)
+        console.debug("Mock api called: ", "postData", body)
 
-        let url = hash(body.access_token + body.data_id).slice(2)
+        let url = hashFunc(body.access_token + body.data_id).slice(2)
         if(KVDB_ENABLE)
             await postData(url,body.data)
         return {
@@ -69,17 +69,17 @@ const data_server_res = {
     },
 
     getData: async (body) => {
-        console.log("Mock api called: ", "getData", body)
+        console.debug("Mock api called: ", "getData", body)
         if ('url' in body){
-            console.log("url to get data")
+            console.debug("url to get data")
             if(KVDB_ENABLE){
                 let res= await getData(body.url)
                 return res}
         }
         else if ("data_id" in body && "access_token" in body){
-            console.log("data_id and  access_token to get data")
+            console.debug("data_id and  access_token to get data")
             if(KVDB_ENABLE){
-            let res =  getData( hash(body.access_token + body.data_id).splice(2))
+            let res =  getData( hashFunc(body.access_token + body.data_id).splice(2))
             return res}
         }
         body.url
@@ -95,7 +95,7 @@ const bucket = KVdb.bucket(NETWORK_CONST[TYPE].kvdb_bucket)
 const  getData = async (url)=>{
     try {
         let res = await bucket.get(url)
-        console.log(res)
+        console.debug("get data from kvdb",res)
         return JSON.parse(res)
     } catch (error) {
         if(error.message === '404 - Not Found'){

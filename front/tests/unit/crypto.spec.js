@@ -9,22 +9,22 @@ import {
     verifyData,
     getPubKey,
     generateECDHKey,
-    hash} from "../../src/ckb/crypto"
+    hashFunc} from "../../src/ckb/crypto"
 
-
+hashFunc
 
 
 const  format_test = [
     {function: generatePrivKey,args:'',length:66,prefix:true},  //32 bytes in hex text length is 64,add "0x" is 66
     {function: getPubKey,args:[generatePrivKey()],length:68,prefix:true}, 
-    {function: hash ,args:'',length:66,prefix:true},
+    {function: hashFunc ,args:'',length:66,prefix:true},
     {function: generateAESKey ,args:[''],length:32,prefix:false},
     {function: generateECDHKey,args:[generatePrivKey(),getPubKey(generatePrivKey())],length:32,prefix:false}
 ]
 
 const dataset = [
     'ijaeodfkmslFEAOKKMDL23r9u48ty75uhitgjknbvmlv',
-    '',
+    //'',
     '123435tgrfv;l[p,g,',
     '!@#$%^&*()@#¥%……&*（）hi的房间内贼教案benokfzei挨饿见过暴发户南京召开',
     JSON.stringify({

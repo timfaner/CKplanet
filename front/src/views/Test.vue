@@ -17,16 +17,22 @@ import {
     generateAESKey, 
     encryptData_c,
     decryptData_c,
-    sha256,
     generatePrivKey,
     signData,
     verifyData,
     getPubKey,
     generateECDHKey,
     encryptAESKey,
-    decryptAESKey} from '@/ckb/crypto'
+    decryptAESKey,
+    importSignature,
+    exportSinature,Blake2b
+    } from '@/ckb/crypto'
 
+    import  secp256k1  from "secp256k1"
+
+import { bytesToHex, hexToBytes } from '@nervosnetwork/ckb-sdk-utils'
 import {postData,getData}  from  '@/ckb/test'
+import ECPair from '@nervosnetwork/ckb-sdk-utils/lib/ecpair'
 
 import {DataServer} from '@/ckb/data_server'
 import {vaildDataType,DATA_STRUCT} from    '@/ckb/ckplanet'
@@ -41,6 +47,7 @@ import {  getCellsByLocks,
 export default {
     name: "Test",
     methods:{
+
         test(){
             
             this.id = this.id + "1"
@@ -49,7 +56,13 @@ export default {
     },
     data: function(){
         return{
-
+            Blake2b,
+            ECPair,
+            bytesToHex,
+            hexToBytes,
+            secp256k1,
+    importSignature,
+    exportSinature,
               getCellsByLocks,
   requestAuth,
   queryAddresses,
@@ -64,7 +77,6 @@ export default {
     generateAESKey, 
     encryptData_c,
     decryptData_c,
-    sha256,
     generatePrivKey,
     signData,
     verifyData,

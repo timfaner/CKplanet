@@ -1,7 +1,7 @@
 
 import  {postData,getData} from "./data_server.js"
 
-import {hash,generateECDHKey, encryptData_c,decryptData_c} from "./crypto.js"
+import {hashFunc,generateECDHKey, encryptData_c,decryptData_c} from "./crypto.js"
 
 
 postData,getData
@@ -84,10 +84,41 @@ const CYCLE = {
     aes_key:'',
     user_lists:[],
     contents_list:[],
+    token_list:[],
     contents:{
     }    
 }
 
+function getTokenItem(lock_args,token_list,ecdh_pk,ecdh_sk){
+    let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
+    let k = encryptData_c(lock_args,ecdh_key).encrypted_data
+    for(const item of token_list){
+        console.log(k)
+        console.log(item.k)
+        if(item.k===k)
+            return item
+    }
+    return null
+}
+function inTokenList(lock_args,token_list,ecdh_pk,ecdh_sk){
+    let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
+    let k = encryptData_c(lock_args,ecdh_key).encrypted_data
+    for(const item of token_list){
+        console.log(k)
+        console.log(item.k)
+        if(item.k===k)
+            return true
+    }
+    return false
+}
+
+function inJoinedList(lock_args,cycle_id,joined_cycle_list){
+    for(const item of joined_cycle_list){
+        if(cycle_id === item.cycle_id && lock_args === item.lock_args)
+            return true
+    }
+    return false
+}
 function encryptContent(content,aes_key){
     content,aes_key
     //TODO 
@@ -171,7 +202,7 @@ function getUrl(data_type,access_token_items,cycle_id='',content_id='',depends='
     if(access_token === ''){
         throw(" access_token not found : " +arguments ,access_token_items)
     }
-    let url = hash(access_token + DATA_ID[data_type](cycle_id,content_id)).slice(2) //去掉0x
+    let url = hashFunc(access_token + DATA_ID[data_type](cycle_id,content_id)).slice(2) //去掉0x
     return url
 }
 
@@ -232,7 +263,7 @@ function vaildDataType(data_type,instance){
 function getDataHash(data_type,data){
     data_type
     let jsons = JSON.stringify(data)
-    let hash= hash(jsons)
+    let hash= hashFunc(jsons)
     return hash
 }
 
@@ -253,6 +284,9 @@ export  {DATA_ID,
         getDataID,
         getCycleTemplate,
         encryptContent,
-        decryptContent
+        decryptContent,
+        inTokenList,
+        inJoinedList,
+        getTokenItem,
 }
 
