@@ -103,6 +103,8 @@ const decryptAESKey = (privkey = '',pubkey = '',eaeskey) =>{
 
 
 function generateAESKey(password) {
+    if(password===undefined)
+        throw("Empty password")
     var salt = 'salt';
     var key = forge.pkcs5.pbkdf2(password, salt, 10, 16);
     return forge.util.bytesToHex(key);
@@ -129,7 +131,7 @@ function decryptData(key,iv,encrypted_data) {
     
 }//由密钥、初始向量、从服务器传回的加密数据进行解密，返回明文
 
-
+//FIXME data===''会出问题 
 function encryptData_c(data,key,iv=DEFAULT_IV) {
 
     data = encodeUnicode(data)

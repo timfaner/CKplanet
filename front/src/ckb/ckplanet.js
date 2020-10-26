@@ -118,11 +118,11 @@ function getDataTemplate(data_type){
  */
 function encryptCycleToken({lock_args,access_token_private,aes_key},ecdh_pk,ecdh_sk){
     let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
-    let k = encryptData_c(lock_args,ecdh_key)
-    let v = encryptData_c(access_token_private + ":" + aes_key,ecdh_key)
+    let tmp1 = encryptData_c(lock_args,ecdh_key)
+    let tmp2 = encryptData_c(access_token_private + ":" + aes_key,ecdh_key)
     return{
-        k,
-        v,
+        k:tmp1.encrypted_data,
+        v:tmp2.encrypted_data
     }
 
 }

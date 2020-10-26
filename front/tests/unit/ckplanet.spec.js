@@ -14,22 +14,44 @@ describe('HelloWorld.vue', () => {
 })
 
 
-import { getUrl as getUrls, DATA_STRUCT, getDataTemplate, vaildDataType,getDataID }  from "../../src/ckb/ckplanet.js"
+import { getUrl as getUrls,
+        DATA_STRUCT, 
+        getDataTemplate, 
+        vaildDataType,
+        getDataID,
+        encryptCycleToken,
+        decrtptCycleToken,}  from "../../src/ckb/ckplanet.js"
+
+
+        
 import { postData } from '../../src/ckb/data_server.js'
+import {    generateAESKey, generatePrivKey, getPubKey, signData } from '../../src/ckb/crypto.js'
 
 DATA_STRUCT
 
 
 
 let data_types = []
-let access_token_public = '0x0354abd4f62e5e1ed2abdbc71cbb55fb0132e12ffbc25882733a79ca578a96b85bc51d43e03fed161db8ac6b23c3e03e7cbf0a43e98a316311f83f89eff2959f'
-let access_token_private = '0xeb09ff23121575f3cd27a397923e7a7bad37b7fc7b394ab0417b3f06b82c9dd60c0aff13088931c385b965d8f1c86777fbc2ccb96fdbace6039396294d4e4767'
+
+const sk = generatePrivKey()
+
+const sk1 = generatePrivKey()
+const sk2 = generatePrivKey()
+
+const pk1 = getPubKey(sk1)
+const pk2 = getPubKey(sk2)
+
+let access_token_public = signData(sk,"public")
+let access_token_private = signData(sk,"pricate")
+
+
+
 
 let access_token_items = {
     access_token_public,
     access_token_private,
-    access_token_public_pk:'',
-    access_token_private_pk:'',
+    access_token_public_pk:pk1,
+    access_token_private_pk:pk2,
 }
 
 data_types = [
@@ -51,7 +73,7 @@ let dummy_data = [
     { key: 'cycle_users_list', data: {u:"user"} },
     { key: 'cycle_tokens_list', data: ['sdsd'] },
     { key: 'cycle_contents_list',data:{}},
-    { key: 'cycle_content', data:{time:"12",title:"title",content:"content"}} // time is number,not string
+    // TODO { key: 'cycle_content', data:{time:"12",title:"title",content:"content"}} // time is number,not string
 ]
 
 let data_ids = [
@@ -130,3 +152,18 @@ describe("Ckplanet data process ",function(){
 })
 
 
+
+describe("Cycle token encrypt and decrypt",function(){
+    it("should get same object after encrypt and decrypt",function(){
+        let input =             
+            {lock_args:"0xsdkzflzsmdlkmlzmlksmzlmk",
+            access_token_private:access_token_items.access_token_private,
+            aes_key:generateAESKey("kjnjnkjnkjnk")}
+        
+        let encrypted = encryptCycleToken(input,pk1,sk2)
+        
+        let output = decrtptCycleToken(encrypted,pk2,sk1)
+
+        expect(output).to.deep.equal(input)
+    })
+})

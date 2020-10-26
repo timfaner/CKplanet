@@ -49,7 +49,7 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
                 contents:{
 
@@ -69,7 +69,7 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
                 contents:{
 
@@ -86,7 +86,7 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
                 contents:{
 
@@ -98,7 +98,7 @@ let updateCyclesPool_testcase = [
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
             contents:{
 
@@ -117,7 +117,7 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
                 contents:{
 
@@ -129,7 +129,7 @@ let updateCyclesPool_testcase = [
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
             contents:{
 
@@ -139,7 +139,7 @@ let updateCyclesPool_testcase = [
         [cycle_ids[1]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubl',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
             contents:{
 
@@ -158,7 +158,7 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
                 contents:{
 
@@ -170,7 +170,7 @@ let updateCyclesPool_testcase = [
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
             contents:{
 
@@ -180,7 +180,7 @@ let updateCyclesPool_testcase = [
         [cycle_ids[1]]:{
             cycle_profile:cycle_profiles[0],
             aes_key:'bababa',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
             contents:{
 
