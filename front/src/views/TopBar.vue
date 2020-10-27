@@ -109,7 +109,8 @@ export default {
       ]),
       ...mapActions([
         "getManageCycles",
-        "getCycle"
+        "getCycle",
+        "getJoinCycles"
       ]),
     
     async test(){
@@ -191,8 +192,8 @@ export default {
 
     loginToCkplanet :   function(){
       console.log("logged to ckplanet")
-      this.getManageCycles()
-      
+      this.getManageCycles(this.user_lock_args).catch((e)=>this.$message.error("获取用户管理的圈子失败",e))
+      this.getJoinCycles(this.user_lock_args).catch((e)=>this.$message.error("获取用户加入的的圈子失败",e))      
 
     },
 

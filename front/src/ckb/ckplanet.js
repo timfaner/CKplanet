@@ -212,7 +212,9 @@ function getUrl(data_type,access_token_items,cycle_id='',content_id='',depends='
  * @param {object} instance 
  * @returns {boolean} boolean
  */
-function vaildDataType(data_type,instance){
+function vaildDataType(data_type,thing_to_check){
+
+    let instance = JSON.parse(JSON.stringify(thing_to_check))
     var bool = false
     if ( !(data_type in DATA_ID)){
         console.error("Wrong data type : ",data_type)
@@ -225,11 +227,11 @@ function vaildDataType(data_type,instance){
     }
 
     try {
-        let template = DATA_STRUCT[data_type]
+        let template = JSON.parse(JSON.stringify(DATA_STRUCT[data_type]))
         if (  data_type.search("list") !== -1){ 
             // 是list
-            if (instance.length === 1){
-                bool= true
+            if (instance.length === 0){
+                return true
             }
             instance = instance[0]
             template = template[0]

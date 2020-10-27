@@ -1,5 +1,5 @@
 const MOCK_API = true
-const KVDB_ENABLE = false
+const KVDB_ENABLE = true
 
 
 import {hashFunc, signData} from './crypto' 

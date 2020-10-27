@@ -43,7 +43,7 @@ const pk1 = getPubKey(sk1)
 const pk2 = getPubKey(sk2)
 
 let access_token_public = signData(sk,"public")
-let access_token_private = signData(sk,"pricate")
+let access_token_private = signData(sk,"private")
 
 
 

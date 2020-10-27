@@ -7,13 +7,17 @@
                 <h4> {{profile.cycle_name}} </h4>
                 <h6> {{profile.introduction}} </h6>
             </div>
+
+            <i v-if="profile.type==='close'" class="el-icon-lock">Closed </i>
+            <i v-if="profile.type==='open'" class="el-icon-unlock">Opened </i>
             
             <div class="col ml-auto">
+                <el-button @click="joinCycle">  Join Cycle </el-button>
             <el-button @click="dialogPublish=true"> Share your thoughts </el-button>
             <el-button @click="dialogUpdateCycleProfile=true"> Settings </el-button>
 
             <input v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
-            <el-button @clik="addUser"> Add user </el-button>
+            <el-button @click="addUser"> Add user </el-button>
             </div>
         </div>
         <el-dialog title="Share your thoughts" :visible.sync="dialogPublish">
@@ -91,11 +95,13 @@ export default {
         '$route': 'fetchData'
     },
     computed:{
-        
         cycle_id: function(){return this.$route.params.cycle_id},
         lock_args: function(){return this.$route.params.lock_args},
+        cycle_joined_statue : function(){return this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id)},
+
         
         ...mapState({
+            logged_in: state => state.ckplanet.wallet_connected && state.ckplanet.data_server_connected,
             user_lock_args: (state) => state.user_chain_info.lock_args,
             cycle: function(state) {
                 let pools = state.ckplanet.cycles_pool
@@ -123,15 +129,26 @@ export default {
             "getCycle",
             "getCycleContents",
             "getDataServerInfo",
-            "getSthFromPool"
+            "getSthFromPool",
+            "getJoinCyclesIndex",
+            "checkUserExists"
 
 
 
         ]),
         addUser: async function(){
             try {
+                let exists = await this.checkUserExists(this.userToAdd)
+                if(!exists){
+                    this.$message("用户" + this.userToAdd + "不存在")
+                    return
+                }
                 await this.updateTokenList()
                 await this.addUserToUserList()
+                //更新圈子信息
+                await this.getCycle({
+                    lock_args:this.lock_args,
+                    cycle_id:this.cycle_id})
             } catch (error) {
 
                 //错误显示
@@ -140,6 +157,8 @@ export default {
 
             
         },
+
+
 
         addUserToUserList:async function(){
             try{
@@ -200,7 +219,7 @@ export default {
                 let aes_key = this.cycle.aes_key
                 let input = {
                     lock_args: this.lock_args,
-                    access_token_private:access_token_items.access_token_private,
+                    access_token_private:this.$store.state.user_id_private.access_token,
                     aes_key,
                     }
                 let token = encryptCycleToken(input,pk,sk)
@@ -231,55 +250,83 @@ export default {
         },
 
 
-        joinCycle:function(){
+        joinCycle:async function(){
         // TODO join\leave\dispend 。。。
         let user_ds = new DataServer(this.$store,this.user_lock_args)
         let data_setter = new DataSetter(user_ds)
         
-        let joined_cycle = this.$store.ckplanet.user_joined_cycles_index
-            if(this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id) ==="disjointed"){
-                joined_cycle.push({
-                    lock_args:this.lock_args,
-                    cycle_id:this.cycle_id})
-                
-                }
+        let joined_cycle = this.$store.state.ckplanet.user_joined_cycles_index
+
+        if(this.lock_args === this.user_lock_args){
+            this.$$message("不能加入自己的圈子")
+            return
+        }
+        if(this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id) !=="disjointed"){
+                this.$message("已经发送过请求/加入圈子啦")
+                return
+            }
+
+        joined_cycle.push({
+            lock_args:this.lock_args,
+            cycle_id:this.cycle_id})
+
         let data_type = "user_joined_cycle_list"
         let data_id = getDataID(data_type)
-
-        data_setter.postData(
+        await data_setter.postData(
             joined_cycle,
             data_id,
             "public",
             false,
             ""
-        ).catch((e) => console.error(e))
+        )
         //TODO 发送给cycle 拥有者
 
-        //TODO 更新列表，更新cycle状态
-
+    
+        this.getJoinCyclesIndex(this.user_lock_args).catch((e) => this.$message("更新用户列表失败",e))
+        
         },
         test:function(){
             this.PublishCycleContent
         },
+
         fetchData:async function(){
+            if(this.$route.name !== "CycleDetail"){
+                return
+            }
+            if(!this.logged_in){
+                this.$message("未登录")
+                return
+            }
             console.log("fetch date of " + this.lock_args + " "+ this.cycle_id)
-//添加loading遮罩与错误提醒
+            //添加loading遮罩与错误提醒
             try {
                 let pools = this.$store.state.ckplanet.cycles_pool
-                if(this.lock_args in pools)
-                    if(this.cycle_id in pools[this.lock_args]){
-                    let res = await this.getCycle({
+
+                let new_cycle = true
+                if(this.lock_args in pools){
+                    if(this.cycle_id in pools[this.lock_args])
+                        new_cycle = false
+                }
+
+                if(new_cycle){
+                    console.log("[fetchData] New cycle")
+                    this.getCycle({
                         lock_args:this.lock_args,
                         cycle_id:this.cycle_id
                     })
-                    if(res===null){
-                        return
-                    }
                 }
-                this.getCycleContents({
-                    lock_args:this.lock_args,
-                    cycle_id:this.cycle_id
-                    }).catch((error)=> console.error("Loding contents error",error))
+                
+                if(this.profile.type === "open" ||  this.cycle_joined_statue==="joined" || 
+                    this.user_lock_args === this.lock_args){
+                        console.log("[fetchData] Get Cycle Contents for "+ this.cycle_id + " of " + this.lock_args)
+                        this.getCycleContents({
+                        lock_args:this.lock_args,
+                        cycle_id:this.cycle_id
+                            })
+                        .catch((error)=> console.error("Loding contents error",error))
+                            return
+                        }
+
             } catch (error) {
                 console.log(error)
             }
@@ -291,3 +338,11 @@ export default {
 
 }
 </script>
+
+                    let res = await this.getCycle({
+                        lock_args:this.lock_args,
+                        cycle_id:this.cycle_id
+                    })
+                    if(res===null){
+                        return
+                    }

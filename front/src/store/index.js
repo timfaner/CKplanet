@@ -103,7 +103,7 @@ export default new Vuex.Store({
 
       let access_tokens = {access_token_public,access_token_public_pk,access_token_private,access_token_private_pk}
       if ( ! (lock_args in state.access_token_pool)){
-          state.access_token_pool = {[lock_args]: access_tokens}
+          Vue.set(state.access_token_pool,lock_args,access_tokens)
         }
       else{
         const key = lock_args
@@ -152,7 +152,7 @@ export default new Vuex.Store({
 
       let data_servers = {ip,mpk}
       if ( ! (lock_args in state.data_server_pool)){
-        state.data_server_pool = {[lock_args]: data_servers}
+        Vue.set(state.data_server_pool,lock_args,data_servers)
         }
       else{
         const key = lock_args
