@@ -4,20 +4,23 @@
         <div class="container row">
             <el-avatar :src="profile.avatar_url" :size="100"></el-avatar>
             <div class="col">
-                <h4> {{profile.cycle_name}} </h4>
+                <h4> {{profile.cycle_name}} 
+                    <el-tooltip class="item" effect="dark" content="这是一个私有圈子" placement="bottom">
+                        <i v-if="profile.type==='close'" class="el-icon-lock"></i>
+                    </el-tooltip>
+                </h4>
                 <h6> {{profile.introduction}} </h6>
             </div>
 
-            <i v-if="profile.type==='close'" class="el-icon-lock">Closed </i>
-            <i v-if="profile.type==='open'" class="el-icon-unlock">Opened </i>
             
-            <div class="col ml-auto">
-                <el-button @click="joinCycle">  Join Cycle </el-button>
-            <el-button @click="dialogPublish=true"> Share your thoughts </el-button>
-            <el-button @click="dialogUpdateCycleProfile=true"> Settings </el-button>
+            
+            
+            <div class="col-1 sml-auto">
+                <el-button v-if="user_lock_args!==lock_args" @click="joinCycle">  Join Cycle </el-button>
+            <el-button v-if="user_lock_args===lock_args" @click="dialogPublish=true"> Share your thoughts </el-button>
+            <el-button v-if="user_lock_args===lock_args" @click="dialogUpdateCycleProfile=true"> Edit Planet </el-button>
 
-            <input v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
-            <el-button @click="addUser"> Add user </el-button>
+
             </div>
         </div>
         <el-dialog title="Share your thoughts" :visible.sync="dialogPublish">
@@ -46,13 +49,23 @@
                 ></ContentItem>
 
             </el-tab-pane>
-            <el-tab-pane label="Members">
+            <el-tab-pane>
+                <span slot="label"><i class="el-icon-date"></i> Members ({{cycle.user_lists.length}}) </span>
+                <div>
+                <input v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
+                <el-button @click="addUser"> Add user </el-button>
+
+                <MemberItem v-for="user in cycle.user_lists"
+                :key="user"
+                :lockargs="user"
+                ></MemberItem>
+
+                </div>
             </el-tab-pane>
             <el-tab-pane label="Joined requests">
             </el-tab-pane>
 
         </el-tabs>
-
     </div>
 
     
@@ -65,6 +78,7 @@ import { mapActions, mapState } from 'vuex'
 import PublishCycleContent from "../components/PublishCycleContent.vue"
 import UpdateCycleProfile from "../components/UpdateCycleProfile.vue"
 import ContentItem from "../components/ContentItem.vue"
+import MemberItem from "../components/MemberItem.vue"
 import {getCycleTemplate,getDataID,encryptCycleToken,inTokenList} from "@/ckb/ckplanet.js"
 
 import {DataServer} from "@/ckb/data_server"
@@ -85,7 +99,8 @@ export default {
     components:{
         UpdateCycleProfile,
         PublishCycleContent,
-        ContentItem
+        ContentItem,
+        MemberItem,
     },
     created (){
         this.fetchData()
@@ -98,7 +113,6 @@ export default {
         cycle_id: function(){return this.$route.params.cycle_id},
         lock_args: function(){return this.$route.params.lock_args},
         cycle_joined_statue : function(){return this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id)},
-
         
         ...mapState({
             logged_in: state => state.ckplanet.wallet_connected && state.ckplanet.data_server_connected,

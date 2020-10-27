@@ -240,6 +240,12 @@ const ckplanet = {
             }
         },
         
+        async getCycleUsersProfile({dispatch,state},{lock_args,cycle_id}){
+            let user_list = state.cycles_pool[lock_args][cycle_id]
+            user_list.forEach(function(lock_args){
+                dispatch("getUserProfile",lock_args).catch((e)=> console.error("[getCycleUsersProfile] got Profile failed",lock_args,e))
+            })
+        },
         async getUserProfile({commit,dispatch},lock_args){
             let res = null
             try {
@@ -415,6 +421,7 @@ const ckplanet = {
                     })
                     //获取圈子信息
                     dispatch("getCycleContents",{lock_args,cycle_id})
+                    //dispatch("getCycleUsersProfile",{lock_args,cycle_id})
                 }
 
                 
