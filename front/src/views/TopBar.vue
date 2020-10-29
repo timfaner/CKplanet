@@ -3,8 +3,21 @@
         <b-navbar-brand class="col-md-1 col-lg-2" href="#">CKPlanet</b-navbar-brand>
         <!-- Right aligned nav items -->
         <b-navbar-nav class="col-md-8 col-sm-4">
-            <b-form-input  size="md" class="mr-2 my-2"  placeholder="Search"></b-form-input>
-            <b-button size="md" class="my-2 mr-auto" type="submit">Search</b-button>
+              <el-input
+                
+                placeholder="lock_args"
+                
+                v-model="input_lock_args">
+              </el-input>
+              <el-input
+                
+                placeholder="cycle_id"
+                
+                v-model="input_cycle_id">
+              </el-input>
+              <el-button @click="search()">
+                Search
+              </el-button>
         </b-navbar-nav>
         
 
@@ -68,6 +81,8 @@ export default {
     name: 'TopBar',
     data: function () {
         return {
+          input_lock_args:'',
+          input_cycle_id:'',
         data_server_ip:'',
         dialogSelectWallet : false,
         dialogUpdateDataServer: false,
@@ -110,9 +125,21 @@ export default {
       ...mapActions([
         "getManageCycles",
         "getCycle",
-        "getJoinCycles"
+        "getJoinCycles",
+        "checkUserExists"
       ]),
-    
+    async search(){
+      if (await this.checkUserExists(this.input_lock_args))
+            this.$router.push({
+                name:"CycleDetail",
+                params:{
+                    lock_args:this.input_lock_args,
+                    cycle_id:this.input_cycle_id
+                }
+            })
+      else
+        this.$message("用户不存在")
+    },
     async test(){
 
     },

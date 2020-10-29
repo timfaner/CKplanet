@@ -9,6 +9,7 @@
                         <i v-if="profile.type==='close'" class="el-icon-lock"></i>
                     </el-tooltip>
                 </h4>
+                <i>{{cycle_id}}</i>
                 <h6> {{profile.introduction}} </h6>
             </div>
 
@@ -24,7 +25,7 @@
             </div>
         </div>
         <el-dialog title="Share your thoughts" :visible.sync="dialogPublish">
-            <PublishCycleContent v-on:closedialog="dialogPublish=false" mode="create" :cycleid="cycle_id"></PublishCycleContent>
+            <PublishCycleContent  v-if="dialogPublish" v-on:closedialog="dialogPublish=false" mode="create" :cycleid="cycle_id"></PublishCycleContent>
             <div slot="footer"  class="dialog-footer">
             </div>
         </el-dialog>
@@ -40,9 +41,6 @@
             <el-tab-pane label="Posts">
                 <ContentItem v-for="content in contents"
                 :key="content.time"
-                :time="content.time"
-                :title="content.title"
-                :content="content.content"
                 :content_id="content.content_id"
                 :cycle_id="cycle_id"
                 :lock_args="lock_args"
@@ -107,7 +105,7 @@ export default {
     },
     watch: {
         // 如果路由有变化，会再次执行该方法
-        '$route': 'fetchData'
+        '$route': 'fetchData',
     },
     computed:{
         cycle_id: function(){return this.$route.params.cycle_id},
@@ -145,11 +143,18 @@ export default {
             "getDataServerInfo",
             "getSthFromPool",
             "getJoinCyclesIndex",
-            "checkUserExists"
+            "checkUserExists",
+            "getCycleTokenList"
 
 
 
         ]),
+        updateCycle: async function(){
+            console.log("Detect join statue change")
+                this.getCycle({
+                        lock_args:this.lock_args,
+                        cycle_id:this.cycle_id})
+        },
         addUser: async function(){
             try {
                 let exists = await this.checkUserExists(this.userToAdd)
@@ -340,6 +345,13 @@ export default {
                         .catch((error)=> console.error("Loding contents error",error))
                             return
                         }
+                if( this.cycle_joined_statue ==="pending"){
+                    console.log("[fetchData] Get Cycle Token lists for "+ this.cycle_id + " of " + this.lock_args)
+                    this.getCycleTokenList({
+                        lock_args:this.lock_args,
+                        cycle_id:this.cycle_id
+                    })
+                }
 
             } catch (error) {
                 console.log(error)

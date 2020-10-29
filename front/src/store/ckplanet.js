@@ -115,7 +115,7 @@ const ckplanet = {
                     return true
                  return false
             } catch (error) {
-                console.error(error)
+                console.log('[checkUserExists]',lock_args,error)
                 return false
             }
             
@@ -333,7 +333,20 @@ const ckplanet = {
             state
             return generateAESKey(hashFunc(lock_args+cycle_id))
         },
+        async getCycleTokenList({commit,dispatch,},{lock_args,cycle_id}){
+            let data_type = 'cycle_tokens_list'
+            let token_list = await dispatch("getDataByType",{lock_args,data_type,cycle_id})
+            console.debug("[getCycleTokenList] Got <" + data_type + "> of",arguments[1],token_list)
 
+
+            commit("updateCyclesPool",{
+                lock_args,
+                cycle_id,
+                cycle_props:{
+                    token_list:token_list
+                }
+            })
+        },
         async getCycle({commit,dispatch,rootState,getters},{lock_args,cycle_id}){
 
             try {
