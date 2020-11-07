@@ -15,12 +15,16 @@
  */
 package com.example.demo.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.example.demo.entity.*;
 import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.MongoDBService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -30,17 +34,20 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-//import org.bouncycastle.jcajce.provider.digest.Blake2b;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
-import org.omg.CORBA.PUBLIC_MEMBER;
+import org.nervos.ckb.crypto.Blake2b;
+import org.nervos.ckb.utils.Numeric;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.ArrayList;
+
+//import org.bouncycastle.jcajce.provider.digest.Blake2b;
 
 
 @RestController
@@ -51,8 +58,14 @@ public class FileServerController {
     static final int AUTHORIZED = 3;
     static final int UNAUTHORIZED = 4;
     static final int FAILED = 5;
-//    @Value("${rpcAddress}")
-    static  final public String rpc="http://ckplanet.beihanguni.cn:8114/rpc";
+    static final int NOT_FOUND=-1;
+    static final int PENDING=0;
+    static final int SUCCESS_=1;
+    static final int FAIL_=2;
+
+
+    //    @Value("${rpcAddress}")
+    static final public String rpc = "http://ckplanet.beihanguni.cn:8114/rpc";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -82,7 +95,10 @@ public class FileServerController {
                 mongoDBService.deleteDataById(entity.getDataId());
             }
             String s = (entity.getDataId() + entity.getAccessToken());
-            String url = AuthenticationService.SHA(s, "SHA-256");
+            Blake2b hash=new Blake2b();
+            hash.update(s.getBytes());
+            System.out.println("url"+hash.doFinalString());
+            String url =hash.doFinalString();
             entity.setUrl(url);
             mongoDBService.saveData(entity);
             UploadResponseEntity response = new UploadResponseEntity(SUCCESS);
@@ -136,8 +152,7 @@ public class FileServerController {
     }
 
     @PostMapping("/valid")
-    public String validTransaction(String txId, String d, String dataHash, int index) {
-        System.out.println("进来了");
+    public int validTransaction(String txId, String raw, String hash, int index) {
         try {
             CloseableHttpClient client = null;
             CloseableHttpResponse response = null;
@@ -158,10 +173,28 @@ public class FileServerController {
                 response = client.execute(httpPost);
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
-                System.out.println(result);
-                JSONObject j=JSONObject.parseObject(result);
-                System.out.println(j.toString(SerializerFeature.PrettyFormat));
+                if(result==null||result.equals("")){
+                    return NOT_FOUND;
+                }
 
+                JSONObject j = JSONObject.parseObject(result);
+                JSONObject resultJson=JSONObject.parseObject(j.get("result").toString());
+                JSONObject transactionJson=JSONObject.parseObject(resultJson.get("transaction").toString());
+                JSONArray outputDatas=(JSONArray)transactionJson.get("outputs_data");
+                if(index>=outputDatas.size()){
+                    return NOT_FOUND;
+                }
+                String hex=(String)outputDatas.get(index);
+                byte[] hexSubstring = Hex.decode(hex.substring(2));
+                String decodeString=new String(hexSubstring, "UTF-8");
+                String decodeHash=(String) JSONObject.parseObject(decodeString).get("data_hash");
+                System.out.println("解码得到的hash："+decodeHash);
+                System.out.println("传入的hash："+hash);
+                if( decodeHash.equals(hash)){
+                    return  SUCCESS_;
+                }else{
+                    return  FAIL_;
+                }
             } finally {
                 if (response != null) {
                     response.close();
@@ -172,22 +205,35 @@ public class FileServerController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return 0;
         }
-        return null;
     }
 
 
-    public static void main(String[] args) {
-        final Blake2b hash = Blake2b.Digest.newInstance(24);
-        if (nonce != null) {
-            hash.update(nonce);
-        }
+    public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        Blake2b hash=new Blake2b();
+        hash.update("hello world".getBytes());
+        System.out.println(hash.doFinalString());
 
-        hash.update(clientKey);
-        hash.update(serverKey);
+       String s= "0x7b22646174615f68617368223a22307862313866366539303664383632616539616238396131636164663861343263643264393838346631356331643930623536333466346138623662313132386335222c22646174615f686173685f736967223a2230783332643535303665303431383534613666383334396335623362613031373061313932303632313237633636626530333664393937623163333166393135376535316634316463663162326437353735643039323561323936326261666435616332353165623162376232366165646337353133316536646431333462333234227d";
+//        Blake2b hash=new Blake2b();
+//        hash.update("hello world".getBytes());
+//        System.out.println(hash.doFinalString());
+//
+//        byte data[] = "A".getBytes("UTF-8");
+//        byte[] encodeData = Hex.encode(data);
+//        String encodeStr = Hex.toHexString(data);
+//        System.out.println(new String(encodeData, "UTF-8"));
+//        System.out.println(encodeStr);
+        // 解码
+//        byte[] decodeData = Hex.decode(s.getBytes());
+        byte[] decodeData2 = Hex.decode(s.substring(2,s.length()));
+//        System.out.println(new String(decodeData, "UTF-8"));
+        System.out.println(new String(decodeData2, "UTF-8"));
+
 
     }
-
 }
+
 
 

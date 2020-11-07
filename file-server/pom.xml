@@ -30,7 +30,11 @@
             <version>1.60</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>org.nervos.ckb</groupId>
+            <artifactId>core</artifactId>
+            <version>0.24.0</version>
+        </dependency>
         <!--        <dependency>-->
         <!--            <groupId>org.mongodb</groupId>-->
         <!--            <artifactId>mongo-java-driver</artifactId>-->
