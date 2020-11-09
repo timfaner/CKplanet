@@ -1,4 +1,4 @@
-import { KEYPERING_URL, RICH_NODE_INDEXER_URL, SECP256K1_BLAKE160_CODE_HASH, DAPP_DESCRIPTION } from './const' 
+import { RICH_NODE_RPC_URL,KEYPERING_URL, RICH_NODE_INDEXER_URL, SECP256K1_BLAKE160_CODE_HASH, DAPP_DESCRIPTION } from './const' 
 import {keypering_res,MOCK_API}  from "./test"
 
 
@@ -109,27 +109,111 @@ const signAndSendTransaction = async (rawTx, token, lockHash) => {
   }
 }
 
+/**
+ * 通过keypering 对交易进行签名
+ * @param {*} rawTx 
+ * @param {*} token 
+ * @param {*} lockHash 
+ */
 
-//TODO 测试
-/*
-### Sign Message
+const signTransaction = async (rawTx, token, lockHash) => {
+  let rawTransaction = rawTx
+  rawTransaction.witnesses[0] = {
+    lock: '',
+    inputType: '',
+    outputType: '',
+  }
+  let res = {}
+  try {
+     res = await fetch(KEYPERING_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        id: 4,
+        jsonrpc: '2.0',
+        method: 'sign_transaction',
+        params: {
+          tx: rawTransaction,
+          lockHash,
+          description: DAPP_DESCRIPTION,
+        },
+      }),
+    })
+    res =  await res.json()
+    // TODO 错误码处理
+    console.log(res.result.tx)
+    return res.result.tx
+  } catch (error) {
+    console.error('error', error,res)
+  }
+}
 
-```yaml
-# sign_message
-id: string
-jsonrpc: '2.0'
-method: sign_message
-params:
-  message: string
-  address: string | null # default to the first address
-  description: string | null
+/**
+ * 通过node rpc 发送交易（不通过keypering 发送，以方便查询是不是在memory pool中)
+ * @param {*} tx 
+ */
+const sendTransaction = async (tx) => {
 
-# response
-id: string
-jsonrpc: '2.0'
-result: string
-*/
-//TODO 测试
+  let res = {}
+  try {
+     res = await fetch(RICH_NODE_RPC_URL, {
+      method: 'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify({
+        id: 4,
+        jsonrpc: '2.0',
+        method: 'send_transaction',
+        params: [
+          tx,
+          ]
+      }),
+    })
+    res =  await res.json()
+    // TODO 错误码处理
+    //返回txhash
+    return res.result
+    
+  } catch (error) {
+    console.error('error', error,res)
+  }
+}
+
+
+const getTransaction = async (txHash) => {
+
+  let res = {}
+  try {
+     res = await fetch(RICH_NODE_RPC_URL, {
+      method: 'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify({
+        id: 4,
+        jsonrpc: '2.0',
+        method: 'get_transaction',
+        params: [
+          txHash,
+          ]
+      }),
+    })
+    res =  await res.json()
+    // TODO 错误码处理
+    return res.result
+  } catch (error) {
+    console.error('error', error,res)
+  }
+}
+
+
+
+
+
+
 const signMessage = async (msg,address,token) => {
   let payload = {
     message:msg,
@@ -168,4 +252,7 @@ export  {
   queryAddresses,
   signAndSendTransaction,
   signMessage,
+  signTransaction,
+  sendTransaction,
+  getTransaction,
 }

@@ -10,7 +10,12 @@
         <el-input v-model="data_server_ip" placeholder="请输入数据服务器ip" clearable></el-input>
         </el-form-item>
           <el-form-item>
-        <el-button type="primary" @click="UpdateDataServer()">保存</el-button>
+        <el-collapse-transition>
+          <TxStatusDashBoard v-if="showProgress"> </TxStatusDashBoard>
+        </el-collapse-transition>
+        </el-form-item>
+          <el-form-item>
+        <el-button type="primary" :loading="btnloading" @click="UpdateDataServer()">保存</el-button>
          </el-form-item>
     </el-form>
 
@@ -19,6 +24,8 @@
 
 <script>
 
+
+import TxStatusDashBoard from '@/components/TxStatusDashBoard.vue'
 import {DataServer} from "@/ckb/data_server"
 
 import {mapState,mapMutations} from "vuex"
@@ -28,6 +35,9 @@ import {mapState,mapMutations} from "vuex"
 
 export default {
   name: 'UpdateDataServer',
+  components:{
+    TxStatusDashBoard,
+  },
   computed: mapState({
         user_address: state=>state.user_chain_info.address,
         user_lock_args : state => state.user_chain_info.lock_args,
@@ -39,6 +49,10 @@ export default {
       ]),
 
     UpdateDataServer : async function(){
+
+      this.showProgress = true
+      this.btnloading = true
+
       let user_ds = new DataServer(this.$store,this.user_lock_args)
       
       user_ds.setIp(this.data_server_ip)
@@ -53,10 +67,14 @@ export default {
           type: 'success'
         })
 
+        this.showProgress = false
+        this.btnloading = false
+
         this.$emit("closedialog")
       } catch (error) {
-        
-        this.$message.error(error)
+        this.showProgress = false
+        this.btnloading = false
+        this.$message.error(error.message)
       }
 
       
@@ -65,7 +83,8 @@ export default {
   },
   data: function(){
     return{
-      //imageUrl:'https://placekitten.com/400/400',
+      showProgress:false,
+      btnloading:false,
       data_server_ip:'',
       form:null,
       formLabelWidth:'100',

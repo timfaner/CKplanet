@@ -7,7 +7,7 @@
     <h4> Livefeed</h4>
     <el-button @click="dialogPublish=true" class="col-2 ml-auto"> share your thoughts </el-button>
 
-    <el-dialog  v-if="dialogPublish" title="Share your thoughts" :visible.sync="dialogPublish">
+    <el-dialog  v-if="dialogPublish" title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false'>
         <PublishCycleContent v-on:closedialog="dialogPublish=false" mode="create" ></PublishCycleContent>
         <div slot="footer"  class="dialog-footer">
         </div>

@@ -22,9 +22,13 @@
         <el-form-item>
           <el-checkbox v-model="close_checked">设为私有圈子</el-checkbox>
         </el-form-item>
-
         <el-form-item>
-          <el-button type="primary" @click="Update()">保存</el-button>
+        <el-collapse-transition>
+          <TxStatusDashBoard v-if="showProgress"> </TxStatusDashBoard>
+        </el-collapse-transition>
+        </el-form-item>
+        <el-form-item>
+          <el-button :loading="btnloading" type="primary" @click="Update()">保存</el-button>
         </el-form-item>
 
     </el-form>
@@ -40,6 +44,7 @@ import {DataServer} from "@/ckb/data_server"
 import {DataSetter } from "@/ckb/data_handler"
 import { getDataTemplate,getDataHash,getDataID } from "@/ckb/ckplanet"
 import {mapState} from "vuex"
+import TxStatusDashBoard from '@/components/TxStatusDashBoard.vue'
 
 const OSS = require("ali-oss")
 
@@ -54,9 +59,15 @@ export default {
         user_lock_args : state => state.user_chain_info.lock_args,
 
       }),
+
+  components:{
+    TxStatusDashBoard,
+  },
   methods:{
 
     Update : async function(){
+            this.showProgress = true
+      this.btnloading = true
       let user_ds = new DataServer(this.$store,this.user_lock_args)
       let data_setter = new DataSetter(user_ds)
 
@@ -172,10 +183,14 @@ export default {
           {lock_args:this.user_lock_args,cycle_id:cycle_id}
         ).catch((e)=>{throw(e)})
         this.$emit("closedialog")
+
+        this.showProgress = false
+        this.btnloading = false
       }
        catch (error) {
-         console.error(error)
-        this.$message.error(error)
+          this.showProgress = false
+          this.btnloading = false
+          this.$message.error(error.message)
       }
       
     },
@@ -212,6 +227,8 @@ export default {
   },
   data: function(){
     return{
+      btnloading:false,
+      showProgress:false,
       form:null,
       formLabelWidth:'100',
       test:null,

@@ -10,7 +10,7 @@
             <p> {{user_profile.nickname}} </p>
           </div>
 
-          <el-dialog  :visible.sync="dialogNewUser" title="新建用户信息" append-to-body>
+          <el-dialog  :visible.sync="dialogNewUser" title="更新用户信息" append-to-body :close-on-click-modal='false'>
             <UpdateUserProfile v-on:closedialog="finalizeNewUser"></UpdateUserProfile>
             <div  slot="footer" class="dialog-footer">
           </div>
@@ -61,7 +61,7 @@ export default {
         this.dialogNewUser = true
       },
       finalizeNewUser: function(){
-        //this.dialogNewUser = false
+        this.dialogNewUser = false
       }
       //nickname: function(){return this.user_profile.nickname},
       //avatar_url : function(){return this.user_profile.avatar_url},

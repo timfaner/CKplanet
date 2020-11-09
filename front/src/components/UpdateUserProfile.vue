@@ -15,9 +15,14 @@
         <el-form-item label="昵称" :label-width="formLabelWidth">
         <el-input v-model="nickname" autocomplete="off"></el-input>
         </el-form-item>
-          <el-form-item>
-        <el-button type="primary" @click="updateUserProfile()">保存</el-button>
-         </el-form-item>
+        <el-form-item>
+        <el-collapse-transition>
+          <TxStatusDashBoard v-if="showProgress"> </TxStatusDashBoard>
+        </el-collapse-transition>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :loading="btnloading" @click="updateUserProfile()">保存</el-button>
+        </el-form-item>
     </el-form>
 
 </div>
@@ -31,6 +36,8 @@ import {DataServer} from "@/ckb/data_server"
 import {DataSetter } from "@/ckb/data_handler"
 import { getDataTemplate,getDataHash,getDataID } from "@/ckb/ckplanet"
 import {mapState} from "vuex"
+import TxStatusDashBoard from '@/components/TxStatusDashBoard.vue'
+
 
 const OSS = require("ali-oss")
 
@@ -45,9 +52,14 @@ export default {
         user_lock_args : state => state.user_chain_info.lock_args,
 
       }),
+  components:{
+    TxStatusDashBoard,
+  },
   methods:{
 
     updateUserProfile : async function(){
+      this.showProgress = true
+      this.btnloading = true
       let user_ds = new DataServer(this.$store,this.user_lock_args)
       let data_setter = new DataSetter(user_ds)
 
@@ -82,10 +94,17 @@ export default {
 
         //更新vuex store
         this.$store.dispatch("getUserProfile",this.user_lock_args).catch((e)=>{throw(e)})
+
+        this.showProgress = false
+        this.btnloading = false
         this.$emit("closedialog")
+
+        
       }
        catch (error) {
-        this.$message.error(error)
+        this.$message.error(error.message)
+        this.showProgress = false
+        this.btnloading = false
       }
       
     },
@@ -122,6 +141,8 @@ export default {
   },
   data: function(){
     return{
+      showProgress:false,
+      btnloading:false,
       //imageUrl:'https://placekitten.com/400/400',
       imageUrl:'',
       form:null,

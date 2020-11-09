@@ -19,6 +19,7 @@
     "kvdb.io": "^1.0.5",
     "node-forge": "^0.10.0",
     "secp256k1": "^4.0.2",
+    "snakecase-keys": "^3.2.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuex": "^3.4.0"

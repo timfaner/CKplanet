@@ -1,8 +1,9 @@
 import * as BN from 'bn.js'
 import { hexToBytes } from '@nervosnetwork/ckb-sdk-utils'
-import {  getRawTxTemplate,getTxTemplateWithCellsDeps,getScriptCapacity,getLockScript,filterCellsWithTypeScript } from '@/ckb/utils'
+import {  getRawTxTemplate,getTxTemplateWithCellsDeps,getScriptCapacity,getLockScript,filterCellsWithTypeScript,convertTx } from '@/ckb/utils'
 import { MIN_CAPACITY, TRANSACTION_FEE, Operator } from '@/ckb/const'
-import { signAndSendTransaction,requestAuth,} from '@/ckb/rpc'
+import { signTransaction,requestAuth,sendTransaction,getTransaction} from '@/ckb/rpc'
+
 
 
 const getWalletAuth = async () =>{
@@ -101,24 +102,17 @@ const getWalletAuth = async () =>{
       }
     }
     if (inputCapacity.sub(outputCapacity).lt(MIN_CAPACITY)) {
-      alert('You have not enough CKB!')
+      alert('You  do not have enough CKB!')
       return
     }
     return {rawTx,cells_to_delete}
   }
 
 
-//TODO lockHash 
-async  function sendTx(rawTx,lockHash){
-    const authToken = window.localStorage.getItem('authToken')
-    if (!authToken) {
-      console.error('No auth token')
-      return
-    }
-    let tx_hash = await signAndSendTransaction(rawTx, authToken, lockHash)
-    return tx_hash
-  }
 
+ const sleep = function(ms){
+    return new Promise(resolve => setTimeout(resolve,ms))
+  }
 
 
 async function changeOnChain(
@@ -176,25 +170,117 @@ async function changeOnChain(
     current_cells_type,
     type_args
   )
-  let tx = rawTx
+
   
   try {
-    let tx_hash = await sendTx(tx, lock_hash)
+
+    const authToken = window.localStorage.getItem('authToken')
+    if (!authToken) {
+      console.error('No auth token')
+      return
+    }
+
+    window.app.$loading({text:"请在钱包中完成授权"})
+
+    let tx = await signTransaction(rawTx, authToken, lock_hash)
+
+    let e = new CustomEvent("tx-status",{ 'detail' :{ tx_hash:'',status:"preparing to sign tx"}})
+    window.document.body.dispatchEvent(e)
+
+    window.app.$loading({text:"请在钱包中完成授权"}).close()
+
+
+
+    e = new CustomEvent("tx-status",{ 'detail' :{ tx_hash:'',status:"sending tx to node"}})
+    window.document.body.dispatchEvent(e)
+
+    tx = convertTx(tx) //将key 从camelcase转换成snake case 。e.g. {fooBar:1} => {foo_bar:1}
+    let tx_hash = await sendTransaction(tx)
+
+     e = new CustomEvent("tx-status",{ 'detail' :{ tx_hash:tx_hash,status:"waiting to commited"}})
+    window.document.body.dispatchEvent(e)
+
+    let status = ''
+ 
+    
+
+
+    
+    while(status !== "committed"){
+      await sleep(1000)
+      let tmp = await getTransaction(tx_hash)
+      
+      
+      if(tmp===null){
+        console.warn(tx_hash + " Not found")
+      }
+      else{
+        if (tmp.tx_status.status === "committed"){
+          status =  'committed'
+          console.debug(tx_hash +  " committed")
+        }
+        else{
+          console.debug(tx_hash +   ' '+  tmp.tx_status.status)
+        }
+        let e = new CustomEvent("tx-status",{ 'detail' :{ tx_hash:tx_hash,status:tmp.tx_status.status}})
+        window.document.body.dispatchEvent(e)
+      }
+    }
+
 
     //TODO 错误处理
     return {tx_hash,cells_to_delete}
   } catch (error) {
-    console.error(error)
+    let   e = new CustomEvent("waitwallet",{ 'detail' :{status:"error"}})
+    window.document.body.dispatchEvent(e)
+    console.error("change on chain error",error)
+    throw(error)
+    
   }
 
 
 }
 
+function registerTxWatcher(){
+  window.tx_watch = {}
+}
+function addTxToWatcher(tx_hash,msg){
+  
+  window.tx_watch[tx_hash] = setInterval(  async (tx_hash,msg)=> {
+    console.log(tx_hash)
+    console.log(msg)
+    let tmp = await getTransaction(tx_hash)
+    if(tmp===null){
+      console.warn(tx_hash + " Not found")
+    }
+    else{
+      if (tmp.tx_status.status === "committed"){
+        console.debug(tx_hash +  " committed")
+        let e = new CustomEvent("tx-committed",{'tx_hash':tx_hash,'msg':msg})
+        window.document.body.dispatchEvent(e)
+        window.clearInterval(window.tx_watch[tx_hash])
+
+      }
+      else{
+        console.debug(tx_hash +   ' '+  tmp.tx_status.status)
+      }
+    }
+  },1000,tx_hash,msg)
+}
+
+function registerTxNotify(vue){
+ vue
+}
+
 
 export   {
-    sendTx,
+
     jointTx,
     getWalletAuth,
     collectCells,
-    changeOnChain
+    changeOnChain,
+    registerTxWatcher,
+    addTxToWatcher,
+    registerTxNotify,
+
 }

@@ -33,21 +33,21 @@
         </div>
             
 
-        <el-dialog  :visible.sync="dialogUpdateDataServer" title="连接数据服务器" append-to-body>
+        <el-dialog  :visible.sync="dialogUpdateDataServer" title="连接数据服务器" append-to-body :close-on-click-modal='false'>
           <UpdateDataServer v-on:closedialog="finalizeUpdateDataServer"></UpdateDataServer>
           <div  slot="footer" class="dialog-footer">
           </div>
         </el-dialog>
 
         
-        <el-dialog  :visible.sync="dialogNewUser" title="新建用户信息" append-to-body>
+        <el-dialog  :visible.sync="dialogNewUser" title="新建用户信息" append-to-body :close-on-click-modal='false'>
           <UpdateUserProfile v-on:closedialog="finalizeNewUser"></UpdateUserProfile>
           <div  slot="footer" class="dialog-footer">
           </div>
         </el-dialog>
 
 
-        <el-dialog :visible.sync="dialogSelectWallet" title="选择钱包" :modal=false >
+        <el-dialog :visible.sync="dialogSelectWallet" title="选择钱包" :modal=false :close-on-click-modal='false'>
           <el-button @click="login()">  Keypering</el-button>
           <div slot="footer" class="dialog-footer">
           </div>

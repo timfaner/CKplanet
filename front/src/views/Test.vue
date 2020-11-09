@@ -25,7 +25,7 @@ import {
     encryptAESKey,
     decryptAESKey,
     importSignature,
-    exportSinature,Blake2b
+    exportSinature,Blake2b,hashFunc
     } from '@/ckb/crypto'
 
     import  secp256k1  from "secp256k1"
@@ -56,6 +56,7 @@ export default {
     },
     data: function(){
         return{
+            hashFunc,
             Blake2b,
             ECPair,
             bytesToHex,

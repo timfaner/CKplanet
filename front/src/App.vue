@@ -32,6 +32,10 @@ export default {
   name: 'App',
   computed:{
   },
+  created(){
+    //接受连接钱包事件
+    window.document.body.addEventListener("waitwallet",(e) => this.wallet_connet_status=e.detail.status)
+  },
 
   data: function () {
     return {

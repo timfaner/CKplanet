@@ -24,13 +24,13 @@
 
             </div>
         </div>
-        <el-dialog title="Share your thoughts" :visible.sync="dialogPublish">
+        <el-dialog title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false'>
             <PublishCycleContent  v-if="dialogPublish" v-on:closedialog="dialogPublish=false" mode="create" :cycleid="cycle_id"></PublishCycleContent>
             <div slot="footer"  class="dialog-footer">
             </div>
         </el-dialog>
 
-        <el-dialog title="Update cycle settings" :visible.sync="dialogUpdateCycleProfile">
+        <el-dialog title="Update cycle settings" :visible.sync="dialogUpdateCycleProfile" :close-on-click-modal='false'>
             <UpdateCycleProfile v-on:closedialog="dialogUpdateCycleProfile=false" mode="update" :cycleid="this.cycle_id"></UpdateCycleProfile>
             <div slot="footer"  class="dialog-footer">
             </div>
