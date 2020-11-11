@@ -2,8 +2,8 @@
 
 const OSS_CONFIG = {
     region:'oss-cn-beijing',
-    accessKeyId:'',
-    accessKeySecret:'',
+    accessKeyId:'LTAI4G6XNYJbFQ2ZxbK4GpfT',
+    accessKeySecret:'3SbyKXNWr5qGR0Ufea9wOM9fi0kmzB',
     bucket:'avataray'
   }
 
@@ -21,11 +21,11 @@ const NETWORK_CONST = {
     },
     dataserver_info:{
       codeh:"0x4faa64ca257ea660e68f1f48adde1fa7bf02391f079b62228dfb3ff50bda9a5c",
-      txh:"0xd33790df5eb8d6701ad8f51a7ea7936f275bdf6201713bfe020773b4bf332782"
+      txh:"0xde02fa1b11ce68808616a6492866fa468f510d5121cb891c75c94db93373909a"
     },
     data_interity:{
       codeh:"0xa23256c19384a16b76441e3a163c52c47456390bb57821f1ba9821284d22dd94",
-      txh:"0xdd7ab866b799f3228bb9929e6340a81ef18a60a0fb768751fa8ab6f1a5beb3a2"
+      txh:"0x0cdbbf458296003a582b2af511fbd70e222b7727262ec5e1f74c5664fa9066ff"
     }
   },
   "devnet_azure":{

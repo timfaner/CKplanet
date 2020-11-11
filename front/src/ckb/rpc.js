@@ -142,11 +142,15 @@ const signTransaction = async (rawTx, token, lockHash) => {
       }),
     })
     res =  await res.json()
-    // TODO 错误码处理
+    
+    if("error" in res){
+      throw(res.message)
+    }
     console.log(res.result.tx)
     return res.result.tx
   } catch (error) {
     console.error('error', error,res)
+
   }
 }
 
@@ -173,12 +177,16 @@ const sendTransaction = async (tx) => {
       }),
     })
     res =  await res.json()
-    // TODO 错误码处理
-    //返回txhash
+
+    if("error" in res){
+      throw(res.error.message)
+    }
+
     return res.result
     
   } catch (error) {
     console.error('error', error,res)
+
   }
 }
 
@@ -202,10 +210,13 @@ const getTransaction = async (txHash) => {
       }),
     })
     res =  await res.json()
-    // TODO 错误码处理
+    if("error" in res){
+      throw(res.error.message)
+    }
     return res.result
   } catch (error) {
     console.error('error', error,res)
+
   }
 }
 
