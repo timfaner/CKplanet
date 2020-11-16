@@ -87,7 +87,7 @@ const getMpk = async (server_url) =>{
     let payload = {
 
     }
-    if (MOCK_API){
+    if (MOCK_API.GET_MPK){
       let res = await data_server_res.getMpk()
       return res.mpk
     }
@@ -114,16 +114,16 @@ const getAuth = async (server_url,access_token,msg,cpk) =>{
 
     let payload = {
         access_token,
-        msg,
+        msg:"Nervos Message:" + msg,
         cpk,
     }
-    if (MOCK_API){
+    if (MOCK_API.GET_AUTH){
       return data_server_res.getAuth(payload)
     }
     const body = JSON.stringify(payload, null, '  ')
     console.log(body)
     try {
-        let res = await fetch(server_url, {
+        let res = await fetch(server_url +"/v2/getAuth" , {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -131,7 +131,9 @@ const getAuth = async (server_url,access_token,msg,cpk) =>{
           body,
         })
         res = await res.json()
-        return res.result.objects
+        if(res.code!==0)
+          throw(console.error("getAuth error, "+ res.code))
+        return res
       } catch (error) {
         console.error('error', error)
       }
@@ -144,18 +146,18 @@ const postData = async (server_url,data_id,data,access_token,sig,txid="",dataHas
         data,
         access_token,
         sig,
-        txid,
-        dataHash,
+        tx_id:txid,
+        dataHash:dataHash,
         pk,
         cert,
     }
-    if (MOCK_API){
+    if (MOCK_API.POST_DATA){
       return data_server_res.postData(payload)
     }
     const body = JSON.stringify(payload, null, '  ')
     console.log(body)
     try {
-        let res = await fetch(server_url, {
+        let res = await fetch(server_url + "/v2/postData", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -163,7 +165,9 @@ const postData = async (server_url,data_id,data,access_token,sig,txid="",dataHas
           body,
         })
         res = await res.json()
-        return res.result.objects
+        if(res.code!==0)
+          throw(console.error("postData error, "+ res.code))
+        return res
       } catch (error) {
         console.error('error', error)
       }
@@ -175,7 +179,7 @@ const getData = async (server_url,url) =>{
         url,
     }
 
-    if (MOCK_API){
+    if (MOCK_API.GET_DATA){
       return data_server_res.getData(payload)
     }
 
@@ -191,7 +195,10 @@ const getData = async (server_url,url) =>{
           body,
         })
         res = await res.json()
-        return res.result.objects
+        if(res.code!==0)
+          throw(console.error("getData error, "+ res.code))
+//FIXME 返回数据格式
+        return res.data
       } catch (error) {
         console.error('error', error)
       }

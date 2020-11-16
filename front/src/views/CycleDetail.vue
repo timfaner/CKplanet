@@ -31,7 +31,7 @@
         </el-dialog>
 
         <el-dialog title="Update cycle settings" :visible.sync="dialogUpdateCycleProfile" :close-on-click-modal='false'>
-            <UpdateCycleProfile v-on:closedialog="dialogUpdateCycleProfile=false" mode="update" :cycleid="this.cycle_id"></UpdateCycleProfile>
+            <UpdateCycleProfile v-if="dialogUpdateCycleProfile" v-on:closedialog="dialogUpdateCycleProfile=false" mode="update" :cycleid="this.cycle_id"></UpdateCycleProfile>
             <div slot="footer"  class="dialog-footer">
             </div>
         </el-dialog>

@@ -1,6 +1,9 @@
 <template>
 <div id="UpdateUserProfile">
-    <el-upload
+
+    <el-form :disabled="btnloading">
+      <el-form-item>
+            <el-upload
         class="avatar-uploader"
         action="''"
         :http-request="upload"
@@ -11,7 +14,7 @@
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
-    <el-form :model="form">
+      </el-form-item>
         <el-form-item label="昵称" :label-width="formLabelWidth">
         <el-input v-model="nickname" autocomplete="off"></el-input>
         </el-form-item>
@@ -73,8 +76,8 @@ export default {
       try {
         
         let tx_id =""
-        //FIXME
-        await data_setter.updateDataIntegrityOnChain(
+
+        tx_id = await data_setter.updateDataIntegrityOnChain(
         data_id,
         data_hash)
 

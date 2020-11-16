@@ -231,7 +231,7 @@ const signMessage = async (msg,address,token) => {
     address,
   }
 
-  if (MOCK_API){
+  if (MOCK_API.SIGN_MESSAGE){
     return keypering_res.signMessage(payload).result
   }
   try {

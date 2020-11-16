@@ -53,6 +53,7 @@ class DataSetter {
         }
         
         let sig = signData(user_id.sk,data)
+        console.log("data to sign is \n", data)
         let dataHash = hashFunc(data).slice(2)
         
         let res = await postData(

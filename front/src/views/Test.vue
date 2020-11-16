@@ -7,7 +7,7 @@
 
         <h3> {{lists}} </h3>
         <router-link :to="url">Go to about</router-link>
-        <b-button   @click.prevent="test()" size="md" class="mr-auto">测试</b-button>
+        <el-button   @click.prevent="test()" size="md" class="mr-auto">测试</el-button>
     </div>
 </template>
 
@@ -31,11 +31,13 @@ import {
     import  secp256k1  from "secp256k1"
 
 import { bytesToHex, hexToBytes } from '@nervosnetwork/ckb-sdk-utils'
-import {postData,getData}  from  '@/ckb/test'
+
 import ECPair from '@nervosnetwork/ckb-sdk-utils/lib/ecpair'
 
-import {DataServer} from '@/ckb/data_server'
+import {  DataServer,getMpk,getAuth,postData,getData,generateDataSig,
+} from '@/ckb/data_server'
 import {vaildDataType,DATA_STRUCT} from    '@/ckb/ckplanet'
+
 
 import {  getCellsByLocks,
   requestAuth,
@@ -56,6 +58,7 @@ export default {
     },
     data: function(){
         return{
+            DataServer,getMpk,getAuth,postData,getData,generateDataSig,
             hashFunc,
             Blake2b,
             ECPair,
@@ -72,8 +75,7 @@ export default {
     id:'1',
     DATA_STRUCT,        
     vaildDataType,
-    postData,getData,
-    DataServer,
+
     //encrypted        
     generateAESKey, 
     encryptData_c,

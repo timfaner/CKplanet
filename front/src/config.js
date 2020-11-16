@@ -7,7 +7,7 @@ const OSS_CONFIG = {
     bucket:'avataray'
   }
 
-const TYPE = "devnet_local"   //devnet_local,devnet_azure,testnet
+const TYPE = "devnet_azure"   //devnet_local,devnet_azure,testnet
 
 
 const NETWORK_CONST = {

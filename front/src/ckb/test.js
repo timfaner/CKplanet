@@ -1,4 +1,12 @@
-const MOCK_API = true
+const MOCK_API = 
+{
+    SIGN_MESSAGE : false,
+    GET_MPK: true,
+    GET_AUTH : false,
+    POST_DATA : false,
+    GET_DATA : true,
+}
+false
 const KVDB_ENABLE = true
 
 
@@ -7,7 +15,7 @@ import KVdb  from  "kvdb.io"
 import {TYPE,NETWORK_CONST} from "@/config"
 
 
-let mpk = "0x0349673187530320ad095776b576ac491f6635165ae50e97c686f4c8430359d8bc"
+let mpk = "0x03d645d07206207cd8327e0aef11e2cfbfce2e267b1df0fffc4df681ce46d72d2c"
 let msk = "0x471de43eaacd810ff93ca666f5d2146536b412db3895bca2dde7d20f921655b4"
 
 let sk = "0x0cfd9abaca8819d6fb88ba74031438f9eda7aef15411efbdd4c2f293bf439e6b"
@@ -30,9 +38,9 @@ let csk = "0x714faa3807cc7212e6b3bb19216ae31c825bf83b6bcea96221a1e5e0127c99d9"
 const keypering_res = {
     
     signMessage: (body) => {
-        console.debug("Mock api called: ", "signMessage", body)
-        csk
         let csk_m = hashFunc(window.app.$store.state.user_chain_info.address)
+        console.debug("Mock api called: ", "signMessage", body,csk_m)
+        csk
         return {
             
             result: signData(csk_m,body.message)
