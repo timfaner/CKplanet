@@ -9,7 +9,7 @@
     <TopBar></TopBar>
     <div class="container-fluid">
       <div class="row">
-        <SideBar> </SideBar>
+        <SideBar class="col-md-1 col-lg-2 "> </SideBar>
         <main
           role="main"
           class="col-md-9 ml-sm-auto col-lg-10 px-md-4"
@@ -68,5 +68,4 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
-
 </style>

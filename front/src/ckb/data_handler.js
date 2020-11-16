@@ -9,6 +9,7 @@ import {
     signData,
     hashFunc
     } from "@/ckb/crypto" 
+import { getDataHash } from './ckplanet'
 
 class DataSetter {
     constructor(data_server){
@@ -47,6 +48,7 @@ class DataSetter {
         if(!onchain){
           txid=''
         }
+        let dataHash = getDataHash(data)
         if (typeof(data) === "object"){
           data = JSON.stringify(data)
           console.log("data stringfied")
@@ -54,7 +56,7 @@ class DataSetter {
         
         let sig = signData(user_id.sk,data)
         console.log("data to sign is \n", data)
-        let dataHash = hashFunc(data).slice(2)
+        
         
         let res = await postData(
           this.ip,

@@ -1,5 +1,5 @@
 <template>
-    <nav id="sidebarMenu" class="col-md-1 col-lg-2 d-md-block bg-light sidebar collapse">
+    <nav id="sidebarMenu" class="d-md-block bg-light sidebar collapse">
         <div class="sidebar-sticky">
           <div>
              <el-button plain @click.prevent="updateUser()">

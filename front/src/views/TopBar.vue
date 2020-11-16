@@ -1,23 +1,18 @@
 <template>
-  <b-navbar
-    class=""
-    toggleable="lg"
-    sticky
-    fixed="top"
-    type="dark"
-    variant="info"
-  >
-    <b-navbar-brand class="col-md-1 col-lg-2" href="#">CKPlanet</b-navbar-brand>
-    <!-- Right aligned nav items -->
-    <b-navbar-nav class="col-md-8 col-sm-4">
-      <el-input placeholder="lock_args" v-model="input_lock_args"> </el-input>
+<div class="topbar">
+  <el-row>
+    <el-col class = "col-md-1 col-lg-2 ">CKPlanet</el-col>
+    <el-col :span="6">
+            <el-input placeholder="lock_args" v-model="input_lock_args"> </el-input>
+    </el-col>
+    <el-col :span="6">
       <el-input placeholder="cycle_id" v-model="input_cycle_id"> </el-input>
+    </el-col>
+     <el-col :span="6">
       <el-button @click="search()">
         Search
       </el-button>
-    </b-navbar-nav>
-
-    <el-button v-if="!wallet_connected" @click="dialogSelectWallet = true">
+          <el-button v-if="!wallet_connected" @click="dialogSelectWallet = true">
       连接钱包
     </el-button>
 
@@ -35,6 +30,8 @@
     <div>
       <p>{{ user_address }}</p>
     </div>
+    </el-col>
+
 
     <el-dialog
       :visible.sync="dialogUpdateDataServer"
@@ -67,7 +64,9 @@
       <el-button @click="login()"> Keypering</el-button>
       <div slot="footer" class="dialog-footer"></div>
     </el-dialog>
-  </b-navbar>
+  </el-row>
+
+</div>
 </template>
 
 <script>
@@ -237,3 +236,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.topbar{
+  background-color: aquamarine;
+}
+</style>
