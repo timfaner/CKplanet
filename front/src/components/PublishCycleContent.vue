@@ -56,7 +56,7 @@ export default {
           set: function(value){
             this.follow = false
             this.cycle_id_tmp = value
-          }},  //FIXME no setters
+          }},  
 
         ...mapState({
           user_address: state=>state.user_chain_info.address,

@@ -202,7 +202,7 @@ function getUrl(data_type,access_token_items,cycle_id='',content_id='',depends='
     if(access_token === ''){
         throw(" access_token not found : " +arguments ,access_token_items)
     }
-    let url = hashFunc(access_token + DATA_ID[data_type](cycle_id,content_id)).slice(2) //去掉0x
+    let url = hashFunc(access_token + DATA_ID[data_type](cycle_id,content_id))
     return url
 }
 

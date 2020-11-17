@@ -270,7 +270,7 @@ export default {
 
 
         joinCycle:async function(){
-        // TODO join\leave\dispend 。。。
+
         let user_ds = new DataServer(this.$store,this.user_lock_args)
         let data_setter = new DataSetter(user_ds)
         

@@ -187,7 +187,7 @@ const getData = async (server_url,url) =>{
     console.log(body)
     try {
       //TODO 如果对应url未找到，返回null
-        let res = await fetch(server_url, {
+        let res = await fetch(server_url+'/v2/getData', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -197,19 +197,49 @@ const getData = async (server_url,url) =>{
         res = await res.json()
         if(res.code!==0)
           throw(console.error("getData error, "+ res.code))
-//FIXME 返回数据格式
-        return res.data
+
+        return JSON.parse(res.data)
       } catch (error) {
         console.error('error', error)
       }
 }
 
 
+const vaild = async (server_url,url) =>{
+  let payload = {
+      url,
+  }
+
+  if (MOCK_API.GET_DATA){
+    return data_server_res.getData(payload)
+  }
+
+  const body = JSON.stringify(payload, null, '  ')
+  console.log(body)
+  try {
+    //TODO 如果对应url未找到，返回null
+      let res = await fetch(server_url+'/v2/getData', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body,
+      })
+      res = await res.json()
+      if(res.code!==0)
+        throw(console.error("getData error, "+ res.code))
+
+      return res.data
+    } catch (error) {
+      console.error('error', error)
+    }
+}
+
 const generateDataSig = (sk,data) => {
     return(signData(sk,data))
 }
 
 
-export  {DataServer,getMpk,getAuth,postData,getData,generateDataSig,
+export  {DataServer,getMpk,getAuth,postData,getData,generateDataSig,vaild
 
 }

@@ -1,9 +1,9 @@
 const MOCK_API = 
 {
-    SIGN_MESSAGE : false,
+    SIGN_MESSAGE : true,
     GET_MPK: true,
-    GET_AUTH : false,
-    POST_DATA : false,
+    GET_AUTH : true,
+    POST_DATA : true,
     GET_DATA : true,
 }
 false
@@ -62,11 +62,11 @@ const data_server_res = {
         mpk,
     }
     },
-// TODO 字符拼接的方法确定
+
     postData: async (body) => {
         console.debug("Mock api called: ", "postData", body)
 
-        let url = hashFunc(body.access_token + body.data_id).slice(2)
+        let url = hashFunc(body.access_token + body.data_id)
         if(KVDB_ENABLE)
             await postData(url,body.data)
         return {

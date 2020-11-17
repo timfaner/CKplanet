@@ -70,7 +70,7 @@ export default {
       data.nickname = this.nickname
       data.avatar_url = this.imageUrl
 
-      //FIXME 获取hash的逻辑等等
+
       let data_hash = getDataHash('user_profile',data)
       let data_id = getDataID('user_profile')
       try {

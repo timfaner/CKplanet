@@ -10,6 +10,8 @@
       >测试</el-button
     >
     <el-button @click.prevent="postDataa()">发送数据</el-button>
+    <el-button @click.prevent="purgeState()">清除状态</el-button>
+    
   </div>
 </template>
 
@@ -67,8 +69,11 @@ export default {
     test() {
       this.id = this.id + "1";
     },
+    purgeState(){
+      this.$store.dispatch("resetAllState")
+    },
     postDataa() {
-      let user_ds = new DataServer(this.$store, this.user_lock_args);
+      let user_ds = new DataServer(this.$store, this.$store.state.user_chain_info.lock_args);
       let data_setter = new DataSetter(user_ds);
 
       let data_type = "user_profile";

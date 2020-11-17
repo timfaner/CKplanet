@@ -26,7 +26,7 @@
     >
       切换数服务器
     </el-button>
-
+    <el-button @click="logout()"> 退出</el-button>
     <div>
       <p>{{ user_address }}</p>
     </div>
@@ -62,6 +62,7 @@
       :close-on-click-modal="false"
     >
       <el-button @click="login()"> Keypering</el-button>
+      
       <div slot="footer" class="dialog-footer"></div>
     </el-dialog>
   </el-row>
@@ -147,16 +148,24 @@ export default {
         showClose: false,
       });
     },
-
+    logout : function(){
+        window.localStorage.setItem("vuex","")
+        this.$store.dispatch("resetAllState")
+    },
     login: async function() {
       this.walletname = "Keypering";
+
       try {
         this.$parent.loadings = true;
 
         console.log("getting wallet auth...");
         await getWalletAuth();
-        this.walletConnect(true);
+        
 
+        window.localStorage.setItem("vuex","")
+        this.$store.dispatch("resetAllState")
+
+        this.walletConnect(true);
         console.log("getting user  onchain info");
         await this.$store.dispatch("getUser");
 

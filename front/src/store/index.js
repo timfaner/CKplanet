@@ -18,9 +18,10 @@ import {
 import { textToHex, hexToText, filterCellsWithTypeScript } from "../ckb/utils";
 
 Vue.use(Vuex);
+import createPersistedState from 'vuex-persistedstate';
 
-export default new Vuex.Store({
-  state: {
+const getDefaultState = () => {
+  return {
     user_ds: null,
     user_chain_info: {
       address: "",
@@ -50,7 +51,12 @@ export default new Vuex.Store({
     cells_pool: {},
     access_token_pool: {},
     data_server_pool: {},
-  },
+  }
+}
+
+export default new Vuex.Store({
+  plugins: [createPersistedState()],
+  state: getDefaultState(),
   getters: {
     getAccessToken: (state) => (lock_args, type) => {
       if (type === "public" || type === "private") {
@@ -76,6 +82,9 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    resetRootState(state){
+      Object.assign(state,getDefaultState())
+    },
     updateUserDS(state, user_ds) {
       state.user_ds = user_ds;
     },
@@ -184,6 +193,10 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    resetAllState({commit}){
+      commit("resetCkplanetState")
+      commit("resetRootState")
+    },
     //从ckb-indexer 获取 lock_args 对应的cells并放入缓存池
     async getUserCells({ commit, state }, lock_args) {
       if (lock_args in state.cells_pool) {
@@ -309,7 +322,7 @@ export default new Vuex.Store({
       const lock_args = state.user_chain_info.lock_args;
       let sth = getters.getSthFromPool(lock_args, "data_server");
       const ip = sth.ip;
-      // TODO 测试api
+
       let res = await getAuth(
         ip,
         state.user_id_public.access_token,

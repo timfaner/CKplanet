@@ -2,9 +2,8 @@ import {getData} from "@/ckb/data_server"
 import { decryptContent, getCycleTemplate, getUrl,vaildDataType,inJoinedList,inTokenList, getTokenItem, decrtptCycleToken } from "../ckb/ckplanet"
 import Vue from 'vue'
 import { generateAESKey, hashFunc } from "../ckb/crypto"
-const ckplanet = {
-    state :() => ({
-
+const getDefaultState = () => {
+    return {
         wallet_connected:false,
         data_server_connected:false,
 
@@ -17,11 +16,15 @@ const ckplanet = {
         user_managed_cycles_index:[],
 
         cycles_pool:{},
+    }
+  }
 
-
-
-    }),
+const ckplanet = {
+    state :getDefaultState(),
     mutations:{
+        resetCkplanetState(state){
+            Object.assign(state,getDefaultState())
+        },
         updateJoinCyclesIndex(state,payload){
             state.user_joined_cycles_index = payload
         },
@@ -293,6 +296,8 @@ const ckplanet = {
                     if (vaildDataType(data_type,res)){
                         return res
                     }
+                    else 
+                        console.warn("Incorrect data format for " + data_type,res)
                     
                 } catch (error) {
                     console.error("[getDataByType] Error to get <" + data_type + "> with arguments : " ,arguments[1],error)

@@ -228,7 +228,7 @@ async function changeOnChain(
     }
 
 
-    //TODO 错误处理
+
     return {tx_hash,cells_to_delete}
   } catch (error) {
     let   e = new CustomEvent("waitwallet",{ 'detail' :{status:"error"}})

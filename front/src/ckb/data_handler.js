@@ -48,7 +48,7 @@ class DataSetter {
         if(!onchain){
           txid=''
         }
-        let dataHash = getDataHash(data)
+        let dataHash = getDataHash('user_profile',data)
         if (typeof(data) === "object"){
           data = JSON.stringify(data)
           console.log("data stringfied")
