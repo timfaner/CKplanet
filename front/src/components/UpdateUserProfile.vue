@@ -1,0 +1,207 @@
+<template>
+<div id="UpdateUserProfile">
+    <el-upload
+        class="avatar-uploader"
+        action="''"
+        :http-request="upload"
+        :show-file-list="false"
+        :on-success="handleAvatarSuccess"
+        :on-progress="handleAvatarProgress"
+        :before-upload="beforeAvatarUpload">
+        <img v-if="imageUrl" :src="imageUrl" class="avatar">
+        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+    </el-upload>
+    <el-form :model="form">
+        <el-form-item label="昵称" :label-width="formLabelWidth">
+        <el-input v-model="nickname" autocomplete="off"></el-input>
+        </el-form-item>
+          <el-form-item>
+        <el-button type="primary" @click="updateUserProfile()">保存</el-button>
+         </el-form-item>
+    </el-form>
+
+</div>
+</template>
+
+<script>
+
+import { makeId} from "@/ckb/utils"
+import {OSS_CONFIG} from "@/config"
+import {DataServer} from "@/ckb/data_server"
+import {DataSetter } from "@/ckb/data_handler"
+import { getDataTemplate,getDataHash,getDataID } from "@/ckb/ckplanet"
+import {mapState} from "vuex"
+
+const OSS = require("ali-oss")
+
+
+const client = new OSS(OSS_CONFIG)
+
+
+export default {
+  name: 'UpdateUserProfile',
+    computed: mapState({
+        user_address: state=>state.user_chain_info.address,
+        user_lock_args : state => state.user_chain_info.lock_args,
+
+      }),
+  methods:{
+
+    updateUserProfile : async function(){
+      let user_ds = new DataServer(this.$store,this.user_lock_args)
+      let data_setter = new DataSetter(user_ds)
+
+      let data = getDataTemplate('user_profile')
+      data.nickname = this.nickname
+      data.avatar_url = this.imageUrl
+
+      //FIXME 获取hash的逻辑等等
+      let data_hash = getDataHash('user_profile',data)
+      let data_id = getDataID('user_profile')
+      try {
+        
+        let tx_id =""
+        //FIXME
+        await data_setter.updateDataIntegrityOnChain(
+        data_id,
+        data_hash)
+
+        console.log("updateDataIntegrityOnChain")
+        await data_setter.postData(
+          data,
+          data_id,
+          'public',
+          true,
+          tx_id
+        )
+
+        this.$message({
+            message: '成功更新个人信息',
+            type: 'success'
+          })
+
+        //更新vuex store
+        this.$store.dispatch("getUserProfile",this.user_lock_args).catch((e)=>{throw(e)})
+        this.$emit("closedialog")
+      }
+       catch (error) {
+        this.$message.error(error)
+      }
+      
+    },
+    upload: async function(item){
+        const key= "avatar/" + makeId(10) + '.jpeg'
+        try {
+        let result = await client.put(key, item.file);
+        console.log(result);
+        this.imageUrl = result.url
+        } catch (e) {
+        console.log(e);}
+      },
+    handleAvatarProgress(){
+        this.loading = true
+    },
+    handleAvatarSuccess(res) {
+        console.log("avatar update success")
+        this.loading = false
+        this.test = res
+        },
+
+    beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          //this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isLt2M;
+      }
+  },
+  data: function(){
+    return{
+      //imageUrl:'https://placekitten.com/400/400',
+      imageUrl:'',
+      form:null,
+      formLabelWidth:'100',
+      test:null,
+      nickname:'',
+    }
+  },
+  props: {
+    
+  }
+}
+</script>
+
+
+<style scoped>
+
+#UpdateUserProfile {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+
+
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+
+  .profile {
+    text-align: left;
+  }
+
+    .minbutton {
+    min-width: 150px;
+    display: inline-block;
+  }
+
+</style>

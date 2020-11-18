@@ -1,0 +1,13 @@
+{
+  "language": "c",
+  "main": "Data_integrity.c",
+  "output": "",
+  "scripts": {
+    "build": ""
+  },
+  "debug": {
+    "mock": "",
+    "target": "tx.outputs[0].type",
+    "cycles": ""
+  }
+}
