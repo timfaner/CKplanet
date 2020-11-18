@@ -17,14 +17,10 @@ package com.example.demo.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.example.demo.entity.*;
 import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.MongoDBService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -37,17 +33,15 @@ import org.apache.http.util.EntityUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
 import org.nervos.ckb.crypto.Blake2b;
-import org.nervos.ckb.utils.Numeric;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
+import javax.servlet.http.HttpServletResponse;
 import java.security.Security;
 import java.util.ArrayList;
-
-//import org.bouncycastle.jcajce.provider.digest.Blake2b;
+import java.util.logging.Logger;
 
 
 @RestController
@@ -58,82 +52,165 @@ public class FileServerController {
     static final int AUTHORIZED = 3;
     static final int UNAUTHORIZED = 4;
     static final int FAILED = 5;
-    static final int NOT_FOUND=-1;
-    static final int PENDING=0;
-    static final int SUCCESS_=1;
-    static final int FAIL_=2;
+    static final String NOT_FOUND = "NOT_FOUND";
+    static final String PENDING_ = "PENDING";
+    static final String SUCCESS_ = "SUCCESS";
+    static final String FAIL_ = "FAIL";
 
+    static public String rpc = "";
 
-    //    @Value("${rpcAddress}")
-    static final public String rpc = "http://ckplanet.beihanguni.cn:8114/rpc";
+    final Logger log4js = Logger.getLogger(FileServerController.class.toString());
 
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
 
+    public static void setRpcAddress(String address) {
+        rpc = address;
+    }
+
+    public static String getRpcAddress() {
+        return rpc;
+    }
+
     @Autowired
     private MongoDBService mongoDBService;
 
-    @PostMapping("/getMpk")
-    public String getMPK() {
-        return AuthenticationService.generatePublicKey();
+    @PostMapping("/v2/getMpk")
+    public JSONObject getMPK() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("mpk", AuthenticationService.generatePublicKey());
+        log4js.info("查询mpk成功" + jsonObject.get("mpk"));
+        return jsonObject;
     }
 
-    @PostMapping("/postData")
-    public UploadResponseEntity postData(String sig, String data, String dataId, String cert, String pk, String accessToken) {
+    @PostMapping("/v2/postData")
+    public UploadResponseEntity postDataV2(@RequestBody JSONObject jsonObject) {
         try {
-            UploadRequestEntity entity = new UploadRequestEntity(dataId, accessToken, JSONObject.parseObject(data), sig, pk, cert);
+            String sig = jsonObject.getString("sig");
+            String data = jsonObject.getString("data");
+            String dataId = jsonObject.getString("data_id");
+            String cert = jsonObject.getString("cert");
+            String pk = jsonObject.getString("pk");
+            String accessToken = jsonObject.getString("access_token");
+            String txId = jsonObject.getString("tx_id");
+
+            Blake2b h = new Blake2b();
+            h.update(data.getBytes());
+            String dataHash = h.doFinalString();
+            if (SUCCESS_ != validTransaction(txId, dataHash)) {
+                log4js.warning("验证是否上链结果为失败，拒绝上传数据");
+                return new UploadResponseEntity(FAILED);
+            }
+
+            UploadRequestEntity entity = new UploadRequestEntity(dataId, accessToken, data, sig, pk, cert);
             String mpk = AuthenticationService.generatePublicKey();
             String msg = entity.getPk() + entity.getAccessToken();
             if (!AuthenticationService.verify(entity.getCert(), msg, mpk)) {
+                log4js.warning("验证证书结果为失败，拒绝上传数据,证书为：" + entity.getCert() + "msg为：" + msg + "mpk为：" + mpk);
                 return new UploadResponseEntity(UNAUTHORIZED);
             }
-            if (!AuthenticationService.verify(entity.getSig(), entity.getData().toString(), entity.getPk())) {
+            if (!AuthenticationService.verify(entity.getSig(), data, entity.getPk())) {
+                log4js.warning("验证签名结果为失败，拒绝上传数据,签名为：" + entity.getSig() + "data为：" + data + "pk为：" + entity.getPk());
                 return new UploadResponseEntity(UNAUTHORIZED);
             }
             if (mongoDBService.findUserByDataId(entity.getDataId()) != null) {
+                log4js.warning("dataId已经存在，删除原有数据，dataId:" + entity.getDataId());
                 mongoDBService.deleteDataById(entity.getDataId());
             }
-            String s = (entity.getDataId() + entity.getAccessToken());
-            Blake2b hash=new Blake2b();
+            String s = (entity.getAccessToken() + entity.getDataId());
+            Blake2b hash = new Blake2b();
             hash.update(s.getBytes());
-            System.out.println("url"+hash.doFinalString());
-            String url =hash.doFinalString();
+            String url = hash.doFinalString();
             entity.setUrl(url);
             mongoDBService.saveData(entity);
             UploadResponseEntity response = new UploadResponseEntity(SUCCESS);
             response.setUrl(entity.getUrl());
+            log4js.warning("上传数据成功");
             return response;
         } catch (Exception e) {
+            log4js.warning("上传数据失败");
             e.printStackTrace();
             return new UploadResponseEntity(FAILED);
-
         }
 
     }
 
-    @PostMapping("/getData")
-    public DownloadResponseEntity getData(String url) {
+
+    @PostMapping("/v2/postDataWithoutVerify")
+    public UploadResponseEntity postDataWithoutVerifyV2(@RequestBody JSONObject jsonObject) {
         try {
+            String sig = jsonObject.getString("sig");
+            String data = jsonObject.getString("data");
+            String dataId = jsonObject.getString("data_id");
+            String cert = jsonObject.getString("cert");
+            String pk = jsonObject.getString("pk");
+            String accessToken = jsonObject.getString("access_token");
+            String txId = jsonObject.getString("tx_id");
+
+
+            UploadRequestEntity entity = new UploadRequestEntity(dataId, accessToken, data, sig, pk, cert);
+            String mpk = AuthenticationService.generatePublicKey();
+            String msg = entity.getPk() + entity.getAccessToken();
+            if (!AuthenticationService.verify(entity.getCert(), msg, mpk)) {
+                log4js.warning("验证证书结果为失败，拒绝上传数据,证书为：" + entity.getCert() + "msg为：" + msg + "mpk为：" + mpk);
+                return new UploadResponseEntity(UNAUTHORIZED);
+            }
+            if (!AuthenticationService.verify(entity.getSig(), data, entity.getPk())) {
+                log4js.warning("验证签名结果为失败，拒绝上传数据,签名为：" + entity.getSig() + "data为：" + data + "pk为：" + entity.getPk());
+                return new UploadResponseEntity(UNAUTHORIZED);
+            }
+            if (mongoDBService.findUserByDataId(entity.getDataId()) != null) {
+                log4js.warning("dataId已经存在，删除原有数据，dataId:" + entity.getDataId());
+                mongoDBService.deleteDataById(entity.getDataId());
+            }
+            String s = (entity.getAccessToken() + entity.getDataId());
+            Blake2b hash = new Blake2b();
+            hash.update(s.getBytes());
+            String url = hash.doFinalString();
+            entity.setUrl(url);
+            mongoDBService.saveData(entity);
+            UploadResponseEntity response = new UploadResponseEntity(SUCCESS);
+            response.setUrl(entity.getUrl());
+            log4js.warning("上传数据成功");
+            return response;
+        } catch (Exception e) {
+            log4js.warning("上传数据失败");
+            e.printStackTrace();
+            return new UploadResponseEntity(FAILED);
+        }
+
+    }
+
+    @PostMapping("/v2/getData")
+    public DownloadResponseEntity getDataV2(@RequestBody JSONObject jsonObject, HttpServletResponse res) {
+        try {
+            String url = jsonObject.getString("url");
+            log4js.warning("获取data，url为" + url);
             DownloadResponseEntity response = new DownloadResponseEntity(SUCCESS);
             UploadRequestEntity entity = mongoDBService.findUserByUrl(url);
             if (entity == null) {
+                log4js.warning("获取data失败，查询结果为空");
                 response.setCode(NOT_EXIST);
                 return response;
             }
-            response.setData(entity.toString());
+            response.setData(entity.getData());
             response.setCode(SUCCESS);
+            log4js.warning("获取data成功");
             return response;
         } catch (Exception e) {
+            log4js.warning("获取data失败");
             e.printStackTrace();
             return new DownloadResponseEntity(FAILED);
         }
-
     }
 
-    @PostMapping("/getAuth")
-    public AuthResponseEntity getAuth(String accessToken, String msg, String cpk) {
+    @PostMapping("/v2/getAuth")
+    public AuthResponseEntity getAuthV2(@RequestBody JSONObject jsonObject, HttpServletResponse response) {
         try {
+            String accessToken = jsonObject.getString("access_token");
+            String msg = jsonObject.getString("msg");
+            String cpk = jsonObject.getString("cpk");
             AuthRequestEntity entity = new AuthRequestEntity(accessToken, msg, cpk);
             if (!AuthenticationService.verify(entity.getAccessToken(), entity.msg, entity.getCpk())) {
                 return new AuthResponseEntity(UNAUTHORIZED);
@@ -144,20 +221,30 @@ public class FileServerController {
             responseEntity.setSk("0x" + keyPair.getPri());
             String cert = AuthenticationService.sign(AuthenticationService.getMsk(), (keyPair.getPub() + entity.getAccessToken()));
             responseEntity.setCert(cert);
+            log4js.warning("认证成功");
             return responseEntity;
         } catch (Exception e) {
+            log4js.warning("认证失败");
             e.printStackTrace();
             return new AuthResponseEntity(FAILED);
         }
     }
 
-    @PostMapping("/valid")
-    public int validTransaction(String txId, String raw, String hash, int index) {
+
+    @PostMapping("/v2/valid")
+    public JSONObject validTransactionV2(@RequestBody JSONObject jsonObject, HttpServletResponse response) {
+        String txId = jsonObject.getString("txId");
+        String hash = jsonObject.getString("hash");
+        JSONObject result = new JSONObject();
+        result.put("result", validTransaction(txId, hash));
+        return result;
+    }
+
+    public String validTransaction(String txId, String hash) {
         try {
             CloseableHttpClient client = null;
             CloseableHttpResponse response = null;
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
                 JSONObject data = new JSONObject();
                 data.put("id", 42);
                 data.put("jsonrpc", "2.0");
@@ -173,28 +260,33 @@ public class FileServerController {
                 response = client.execute(httpPost);
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
-                if(result==null||result.equals("")){
+                if (result == null || result.equals("")) {
+                    log4js.warning("未找到交易");
                     return NOT_FOUND;
                 }
 
                 JSONObject j = JSONObject.parseObject(result);
-                JSONObject resultJson=JSONObject.parseObject(j.get("result").toString());
-                JSONObject transactionJson=JSONObject.parseObject(resultJson.get("transaction").toString());
-                JSONArray outputDatas=(JSONArray)transactionJson.get("outputs_data");
-                if(index>=outputDatas.size()){
-                    return NOT_FOUND;
+                JSONObject resultJson = JSONObject.parseObject(j.get("result").toString());
+                JSONObject transactionJson = JSONObject.parseObject(resultJson.get("transaction").toString());
+                JSONArray outputDatas = (JSONArray) transactionJson.get("outputs_data");
+
+                for (int i = 0; i < outputDatas.size(); i++) {
+                    String hex = (String) outputDatas.get(i);
+                    if (hex.length() <= 2) {
+                        log4js.warning("无效hex" + hex + ",抛弃");
+                        continue;
+                    }
+                    byte[] hexSubstring = Hex.decode(hex.substring(2));
+                    String decodeString = new String(hexSubstring, "UTF-8");
+                    String decodeHash = (String) JSONObject.parseObject(decodeString).get("data_hash");
+                    log4js.warning("解码得到的hash：" + decodeHash + "传入的hash：" + hash);
+                    if (decodeHash.equals(hash)) {
+                        log4js.warning("验证成功");
+                        return SUCCESS_;
+                    }
                 }
-                String hex=(String)outputDatas.get(index);
-                byte[] hexSubstring = Hex.decode(hex.substring(2));
-                String decodeString=new String(hexSubstring, "UTF-8");
-                String decodeHash=(String) JSONObject.parseObject(decodeString).get("data_hash");
-                System.out.println("解码得到的hash："+decodeHash);
-                System.out.println("传入的hash："+hash);
-                if( decodeHash.equals(hash)){
-                    return  SUCCESS_;
-                }else{
-                    return  FAIL_;
-                }
+                log4js.warning("验证失败");
+                return FAIL_;
             } finally {
                 if (response != null) {
                     response.close();
@@ -204,34 +296,10 @@ public class FileServerController {
                 }
             }
         } catch (Exception e) {
+            log4js.warning("未找到交易");
             e.printStackTrace();
-            return 0;
+            return NOT_FOUND;
         }
-    }
-
-
-    public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        Blake2b hash=new Blake2b();
-        hash.update("hello world".getBytes());
-        System.out.println(hash.doFinalString());
-
-       String s= "0x7b22646174615f68617368223a22307862313866366539303664383632616539616238396131636164663861343263643264393838346631356331643930623536333466346138623662313132386335222c22646174615f686173685f736967223a2230783332643535303665303431383534613666383334396335623362613031373061313932303632313237633636626530333664393937623163333166393135376535316634316463663162326437353735643039323561323936326261666435616332353165623162376232366165646337353133316536646431333462333234227d";
-//        Blake2b hash=new Blake2b();
-//        hash.update("hello world".getBytes());
-//        System.out.println(hash.doFinalString());
-//
-//        byte data[] = "A".getBytes("UTF-8");
-//        byte[] encodeData = Hex.encode(data);
-//        String encodeStr = Hex.toHexString(data);
-//        System.out.println(new String(encodeData, "UTF-8"));
-//        System.out.println(encodeStr);
-        // 解码
-//        byte[] decodeData = Hex.decode(s.getBytes());
-        byte[] decodeData2 = Hex.decode(s.substring(2,s.length()));
-//        System.out.println(new String(decodeData, "UTF-8"));
-        System.out.println(new String(decodeData2, "UTF-8"));
-
-
     }
 }
 

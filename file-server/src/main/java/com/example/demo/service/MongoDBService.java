@@ -24,29 +24,11 @@ public class MongoDBService {
         return entity;
     }
 
-    public UploadRequestEntity findUserByUrl(String dataId) {
-        Query query = new Query(Criteria.where("url").is(dataId));
+    public UploadRequestEntity findUserByUrl(String url) {
+        Query query = new Query(Criteria.where("url").is(url));
         UploadRequestEntity entity = mongoTemplate.findOne(query, UploadRequestEntity.class);
         return entity;
     }
-
-//    /**
-//     * 更新对象
-//     * @param user
-//     */
-//    public long updateUser(UploadRequestEntity entity) {
-//        Query query=new Query(Criteria.where("dataId").is(entity.getDataId()));
-//        Update update= new Update().set("dataId", entity.g).set("passWord", user.getPassWord());
-//        //更新查询返回结果集的第一条
-//        UpdateResult result =mongoTemplate.updateFirst(query,update,User.class);
-//        //更新查询返回结果集的所有
-//        // mongoTemplate.updateMulti(query,update,UserEntity.class);
-//        if(result!=null)
-//            return result.getMatchedCount();
-//        else
-//            return 0;
-//    }
-
 
     public void deleteDataById(String dataId) {
         Query query = new Query(Criteria.where("dataId").is(dataId));

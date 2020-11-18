@@ -7,34 +7,55 @@ import com.alibaba.fastjson.JSONObject;
  */
 
 public class UploadRequestEntity {
-    public String dataId;
-    public String accessToken;
-    public JSONObject data;
+    public String data_id;
+    public String access_token;
+    public String data;
     public String sig;
-    public String txId;
-    public String dataHash;
+    public String tx_id;
     public String pk;
     public String cert;
     public String url;
+    public String data_hash;
 
-    public UploadRequestEntity(String dataId, String accessToken, JSONObject data, String sig, String pk, String cert) {
-        this.dataId = dataId;
-        this.accessToken = accessToken;
+    public UploadRequestEntity(){
+    }
+    public UploadRequestEntity(String dataId, String accessToken, String data, String sig, String txId, String pk, String cert, String url, String dataHash) {
+        this.data_id = dataId;
+        this.access_token = accessToken;
         this.data = data;
         this.sig = sig;
-        this.pk = pk.substring(2,pk.length());
+        this.tx_id = txId;
+        this.pk = pk;
         this.cert = cert;
+        this.url = url;
+        this.data_hash = dataHash;
+    }
+
+    public UploadRequestEntity(String data_id, String accessToken, String data, String sig, String pk, String cert) {
+        this.data_id = data_id;
+        this.access_token = accessToken;
+        this.data = data;
+        this.sig = sig;
+        this.pk = pk.substring(2);
+        this.cert = cert;
+    }
+
+    public String getData_hash() {
+        return data_hash;
+    }
+
+    public void setData_hash(String data_hash) {
+        this.data_hash = data_hash;
     }
 
     @Override
     public String toString() {
         return "UploadRequestEntity{" +
-                "dataId='" + dataId + '\'' +
-                ", accessToken='" + accessToken + '\'' +
+                "data_id='" + data_id + '\'' +
+                ", access_token='" + access_token + '\'' +
                 ", data=" + data +
                 ", sig='" + sig + '\'' +
-                ", txId='" + txId + '\'' +
-                ", dataHash='" + dataHash + '\'' +
+                ", tx_id='" + tx_id + '\'' +
                 ", pk='" + pk + '\'' +
                 ", cert='" + cert + '\'' +
                 ", url='" + url + '\'' +
@@ -66,26 +87,26 @@ public class UploadRequestEntity {
     }
 
     public String getDataId() {
-        return dataId;
+        return data_id;
     }
 
     public void setDataId(String dataId) {
-        this.dataId = dataId;
+        this.data_id = dataId;
     }
 
     public String getAccessToken() {
-        return accessToken;
+        return access_token;
     }
 
     public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+        this.access_token = accessToken;
     }
 
-    public JSONObject getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(JSONObject data) {
+    public void setData(String data) {
         this.data = data;
     }
 
@@ -98,19 +119,11 @@ public class UploadRequestEntity {
     }
 
     public String getTxId() {
-        return txId;
+        return tx_id;
     }
 
     public void setTxId(String txId) {
-        this.txId = txId;
-    }
-
-    public String getDataHash() {
-        return dataHash;
-    }
-
-    public void setDataHash(String dataHash) {
-        this.dataHash = dataHash;
+        this.tx_id = txId;
     }
 
 }
