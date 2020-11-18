@@ -155,9 +155,19 @@ const postData = async (server_url,data_id,data,access_token,sig,txid="",dataHas
       return data_server_res.postData(payload)
     }
     const body = JSON.stringify(payload, null, '  ')
-    console.log(body)
+
+    let url = ""
+    if(txid===""){
+       url = "/v2/postDataWithoutVerify"
+       console.debug("postDataWithoutVerify")
+    }
+    else{
+      url = "/v2/postData"
+      console.debug("postData")
+    }
+
     try {
-        let res = await fetch(server_url + "/v2/postData", {
+        let res = await fetch(server_url + url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

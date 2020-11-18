@@ -33,19 +33,17 @@
 
 <script>
 
-import { makeId} from "@/ckb/utils"
-import {OSS_CONFIG} from "@/config"
+
+
 import {DataServer} from "@/ckb/data_server"
 import {DataSetter } from "@/ckb/data_handler"
 import { getDataTemplate,getDataHash,getDataID } from "@/ckb/ckplanet"
 import {mapState} from "vuex"
 import TxStatusDashBoard from '@/components/TxStatusDashBoard.vue'
 
+import { fileToBase64, } from "@/ckb/utils";
+import imageCompression from 'browser-image-compression';
 
-const OSS = require("ali-oss")
-
-
-const client = new OSS(OSS_CONFIG)
 
 
 export default {
@@ -112,11 +110,14 @@ export default {
       
     },
     upload: async function(item){
-        const key= "avatar/" + makeId(10) + '.jpeg'
-        try {
-        let result = await client.put(key, item.file);
-        console.log(result);
-        this.imageUrl = result.url
+      try {
+        const options = { 
+          maxSizeMB: 0.1,          // (default: Number.POSITIVE_INFINITY)
+          maxWidthOrHeight: 500,   // compressedFile will scale down by ratio to a point that width or height is smaller than maxWidthOrHeight (default: undefined)
+        }
+        
+        let file = await imageCompression(item.file,options)
+        this.imageUrl = await fileToBase64(file)
         } catch (e) {
         console.log(e);}
       },

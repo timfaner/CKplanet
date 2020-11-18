@@ -1,12 +1,5 @@
 
 
-const OSS_CONFIG = {
-    region:'oss-cn-beijing',
-    accessKeyId:'LTAI4G6XNYJbFQ2ZxbK4GpfT',
-    accessKeySecret:'3SbyKXNWr5qGR0Ufea9wOM9fi0kmzB',
-    bucket:'avataray'
-  }
-
 const TYPE = "devnet_azure"   //devnet_local,devnet_azure,testnet
 
 
@@ -20,8 +13,10 @@ const NETWORK_CONST = {
       txh:"0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708"
     },
     dataserver_info:{
-      codeh:"0x4faa64ca257ea660e68f1f48adde1fa7bf02391f079b62228dfb3ff50bda9a5c",
-      txh:"0xde02fa1b11ce68808616a6492866fa468f510d5121cb891c75c94db93373909a"
+      //codeh:"0x4faa64ca257ea660e68f1f48adde1fa7bf02391f079b62228dfb3ff50bda9a5c",
+      codeh:"0xb1d088237d1f1f761820e9e74c8c952f9891328bde4ca878429375f38d9edd5b",
+      //txh:"0xde02fa1b11ce68808616a6492866fa468f510d5121cb891c75c94db93373909a"
+      txh:"0x17d3b5249eaacbb3b4c88f1ad8b6f21a97c6a2927ece4feb5a8de2a8994fd41b"
     },
     data_interity:{
       codeh:"0xa23256c19384a16b76441e3a163c52c47456390bb57821f1ba9821284d22dd94",
@@ -69,7 +64,6 @@ const NETWORK_CONST = {
 
   
 module.exports = {
-    OSS_CONFIG,
     NETWORK_CONST,
     TYPE
 

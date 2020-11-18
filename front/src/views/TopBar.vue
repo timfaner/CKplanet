@@ -21,7 +21,7 @@
     </el-button>
 
     <el-button
-      v-if="data_server_connected"
+      v-if="walletConnect"
       @click="dialogUpdateDataServer = true"
     >
       切换数服务器
@@ -120,6 +120,8 @@ export default {
     UpdateUserProfile,
     UpdateDataServer,
   },
+
+  
   methods: {
     ...mapMutations(["walletConnect", "dataServerConnect"]),
     ...mapActions([
@@ -142,7 +144,7 @@ export default {
     async test() {},
 
     notifiy(msg, type) {
-      this.$notify.success({
+      this.$notify({
         title: type,
         message: msg,
         showClose: false,
@@ -164,6 +166,11 @@ export default {
 
         window.localStorage.setItem("vuex","")
         this.$store.dispatch("resetAllState")
+        
+        this.$message({
+            message: "成功连接钱包",
+            type: "success",
+          });
 
         this.walletConnect(true);
         console.log("getting user  onchain info");

@@ -110,6 +110,13 @@ const getTypeScript = (args,codeHash) =>{
 }
 
 
+const fileToBase64 = file => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = error => reject(error);
+})
+
 
 function filterCellsWithTypeScript(filed_cells,{args,codeHash,hashType}){
   let cells = []
@@ -203,5 +210,6 @@ export  {
   getTxTemplateWithCellsDeps,
   getTypeScript,
   getScriptCapacity,
-  convertTx
+  convertTx,
+  fileToBase64
 }
