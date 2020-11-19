@@ -1,7 +1,7 @@
 
 ##  Data Server
 ### About Data Server
-
+data server provide service for dapp and communicates with the ckb chain
 ### How to Install
 1.  **How to Install JDK on Ubuntu**
 ---
@@ -129,9 +129,148 @@ $ ls
 $ java Hello
 Hello, world from Ubuntu!
 ```
-- install java 
-- install mogodb
-- run data server
+1.  **How to Install Mogodb on Ubuntu**
+---
+- **Step 1: Import the MongoDB repository**
+
+Import the public key used by the package management system.
+The Ubuntu package management tools ensure package consistency and authenticity by verifying that they are signed with GPG keys. The following command will import the MongoDB public GPG key.
+```bash
+> sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10</span>
+```
+Create a source list file for MongoDB
+Create the /etc/apt/sources.list.d/mongodb-org-3.4.list list file using the command below.
+```bash
+> echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo 
+tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+```
+Update the local package repository
+```bash
+> sudo apt-get update
+```
+- **Step 2: Install the MongoDB packages**
+Install the latest stable version of MongoDB:
+```bash
+> sudo apt-get install -y mongodb-org
+```
+Install a specific release of MongoDB:
+You must specify each component package specifically with their version number, check the following example:
+```bash
+> sudo apt-get install -y mongodb-org=3.4 mongodb-org-server=3.4 mongodb-org-shell=3.4 mongodb-org-mongos=3.4 mongodb-org-tools=3.4
+```
+- **Step 3: Launch MongoDB as a service on Ubuntu 16.04**
+
+We need to create a unit file, which tells systemd how to manage a resource. Most common unit type, service, determine how to start or stop the service, auto-start etc.
+
+Create a configuration file named mongodb.service in /etc/systemd/system to manage the MongoDB service.
+```bash
+> sudo vim /etc/systemd/system/mongodb.service
+```
+Copy the following contents in the file.
+```bash
+#Unit contains the dependencies to be satisfied before the service is started.
+[Unit]
+Description=MongoDB Database
+After=network.target
+Documentation=https://docs.mongodb.org/manual
+#Service tells systemd, how the service should be started.
+#Key `User` specifies that the server will run under the mongodb user and
+#`ExecStart` defines the startup command for MongoDB server.
+[Service]
+User=mongodb
+Group=mongodb
+ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
+#Install tells systemd when the service should be automatically started.
+#`multi-user.target` means the server will be automatically started during boot.
+[Install]
+WantedBy=multi-user.target
+```
+Update the systemd service with the command stated below:
+```bash
+> systemctl daemon-reload
+```
+Start the service with systemcl.
+```bash
+> sudo systemctl start mongodb
+```
+Check if mongodb has been started on port 27017 with netstat command:
+
+```bash
+> netstat -plntu
+```
+
+Check if the service has started properly.
+
+```bash
+> sudo systemctl status mongodb
+```
+
+The output to the above command will show `active (running)` status with the PID and Memory/CPU it is consuming.
+
+Enable auto start MongoDB when system starts.
+
+```bash
+> sudo systemctl enable mongodb
+```
+
+Stop MongoDB
+
+```bash
+> sudo systemctl stop mongodb
+```
+
+Restart MongoDB
+
+```bash
+> sudo systemctl restart mongodb
+```
+
+- **Step 4: Configure and Connect MongoDB**
+Open mongo shell
+Open MongoDB shell on your server by typing below command:
+
+```bash
+> mongo
+```
+
+Switch to the database admin
+
+```bash
+> use admin
+```
+
+Create the root user
+```bash
+> db.createUser({user:"admin", pwd:”password", roles:[{role:"root", db:"admin"}]})
+ ```
+Exit from the MongoDB shell.
+Connect MongoDB
+Restart MongoDB( command mentioned above ) and connect with user created with this command:
+
+```bash
+> mongo -u admin -p admin123 --authenticationDatabase admin
+```
+
+You can see the mongo connecting. Check the databases using the following command:
+
+```bash
+> show dbs
+```
+1.  **How to Install Data Server in Ubuntu**
+---
+Open mongo shell
+```bash
+> mongo
+```
+create a database user
+
+```bash
+> use user
+```
+then  run the java jar in ubuntu
+```bash
+java -jar dsdsdsd.jar --port=[port] [rpcAddress]
+```
 ### How to Use
  1. /v2/getMpk
  - description：return the data server's public key 
@@ -169,3 +308,5 @@ Hello, world from Ubuntu!
  - input: 
  - out: 
  - postman case:
+
+
