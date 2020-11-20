@@ -270,12 +270,14 @@ export default {
           this.$parent.loadings = true;
           await getWalletAuth();
         }
+
         console.log("logged in");
       } catch (error) {
         console.error("Conncet wallet error", error);
         this.notifiy("连接钱包失败", "Error");
         return;
       }
+
 
       this.walletConnect(true);
       console.log("getting user  onchain info");

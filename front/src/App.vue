@@ -1,4 +1,5 @@
 <template>
+
   <div
     id="app"
     v-on:click.shift.right="toggleDebug()"
@@ -20,6 +21,7 @@
           </keep-alive>
         </main>
       </div>
+
     </div>
   </div>
 </template>
@@ -28,6 +30,7 @@
 import TopBar from "@/views/TopBar.vue";
 import SideBar from "@/views/SideBar.vue";
 import Test from "@/views/Test.vue";
+
 
 export default {
   name: "App",

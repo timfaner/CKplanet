@@ -31,6 +31,7 @@ const getDefaultState = () => {
       lock_hash: "",
       public_key: "",
       balance_summary: {
+
         inuse: 0,
         free: 0,
         capacity: 0,
