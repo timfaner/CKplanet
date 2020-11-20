@@ -22,6 +22,7 @@ import createPersistedState from 'vuex-persistedstate';
 
 const getDefaultState = () => {
   return {
+    wallet : '',
     user_ds: null,
     user_chain_info: {
       address: "",
@@ -82,6 +83,9 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    updateWallet(state,payload){
+      state.wallet = payload
+    },
     resetRootState(state){
       Object.assign(state,getDefaultState())
     },
@@ -214,46 +218,83 @@ export default new Vuex.Store({
     },
 
     async getUser({ dispatch, commit, state }) {
-      const authToken = window.localStorage.getItem("authToken");
+      if(state.wallet==="ckb"){
+        const authToken = window.localStorage.getItem("authToken");
+        if (!authToken) {
+          console.error("No auth token");
+          throw "No auth token";
+        }
+        const addresses = (await queryAddresses(authToken)).addresses;
+        if (addresses && addresses.length > 0) {
+          commit("updateUser", {
+            address: addresses[0].address,
+            lock_args: addresses[0].lockScript.args,
+            lock_script: addresses[0].lockScript,
+            public_key: addresses[0].publicKey,
+            lock_hash: addresses[0].lockHash,
+            balance_summary: {
+              inuse: 0,
+              free: 0,
+              capacity: 0,
+            },
+          });
+        }
 
-      if (!authToken) {
-        console.error("No auth token");
-        throw "No auth token";
+        dispatch("getUserCells", state.user_chain_info.lock_args);
       }
-      const addresses = (await queryAddresses(authToken)).addresses;
-      if (addresses && addresses.length > 0) {
-        commit("updateUser", {
-          address: addresses[0].address,
-          lock_args: addresses[0].lockScript.args,
-          lock_script: addresses[0].lockScript,
-          public_key: addresses[0].publicKey,
-          lock_hash: addresses[0].lockHash,
-          balance_summary: {
-            inuse: 0,
-            free: 0,
-            capacity: 0,
-          },
-        });
-      }
-      dispatch("getUserCells", state.user_chain_info.lock_args);
+    else if(state.wallet==="eth"){
+      let provider = window._PWCore.provider
+      commit("updateUser", {
+        address: provider.address.toCKBAddress(),
+        lock_args: provider.address.toLockScript().args,
+        lock_script: provider.address.toLockScript(),
+        public_key: "",
+        lock_hash: provider.address.toLockScript().toHash(),
+        balance_summary: {
+          inuse: 0,
+          free: 0,
+          capacity: 0,
+        },
+      });
+      
+    }
+      
     },
 
     async getAccessToken({ commit, state }) {
+
+      let access_token_p = ''
+      let access_token_s = ''
+      if(state.wallet==="ckb"){
       const authToken = window.localStorage.getItem("authToken");
       let address = state.user_chain_info.address;
-      let access_token = await signMessage("public", address, authToken);
-      commit("updatePublicId", { access_token });
+      access_token_p = await signMessage("public", address, authToken);
+      access_token_s = await signMessage("private", address, authToken);
+      }
+
+      else if(state.wallet==="eth"){
+        let eth_addr = window._PWCore.provider.address.addressString
+        let web3 = window._web3
+        access_token_p = await web3.eth.personal.sign("public",eth_addr)
+        access_token_s = await web3.eth.personal.sign("private",eth_addr)
+
+        
+      }
+
+
+      commit("updatePublicId", { access_token:access_token_p });
       commit("updateAccessTokens", {
         lock_args: state.user_chain_info.lock_args,
-        access_token_public: access_token,
+        access_token_public: access_token_p,
       });
 
-      access_token = await signMessage("private", address, authToken);
-      commit("updatePrivateId", { access_token });
+      
+      commit("updatePrivateId", { access_token:access_token_s });
       commit("updateAccessTokens", {
         lock_args: state.user_chain_info.lock_args,
-        access_token_private: access_token,
+        access_token_private: access_token_s,
       });
+    
     },
 
     async getDataServerMpk({ state, commit }, lock_args) {
@@ -364,7 +405,7 @@ export default new Vuex.Store({
       let data = JSON.stringify(DataServerInfo);
       data = textToHex(data);
 
-      let { tx_hash, cells_to_delete } = await changeOnChain(
+      let { tx_hash, cells_to_delete } = await changeOnChain(state.wallet,
         state.cells_pool[state.user_chain_info.lock_args].empty_cells,
         null,
         DATASERVER_INFO,
@@ -396,7 +437,7 @@ export default new Vuex.Store({
         let data = JSON.stringify(DataServerInfo);
         data = textToHex(data);
 
-        let { tx_hash, cells_to_delete } = await changeOnChain(
+        let { tx_hash, cells_to_delete } = await changeOnChain(state.wallet,
           state.cells_pool[state.user_chain_info.lock_args].empty_cells,
           state.cells_pool[state.user_chain_info.lock_args].filled_cells,
           DATASERVER_INFO,
@@ -431,7 +472,7 @@ export default new Vuex.Store({
         await dispatch("getUserCells", state.user_chain_info.lock_args);
         let dappID = textToHex(DAPP_ID);
 
-        let { tx_hash, cells_to_delete } = await changeOnChain(
+        let { tx_hash, cells_to_delete } = await changeOnChain(state.wallet,
           state.cells_pool[state.user_chain_info.lock_args].empty_cells,
           state.cells_pool[state.user_chain_info.lock_args].filled_cells,
           DATASERVER_INFO,
@@ -463,7 +504,7 @@ export default new Vuex.Store({
       });
       data = textToHex(data);
 
-      let { tx_hash, cells_to_delete } = await changeOnChain(
+      let { tx_hash, cells_to_delete } = await changeOnChain(state.wallet,
         state.cells_pool[state.user_chain_info.lock_args].empty_cells,
         null,
         DATA_INTEGRITY,
@@ -492,7 +533,7 @@ export default new Vuex.Store({
           data_hash_sig: payload.data_hash_sig,
         });
         data = textToHex(data);
-        let { tx_hash, cells_to_delete } = await changeOnChain(
+        let { tx_hash, cells_to_delete } = await changeOnChain(state.wallet,
           state.cells_pool[state.user_chain_info.lock_args].empty_cells,
           state.cells_pool[state.user_chain_info.lock_args].filled_cells,
           DATA_INTEGRITY,
@@ -525,7 +566,7 @@ export default new Vuex.Store({
         });
         data = textToHex(data);
 
-        let { tx_hash, cells_to_delete } = await changeOnChain(
+        let { tx_hash, cells_to_delete } = await changeOnChain(state.wallet,
           state.cells_pool[state.user_chain_info.lock_args].empty_cells,
           state.cells_pool[state.user_chain_info.lock_args].filled_cells,
           DATA_INTEGRITY,

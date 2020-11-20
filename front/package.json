@@ -9,8 +9,11 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@lay2/pw-core": "^0.3.12",
     "@nervosnetwork/ckb-sdk-core": "^0.35.0",
     "@nervosnetwork/ckb-sdk-utils": "^0.35.0",
+    "@toruslabs/torus-embed": "^1.8.5",
+    "@walletconnect/web3-provider": "^1.2.2",
     "bn.js": "^5.1.3",
     "bootstrap": "^4.5.3",
     "browser-image-compression": "^1.0.13",
@@ -23,7 +26,9 @@
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuex": "^3.4.0",
-    "vuex-persistedstate": "^3.1.0"
+    "vuex-persistedstate": "^3.1.0",
+    "web3": "^1.3.0",
+    "web3modal": "^1.9.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

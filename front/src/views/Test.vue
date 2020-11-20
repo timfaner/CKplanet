@@ -16,7 +16,38 @@
 </template>
 
 <script>
+
+import  {
+  Keccak256Hasher,
+  //PwCollector,
+  //Web3ModalProvider,
+  //Amount,
+  //AmountUnit,
+  //Cell,
+  // EthSigner,
+} from "@lay2/pw-core";
+
+import {  RICH_NODE_RPC_URL,
+  RICH_NODE_INDEXER_URL,
+  MIN_CAPACITY,
+  TRANSACTION_FEE,
+  SECP256K1_BLAKE160_CODE_HASH,
+  SECP256K1_BLAKE160_DEP_TXHASH,
+  KEYPERING_URL,
+  DAPP_DESCRIPTION,
+  Operator,
+  DATASERVER_INFO,
+  DATA_INTEGRITY,
+  CODE_HASH_CAPACITY,
+  DAPP_ID,
+  CELLS_CACHE_TIME,
+  SECP256K1_BLAKE160_LOCK,
+  PW_LOCK} from "@/ckb/const"
+
+
 import {
+
+  
   generateAESKey,
   encryptData_c,
   decryptData_c,
@@ -63,11 +94,15 @@ import {
 } from "@/ckb/rpc.js";
 import { DataSetter } from "@/ckb/data_handler";
 
+import Vuex_Collector from "@/ckb/vuex-collector"
+import CKplanet_Builder from "@/ckb/ckplanet-builder"
+import { Amount, AmountUnit, Cell, CellDep, DepType, OutPoint, Script } from '@lay2/pw-core'
 export default {
   name: "Test",
   methods: {
     test() {
       this.id = this.id + "1";
+      
     },
     purgeState(){
       this.$store.dispatch("resetAllState")
@@ -89,6 +124,26 @@ export default {
   },
   data: function() {
     return {
+        RICH_NODE_RPC_URL,
+  RICH_NODE_INDEXER_URL,
+  MIN_CAPACITY,
+  TRANSACTION_FEE,
+  SECP256K1_BLAKE160_CODE_HASH,
+  SECP256K1_BLAKE160_DEP_TXHASH,
+  KEYPERING_URL,
+  DAPP_DESCRIPTION,
+  Operator,
+  DATASERVER_INFO,
+  DATA_INTEGRITY,
+  CODE_HASH_CAPACITY,
+  DAPP_ID,
+  CELLS_CACHE_TIME,
+  SECP256K1_BLAKE160_LOCK,
+  PW_LOCK,
+      Amount, AmountUnit, Cell, CellDep, DepType, OutPoint, Script,
+      CKplanet_Builder,
+      Vuex_Collector,
+      Keccak256Hasher,
       DataServer,
       getMpk,
       getAuth,

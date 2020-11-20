@@ -183,8 +183,6 @@ const verifyData = (sig,data,pubkey) => {
 }
 
 
-
-
 export {    
     generateAESKey, 
     encryptData_c,

@@ -22,7 +22,17 @@ class DataSetter {
         const authToken = window.localStorage.getItem('authToken')
 
         let address = this.store.state.user_chain_info.address
-        let data_hash_sig = await signMessage(data_hash,address,authToken)
+        
+        //FIXME
+        let data_hash_sig
+        if(this.store.state.wallet==="eth"){
+          let web3 = window._web3
+          let eth_addr = window._PWCore.provider.address.addressString
+          data_hash_sig = await web3.eth.personal.sign(data_hash,eth_addr)
+        }
+        else if (this.store.state.wallet==="ckb")
+          data_hash_sig = await signMessage(data_hash,address,authToken)
+
         let tx_hash = await this.store.dispatch("updateDataIntegrityOnChain",
         {   
             data_id,

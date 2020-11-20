@@ -1,6 +1,7 @@
+const {  CHAIN_SPECS } = require("@lay2/pw-core")
 
 
-const TYPE = "devnet_azure"   //devnet_local,devnet_azure,testnet
+const TYPE = "testnet"   //devnet_local,devnet_azure,testnet
 
 
 const NETWORK_CONST = {
@@ -45,8 +46,8 @@ const NETWORK_CONST = {
     rpc_url:"http://ckplanet.beihanguni.cn:9111/rpc",
     indexer_url:"https://prototype.ckbapp.dev/testnet/indexer",
     secp256k1:{
-      codeh:"0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
-      txh:"0xf8de3bb47d055cdf460d93a2a6e1b05f7432f9777c8c474abf4eec1d4aee5d37"
+      codeh:CHAIN_SPECS.Aggron.defaultLock.script.codeHash,
+      txh:CHAIN_SPECS.Aggron.defaultLock.cellDep.outPoint.txHash
     },
     dataserver_info:{
       codeh:"0x4faa64ca257ea660e68f1f48adde1fa7bf02391f079b62228dfb3ff50bda9a5c",
