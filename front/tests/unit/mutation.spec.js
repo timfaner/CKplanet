@@ -49,8 +49,9 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
                 contents:{
 
                 },
@@ -69,8 +70,9 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
                 contents:{
 
                 },
@@ -86,8 +88,9 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
                 contents:{
 
                 },
@@ -98,8 +101,9 @@ let updateCyclesPool_testcase = [
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
             contents:{
 
             },
@@ -117,8 +121,9 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
                 contents:{
 
                 },
@@ -129,8 +134,10 @@ let updateCyclesPool_testcase = [
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
+
             contents:{
 
             },
@@ -139,8 +146,10 @@ let updateCyclesPool_testcase = [
         [cycle_ids[1]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubl',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
+
             contents:{
 
             },
@@ -158,8 +167,10 @@ let updateCyclesPool_testcase = [
             [cycle_ids[0]]:{
                 cycle_profile:cycle_profiles[0],
                 aes_key:'biubl',
-                joined_status: "",
+                joined_status: "disjointed",
                 user_lists:[],
+            token_list:[],
+
                 contents:{
 
                 },
@@ -170,8 +181,10 @@ let updateCyclesPool_testcase = [
         [cycle_ids[0]]:{
             cycle_profile:cycle_profiles[2],
             aes_key:'biubll',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
+
             contents:{
 
             },
@@ -180,8 +193,9 @@ let updateCyclesPool_testcase = [
         [cycle_ids[1]]:{
             cycle_profile:cycle_profiles[0],
             aes_key:'bababa',
-            joined_status: "",
+            joined_status: "disjointed",
             user_lists:[],
+            token_list:[],
             contents:{
 
             },
@@ -190,7 +204,52 @@ let updateCyclesPool_testcase = [
         }
     }
     },
-    
+    {args:[
+        lock_args[1],
+        cycle_ids[1],
+        {token_list:[1,2,3]}],
+    result:{
+        [lock_args[0]]:{
+            [cycle_ids[0]]:{
+                cycle_profile:cycle_profiles[0],
+                aes_key:'biubl',
+                joined_status: "disjointed",
+                user_lists:[],
+            token_list:[],
+
+                contents:{
+
+                },
+                contents_list:[]
+            }
+    },
+    [lock_args[1]]:{
+        [cycle_ids[0]]:{
+            cycle_profile:cycle_profiles[2],
+            aes_key:'biubll',
+            joined_status: "disjointed",
+            user_lists:[],
+            token_list:[],
+
+            contents:{
+
+            },
+            contents_list:[]
+            },
+        [cycle_ids[1]]:{
+            cycle_profile:cycle_profiles[0],
+            aes_key:'bababa',
+            joined_status: "disjointed",
+            user_lists:[],
+            token_list:[1,2,3],
+            contents:{
+
+            },
+            contents_list:[]
+            }
+        }
+    }
+    },
 ]
 
 let updateCyclePool_testcase_dummy = [

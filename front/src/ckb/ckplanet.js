@@ -1,6 +1,6 @@
 import  {postData,getData} from "./data_server.js"
 
-import {sha256,generateECDHKey, encryptData_c,decryptData_c} from "./crypto.js"
+import {hashFunc,generateECDHKey, encryptData_c,decryptData_c} from "./crypto.js"
 
 
 postData,getData
@@ -83,10 +83,41 @@ const CYCLE = {
     aes_key:'',
     user_lists:[],
     contents_list:[],
+    token_list:[],
     contents:{
     }    
 }
 
+function getTokenItem(lock_args,token_list,ecdh_pk,ecdh_sk){
+    let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
+    let k = encryptData_c(lock_args,ecdh_key).encrypted_data
+    for(const item of token_list){
+        console.log(k)
+        console.log(item.k)
+        if(item.k===k)
+            return item
+    }
+    return null
+}
+function inTokenList(lock_args,token_list,ecdh_pk,ecdh_sk){
+    let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
+    let k = encryptData_c(lock_args,ecdh_key).encrypted_data
+    for(const item of token_list){
+        console.log(k)
+        console.log(item.k)
+        if(item.k===k)
+            return true
+    }
+    return false
+}
+
+function inJoinedList(lock_args,cycle_id,joined_cycle_list){
+    for(const item of joined_cycle_list){
+        if(cycle_id === item.cycle_id && lock_args === item.lock_args)
+            return true
+    }
+    return false
+}
 function encryptContent(content,aes_key){
     content,aes_key
     //TODO 
@@ -109,26 +140,36 @@ function getDataTemplate(data_type){
     
 }
 
-
-function encryptCycleToken(access_token_public,access_token_private,aes_key,ecdh_pk,ecdh_sk){
+/**
+ * 
+ * @param {object} param0 primative token,consists of {lock_args,access_token_private,aes_key}
+ * @param {string} ecdh_pk public key of   access_token_public  owned by lock_args
+ * @param {string} ecdh_sk private key of the  users, which is associtaed with access_token_private
+ */
+function encryptCycleToken({lock_args,access_token_private,aes_key},ecdh_pk,ecdh_sk){
     let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
-    let k = encryptData_c(access_token_public,ecdh_key)
-    let v = encryptData_c(access_token_private + ":" + aes_key,ecdh_key)
+    let tmp1 = encryptData_c(lock_args,ecdh_key)
+    let tmp2 = encryptData_c(access_token_private + ":" + aes_key,ecdh_key)
     return{
-        k,
-        v,
+        k:tmp1.encrypted_data,
+        v:tmp2.encrypted_data
     }
 
 }
 
-
-function decrtptCycleToken(k,v,ecdh_pk,ecdh_sk){
+/**
+ * 
+ * @param {object} param0 cycle_token item, `{k,v}`
+ * @param {*} ecdh_pk public key of   access_token_public  owned by lock_args
+ * @param {*} ecdh_sk  private key of the  users, which is associtaed with access_token_private
+ */
+function decrtptCycleToken({k,v},ecdh_pk,ecdh_sk){
        let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
-       let access_token_public = decryptData_c(k,ecdh_key)
+       let lock_args = decryptData_c(k,ecdh_key)
        let tmp = decryptData_c(v,ecdh_key)
        let [access_token_private,aes_key] = tmp.split(":")
        return{
-           access_token_public,
+            lock_args,
            access_token_private,
            aes_key
        }
@@ -160,7 +201,7 @@ function getUrl(data_type,access_token_items,cycle_id='',content_id='',depends='
     if(access_token === ''){
         throw(" access_token not found : " +arguments ,access_token_items)
     }
-    let url = sha256(access_token + DATA_ID[data_type](cycle_id,content_id))
+    let url = hashFunc(access_token + DATA_ID[data_type](cycle_id,content_id))
     return url
 }
 
@@ -170,7 +211,9 @@ function getUrl(data_type,access_token_items,cycle_id='',content_id='',depends='
  * @param {object} instance 
  * @returns {boolean} boolean
  */
-function vaildDataType(data_type,instance){
+function vaildDataType(data_type,thing_to_check){
+
+    let instance = JSON.parse(JSON.stringify(thing_to_check))
     var bool = false
     if ( !(data_type in DATA_ID)){
         console.error("Wrong data type : ",data_type)
@@ -183,11 +226,11 @@ function vaildDataType(data_type,instance){
     }
 
     try {
-        let template = DATA_STRUCT[data_type]
+        let template = JSON.parse(JSON.stringify(DATA_STRUCT[data_type]))
         if (  data_type.search("list") !== -1){ 
             // 是list
-            if (instance.length === 1){
-                bool= true
+            if (instance.length === 0){
+                return true
             }
             instance = instance[0]
             template = template[0]
@@ -221,7 +264,7 @@ function vaildDataType(data_type,instance){
 function getDataHash(data_type,data){
     data_type
     let jsons = JSON.stringify(data)
-    let hash= sha256(jsons)
+    let hash= hashFunc(jsons)
     return hash
 }
 
@@ -242,7 +285,11 @@ export  {DATA_ID,
         getDataID,
         getCycleTemplate,
         encryptContent,
-        decryptContent
+
+        decryptContent,
+        inTokenList,
+        inJoinedList,
+        getTokenItem,
 
 }
 

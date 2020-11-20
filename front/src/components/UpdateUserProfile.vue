@@ -1,6 +1,9 @@
 <template>
 <div id="UpdateUserProfile">
-    <el-upload
+
+    <el-form :disabled="btnloading">
+      <el-form-item>
+            <el-upload
         class="avatar-uploader"
         action="''"
         :http-request="upload"
@@ -11,13 +14,18 @@
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
-    <el-form :model="form">
+      </el-form-item>
         <el-form-item label="昵称" :label-width="formLabelWidth">
         <el-input v-model="nickname" autocomplete="off"></el-input>
         </el-form-item>
-          <el-form-item>
-        <el-button type="primary" @click="updateUserProfile()">保存</el-button>
-         </el-form-item>
+        <el-form-item>
+        <el-collapse-transition>
+          <TxStatusDashBoard v-if="showProgress"> </TxStatusDashBoard>
+        </el-collapse-transition>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :loading="btnloading" @click="updateUserProfile()">保存</el-button>
+        </el-form-item>
     </el-form>
 
 </div>
@@ -25,17 +33,17 @@
 
 <script>
 
-import { makeId} from "@/ckb/utils"
-import {OSS_CONFIG} from "@/config"
+
+
 import {DataServer} from "@/ckb/data_server"
 import {DataSetter } from "@/ckb/data_handler"
 import { getDataTemplate,getDataHash,getDataID } from "@/ckb/ckplanet"
 import {mapState} from "vuex"
+import TxStatusDashBoard from '@/components/TxStatusDashBoard.vue'
 
-const OSS = require("ali-oss")
+import { fileToBase64, } from "@/ckb/utils";
+import imageCompression from 'browser-image-compression';
 
-
-const client = new OSS(OSS_CONFIG)
 
 
 export default {
@@ -45,9 +53,14 @@ export default {
         user_lock_args : state => state.user_chain_info.lock_args,
 
       }),
+  components:{
+    TxStatusDashBoard,
+  },
   methods:{
 
     updateUserProfile : async function(){
+      this.showProgress = true
+      this.btnloading = true
       let user_ds = new DataServer(this.$store,this.user_lock_args)
       let data_setter = new DataSetter(user_ds)
 
@@ -55,14 +68,14 @@ export default {
       data.nickname = this.nickname
       data.avatar_url = this.imageUrl
 
-      //FIXME 获取hash的逻辑等等
+
       let data_hash = getDataHash('user_profile',data)
       let data_id = getDataID('user_profile')
       try {
         
         let tx_id =""
-        //FIXME
-        await data_setter.updateDataIntegrityOnChain(
+
+        tx_id = await data_setter.updateDataIntegrityOnChain(
         data_id,
         data_hash)
 
@@ -82,19 +95,29 @@ export default {
 
         //更新vuex store
         this.$store.dispatch("getUserProfile",this.user_lock_args).catch((e)=>{throw(e)})
+
+        this.showProgress = false
+        this.btnloading = false
         this.$emit("closedialog")
+
+        
       }
        catch (error) {
-        this.$message.error(error)
+        this.$message.error(error.message)
+        this.showProgress = false
+        this.btnloading = false
       }
       
     },
     upload: async function(item){
-        const key= "avatar/" + makeId(10) + '.jpeg'
-        try {
-        let result = await client.put(key, item.file);
-        console.log(result);
-        this.imageUrl = result.url
+      try {
+        const options = { 
+          maxSizeMB: 0.1,          // (default: Number.POSITIVE_INFINITY)
+          maxWidthOrHeight: 500,   // compressedFile will scale down by ratio to a point that width or height is smaller than maxWidthOrHeight (default: undefined)
+        }
+        
+        let file = await imageCompression(item.file,options)
+        this.imageUrl = await fileToBase64(file)
         } catch (e) {
         console.log(e);}
       },
@@ -122,6 +145,8 @@ export default {
   },
   data: function(){
     return{
+      showProgress:false,
+      btnloading:false,
       //imageUrl:'https://placekitten.com/400/400',
       imageUrl:'',
       form:null,

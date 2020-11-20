@@ -45,35 +45,49 @@ import {mapState} from "vuex"
 
 export default {
   name: 'PublishCycleContent',
-    computed: mapState({
-        cycle_id : function(){ return this.cycleid},  //FIXME no setters
-        user_address: state=>state.user_chain_info.address,
-        user_lock_args : state => state.user_chain_info.lock_args,
-        cycles : function(state){
-        let user_lock_args = state.user_chain_info.lock_args
-        let cycles = state.ckplanet.cycles_pool
-        let ego_cycles = []
-        let autrui_cycles = []
-        let tmp = []
-        for(const lock_args in cycles){
-          for(const cycle_id in cycles[lock_args]){
-            let cycle = cycles[lock_args][cycle_id]
-            cycle = {...cycle,...{lock_args,cycle_id}}
-            tmp.push(cycle)
+    computed: {
+
+        cycle_id : {
+          get: function(){ 
+            if(this.follow)
+              return this.cycleid
+            else
+              return this.cycle_id_tmp},
+          set: function(value){
+            this.follow = false
+            this.cycle_id_tmp = value
+          }},  
+
+        ...mapState({
+          user_address: state=>state.user_chain_info.address,
+          user_lock_args : state => state.user_chain_info.lock_args,
+          cycles : function(state){
+          let user_lock_args = state.user_chain_info.lock_args
+          let cycles = state.ckplanet.cycles_pool
+          let ego_cycles = []
+          let autrui_cycles = []
+          let tmp = []
+          for(const lock_args in cycles){
+            for(const cycle_id in cycles[lock_args]){
+              let cycle = cycles[lock_args][cycle_id]
+              cycle = {...cycle,...{lock_args,cycle_id}}
+              tmp.push(cycle)
+            }
           }
-        }
-        ego_cycles = tmp.filter(function(cycle){
-          return cycle.lock_args===user_lock_args
-        })
-        autrui_cycles = tmp.filter(function(cycle){
-          return cycle.lock_args!==user_lock_args
-        })
-        return {ego_cycles,autrui_cycles}
+          ego_cycles = tmp.filter(function(cycle){
+            return cycle.lock_args===user_lock_args
+          })
+          autrui_cycles = tmp.filter(function(cycle){
+            return cycle.lock_args!==user_lock_args
+          })
+          return {ego_cycles,autrui_cycles}
+        },
+          cycle_publish_to:function(state){
+          return state.ckplanet.cycles_pool[this.user_lock_args][this.cycle_id]
+          }
+      })
+      
       },
-      cycle_publish_to:function(state){
-        return state.ckplanet.cycles_pool[this.user_lock_args][this.cycle_id]
-      }
-      }),
   methods:{
 
     Update : async function(){
@@ -174,10 +188,11 @@ export default {
     return{
       form:null,
       formLabelWidth:'100',
-      test:null,
+      cycle_id_tmp : '0x',
       title:'',
       content:'',
-      value:''
+      value:'',
+      follow:true,
 
     }
   },

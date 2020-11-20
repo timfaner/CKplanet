@@ -1,13 +1,7 @@
+const {  CHAIN_SPECS } = require("@lay2/pw-core")
 
 
-const OSS_CONFIG = {
-    region:'oss-cn-beijing',
-    accessKeyId:'',
-    accessKeySecret:'',
-    bucket:'avataray'
-  }
-
-const TYPE = "devnet_local"   //devnet_local,devnet_azure,testnet
+const TYPE = "testnet"   //devnet_local,devnet_azure,testnet
 
 
 const NETWORK_CONST = {
@@ -20,12 +14,14 @@ const NETWORK_CONST = {
       txh:"0xace5ea83c478bb866edf122ff862085789158f5cbff155b7bb5f13058555b708"
     },
     dataserver_info:{
-      codeh:"0x4faa64ca257ea660e68f1f48adde1fa7bf02391f079b62228dfb3ff50bda9a5c",
-      txh:"0xd33790df5eb8d6701ad8f51a7ea7936f275bdf6201713bfe020773b4bf332782"
+      //codeh:"0x4faa64ca257ea660e68f1f48adde1fa7bf02391f079b62228dfb3ff50bda9a5c",
+      codeh:"0xb1d088237d1f1f761820e9e74c8c952f9891328bde4ca878429375f38d9edd5b",
+      //txh:"0xde02fa1b11ce68808616a6492866fa468f510d5121cb891c75c94db93373909a"
+      txh:"0x17d3b5249eaacbb3b4c88f1ad8b6f21a97c6a2927ece4feb5a8de2a8994fd41b"
     },
     data_interity:{
       codeh:"0xa23256c19384a16b76441e3a163c52c47456390bb57821f1ba9821284d22dd94",
-      txh:"0xdd7ab866b799f3228bb9929e6340a81ef18a60a0fb768751fa8ab6f1a5beb3a2"
+      txh:"0x0cdbbf458296003a582b2af511fbd70e222b7727262ec5e1f74c5664fa9066ff"
     }
   },
   "devnet_azure":{
@@ -50,8 +46,8 @@ const NETWORK_CONST = {
     rpc_url:"http://ckplanet.beihanguni.cn:9111/rpc",
     indexer_url:"https://prototype.ckbapp.dev/testnet/indexer",
     secp256k1:{
-      codeh:"0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
-      txh:"0xf8de3bb47d055cdf460d93a2a6e1b05f7432f9777c8c474abf4eec1d4aee5d37"
+      codeh:CHAIN_SPECS.Aggron.defaultLock.script.codeHash,
+      txh:CHAIN_SPECS.Aggron.defaultLock.cellDep.outPoint.txHash
     },
     dataserver_info:{
       codeh:"0x4faa64ca257ea660e68f1f48adde1fa7bf02391f079b62228dfb3ff50bda9a5c",
@@ -69,7 +65,6 @@ const NETWORK_CONST = {
 
   
 module.exports = {
-    OSS_CONFIG,
     NETWORK_CONST,
     TYPE
 

@@ -7,8 +7,9 @@ import { DataServer,postData,getData } from "./data_server"
 
 import {
     signData,
-    sha256
+    hashFunc
     } from "@/ckb/crypto" 
+import { getDataHash } from './ckplanet'
 
 class DataSetter {
     constructor(data_server){
@@ -21,7 +22,17 @@ class DataSetter {
         const authToken = window.localStorage.getItem('authToken')
 
         let address = this.store.state.user_chain_info.address
-        let data_hash_sig = await signMessage(data_hash,address,authToken)
+        
+        //FIXME
+        let data_hash_sig
+        if(this.store.state.wallet==="eth"){
+          let web3 = window._web3
+          let eth_addr = window._PWCore.provider.address.addressString
+          data_hash_sig = await web3.eth.personal.sign(data_hash,eth_addr)
+        }
+        else if (this.store.state.wallet==="ckb")
+          data_hash_sig = await signMessage(data_hash,address,authToken)
+
         let tx_hash = await this.store.dispatch("updateDataIntegrityOnChain",
         {   
             data_id,
@@ -47,13 +58,15 @@ class DataSetter {
         if(!onchain){
           txid=''
         }
+        let dataHash = getDataHash('user_profile',data)
         if (typeof(data) === "object"){
           data = JSON.stringify(data)
           console.log("data stringfied")
         }
         
         let sig = signData(user_id.sk,data)
-        let dataHash = sha256(data)
+        console.log("data to sign is \n", data)
+        
         
         let res = await postData(
           this.ip,
@@ -92,7 +105,7 @@ class DataGetter {
 
       static async getDataById(server_ip,data_id='',access_token='',onchain_verify=false,txid){
 
-        let url = sha256(access_token + data_id) 
+        let url = hashFunc(access_token + data_id).slice(2)
         return DataServer.getDataByUrl(server_ip,url,onchain_verify,txid)
       }
     

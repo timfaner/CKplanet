@@ -1,8 +1,8 @@
 <template>
-    <nav id="sidebarMenu" class="col-md-1 col-lg-2 d-md-block bg-light sidebar collapse">
+    <nav id="sidebarMenu" class="d-md-block bg-light sidebar collapse">
         <div class="sidebar-sticky">
           <div>
-             <el-button plain @click.prevent="updateUser()">
+             <el-button :disabled="!logged_in" plain @click.prevent="updateUser()">
             <el-avatar shape="square" :src="user_profile.avatar_url" :size=100>
             </el-avatar>
             
@@ -10,7 +10,7 @@
             <p> {{user_profile.nickname}} </p>
           </div>
 
-          <el-dialog  :visible.sync="dialogNewUser" title="新建用户信息" append-to-body>
+          <el-dialog  :visible.sync="dialogNewUser" title="更新用户信息" append-to-body :close-on-click-modal='false'>
             <UpdateUserProfile v-on:closedialog="finalizeNewUser"></UpdateUserProfile>
             <div  slot="footer" class="dialog-footer">
           </div>
@@ -61,7 +61,7 @@ export default {
         this.dialogNewUser = true
       },
       finalizeNewUser: function(){
-        //this.dialogNewUser = false
+        this.dialogNewUser = false
       }
       //nickname: function(){return this.user_profile.nickname},
       //avatar_url : function(){return this.user_profile.avatar_url},
@@ -69,6 +69,7 @@ export default {
     },
     //FIXME user_profile不能实时更新
     computed:mapState({
+        logged_in : state => state.ckplanet.data_server_connected && state.ckplanet.wallet_connected,
         user_lock_args : state => state.user_chain_info.lock_args,
         user_profiles_pool: state => state.ckplanet.user_profiles_pool,
         user_profile:function () {

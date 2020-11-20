@@ -2,23 +2,53 @@ import  forge from "node-forge"
 import { randomBytes }  from "crypto"
 
 import  secp256k1  from "secp256k1"
-const hashfunction = forge.sha256
 
 import {encodeUnicode,decodeUnicode} from "./utils"
+
 
 const ECDH_IV = "0x253544254332253931253545772531414a25433325413625363025433325383425433325394266254332253941254333253842254332254245704f"
 const DEFAULT_IV = "0x253544254332253931253545772531414a25433325413625363025433325383425433325394266254332253941254333253842254332254245704f"
 
-const { bytesToHex, hexToBytes } = require('@nervosnetwork/ckb-sdk-utils')
+const { bytesToHex, hexToBytes,blake2b, PERSONAL } = require('@nervosnetwork/ckb-sdk-utils')
 //const { toUnicode } = require("punycode")
 //pubkey,privkey,signature 均为hex形式的string
 
-const sha256 = (data) => {
-    let h = forge.sha256.create()
-    h.update(data)
 
-    return h.digest().toHex()
+class Blake2b {
+
+     constructor() {
+      this.blake2b = blake2b(32, null, null, PERSONAL)
+    }
+ 
+    update = (message) => {
+      const msg = message.startsWith('0x') ?
+        message :
+        `0x${message}`
+      this.blake2b.update(hexToBytes(msg))
+    }
+ 
+      updateBuffer = (message) => {
+      this.blake2b.update(message)
+    }
+ 
+      digest = () => {
+      return `0x${this.blake2b.digest('hex')}`
+    }
+ 
+      static digest = (data) => {
+      const blake2bHash = new Blake2b()
+      let t = new TextEncoder()
+      data = t.encode(data)
+      data = bytesToHex(data)
+      blake2bHash.update(data)
+      return blake2bHash.digest()
+    }
 }
+
+function hashFunc(data){
+    return Blake2b.digest(data)
+}
+
 
 const generatePrivKey = () =>{
     let privKey
@@ -73,6 +103,8 @@ const decryptAESKey = (privkey = '',pubkey = '',eaeskey) =>{
 
 
 function generateAESKey(password) {
+    if(password===undefined)
+        throw("Empty password")
     var salt = 'salt';
     var key = forge.pkcs5.pbkdf2(password, salt, 10, 16);
     return forge.util.bytesToHex(key);
@@ -99,7 +131,7 @@ function decryptData(key,iv,encrypted_data) {
     
 }//由密钥、初始向量、从服务器传回的加密数据进行解密，返回明文
 
-
+//FIXME data===''会出问题 
 function encryptData_c(data,key,iv=DEFAULT_IV) {
 
     data = encodeUnicode(data)
@@ -128,37 +160,42 @@ const signData = (privkey,data) => {
         )
     }
     let priv_key = hexToBytes(privkey)
-    let h = hashfunction.create()
-    h.update(data)
 
-    let msg = h.digest().toHex()
-
-    let sig = secp256k1.ecdsaSign(hexToBytes("0x"+msg),priv_key).signature
+    let msg = hashFunc(data)
+    let sig = secp256k1.ecdsaSign(hexToBytes(msg),priv_key).signature
     return bytesToHex(sig)
 }
 
+function importSignature(der_sig){
+    der_sig = hexToBytes(der_sig)
+    let sig = secp256k1.signatureImport(der_sig)
+    return bytesToHex(sig)
+}
+function exportSinature(sig){
+    let der_sig =  secp256k1.signatureExport(sig)
+    return bytesToHex(der_sig)
+}
 
 const verifyData = (sig,data,pubkey) => {
     let pub_key = hexToBytes(pubkey)
-    let h = hashfunction.create()
-    h.update(data)
-    let msg = h.digest().toHex()
-    return secp256k1.ecdsaVerify(hexToBytes(sig),hexToBytes("0x"+msg),pub_key)
+    let msg = hashFunc(data)
+    return secp256k1.ecdsaVerify(hexToBytes(sig),hexToBytes(msg),pub_key)
 }
-
-
 
 
 export {    
     generateAESKey, 
     encryptData_c,
     decryptData_c,
-    sha256,
     generatePrivKey,
     signData,
     verifyData,
     getPubKey,
     generateECDHKey,
     encryptAESKey,
-    decryptAESKey}
+    decryptAESKey,
+    importSignature,
+    exportSinature,
+    hashFunc
+}
 

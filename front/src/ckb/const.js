@@ -1,6 +1,7 @@
 const BN = require('bn.js')
 
 import {TYPE,NETWORK_CONST} from "@/config.js"
+const {  CHAIN_SPECS } = require("@lay2/pw-core")
 
 const RICH_NODE_RPC_URL = NETWORK_CONST[TYPE].rpc_url
 const RICH_NODE_INDEXER_URL = NETWORK_CONST[TYPE].indexer_url
@@ -24,8 +25,15 @@ const Operator = {
   Delete: 'delete',
 }
 
+
+const SECP256K1_BLAKE160_LOCK = CHAIN_SPECS.Aggron.defaultLock
+const PW_LOCK = CHAIN_SPECS.Aggron.pwLock
+
 const SECP256K1_BLAKE160_CODE_HASH =  NETWORK_CONST[TYPE].secp256k1.codeh
 const SECP256K1_BLAKE160_DEP_TXHASH = NETWORK_CONST[TYPE].secp256k1.txh
+
+SECP256K1_BLAKE160_LOCK.script.codeHash = SECP256K1_BLAKE160_CODE_HASH
+SECP256K1_BLAKE160_LOCK.cellDep.outPoint.txHash = SECP256K1_BLAKE160_DEP_TXHASH
 
 const DATASERVER_INFO_DEP_TXHASH = NETWORK_CONST[TYPE].dataserver_info.txh
 const DATASERVER_INFO_CODE_HASH = NETWORK_CONST[TYPE].dataserver_info.codeh
@@ -86,5 +94,7 @@ const DATA_INTEGRITY = {
   DATA_INTEGRITY,
   CODE_HASH_CAPACITY,
   DAPP_ID,
-  CELLS_CACHE_TIME
+  CELLS_CACHE_TIME,
+  SECP256K1_BLAKE160_LOCK,
+  PW_LOCK
 }

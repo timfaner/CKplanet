@@ -15,6 +15,7 @@ const formatCkb = value => {
   return integer + '.' + fraction
 }
 
+
 const textToHex = text => {
   let result = text.trim()
   //if (result.startsWith('0x')) {
@@ -109,6 +110,13 @@ const getTypeScript = (args,codeHash) =>{
 }
 
 
+const fileToBase64 = file => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = error => reject(error);
+})
+
 
 function filterCellsWithTypeScript(filed_cells,{args,codeHash,hashType}){
   let cells = []
@@ -166,7 +174,27 @@ function decodeUnicode(str) {
   return unescape(str);
 }
 
-module.exports = {
+import snakeCaseKeys  from'snakecase-keys'
+
+function camelToUnderscore(key) {
+  var result = key.replace( /([A-Z])/g, " $1" );
+  return result.split(' ').join('_').toLowerCase();
+}
+
+function convertTx(tx){
+  if(tx===undefined ||tx===null){
+    console.warn("Empty tx to convert")
+    return
+  }
+  for(let  dep of tx["cellDeps"]){
+    dep.depType = camelToUnderscore(dep.depType)
+  }
+  tx = snakeCaseKeys(tx) //将key 从camelcase转换成snake case 。e.g. {fooBar:1} => {foo_bar:1}
+  return tx
+}
+
+
+export  {
   filterCellsWithTypeScript,
   encodeUnicode,
   decodeUnicode,
@@ -182,4 +210,6 @@ module.exports = {
   getTxTemplateWithCellsDeps,
   getTypeScript,
   getScriptCapacity,
+  convertTx,
+  fileToBase64
 }

@@ -1,18 +1,20 @@
 <template>
 <div class="py-2">
     <div class="row mx-2 my-2">
-      <el-avatar v-if="show_avatar" shape="square" :size=50  :src="cycle_profile.avatar_url"></el-avatar>
         
         <div class="content mx-4 border px-3 py-3 col-10" style="border-radius: 5px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);background-color: #EBEEF5">
         <div class="row">
-        <h5 class="ml-3"> {{content.title}}  <el-link >posted @ {{cycle_profile.cycle_name}}</el-link>
+        <h5 class="ml-3"> {{user_profile.nickname}}
         </h5>
+        <el-avatar :src="user_profile.avatar_url" :size="100"></el-avatar>
+        </div>
         <div class="ml-auto mr-2">
+
         <el-popover
             placement="top"
             width="160"
             v-model="visible">
-            <p>确定删除吗这条动态吗？</p>
+            <p>确定删除吗这个用户吗？</p>
             <div style="text-align: right; margin: 0">
             <el-button size="mini" type="text" @click="visible = false">取消</el-button>
             <el-button type="primary" size="mini" @click="visible = false">确定</el-button>
@@ -20,43 +22,45 @@
             <el-button slot="reference"  type="text" icon="el-icon-delete"></el-button>
         </el-popover>
             </div>
-        </div>
-        <p>
-            {{content.content}}
-        </p>
-        <i > posted: {{post_time}} </i>
-        </div>
 
     </div>
     </div>
+</div>
 </template>
 
 <script>
 
 export default {
-  name: 'ContentItem',
+  name: 'MemberItem',
+  created(){
+    this.getUser()
+  },
   computed :{
-    post_time :function(){return  new Date(this.content.time).toLocaleString()},
-    cycle_profile : function(){ 
-      return this.$store.state.ckplanet.cycles_pool[this.lock_args][this.cycle_id]["cycle_profile"]
-    },
-    content : function(){
-      return this.$store.state.ckplanet.cycles_pool[this.lock_args][this.cycle_id]["contents"][this.content_id]
+    lock_args: function(){return this.lockargs},
+    user_profile : function(){
+      if (this.lock_args in this.$store.state.ckplanet.user_profiles_pool)
+        return this.$store.state.ckplanet.user_profiles_pool[this.lock_args]
+      else 
+        return { nickname:'',avatar_url:''}
     }
-
   },
   props: {
-    content_id:String,
-    cycle_id:String,
-    lock_args:String,
-    show_avatar:Boolean
-
+    lockargs:String
   },
   data:function(){
     return{
       visible:false
     }
+  },
+  methods: {
+    getUser:function(){
+      if(this.lock_args in this.$store.state.ckplanet.user_profiles_pool)
+        return
+      this.$store.dispatch("getUserProfile",this.lock_args)
+      .catch( (e) => console.error("[MemberItem] Got user profile wrong",this.lock_args,e))
+    }
   }
+
 }
 </script>
 

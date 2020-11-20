@@ -12,7 +12,7 @@
     </el-button>
   </div>
 
-  <el-dialog title="创建新的圈子" :visible.sync="dialogNewCycle">
+  <el-dialog title="创建新的圈子" :visible.sync="dialogNewCycle" :close-on-click-modal='false'>
     <UpdateCycleProfile v-on:closedialog="dialogNewCycle=false" mode="create" ></UpdateCycleProfile>
     <div slot="footer"  class="dialog-footer">
     </div>
