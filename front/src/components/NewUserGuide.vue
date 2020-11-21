@@ -2,25 +2,25 @@
     <div>
         <div v-if="active===0">
             <p>
-                欢迎登陆Ckplanet, 在这个星球上你可以尽情分享你的看法而不必担心自己的数据被拿走
+                Welcome to Ckplanet, you can share your views on this planet without worrying about your data being taken away
             </p>
             <p>
-                接下来将指导你如何登陆
+                Next I will guide you how to log in
             </p>
             </div>
-        <div v-if="active === 1"> 选择服务器 
+        <div v-if="active === 1"> Select server 
             
         </div>
 
 
         <UpdateUserProfile v-if="active===2"></UpdateUserProfile>
 
-        <el-button style="margin-top: 12px;" @click="next">下一步</el-button>
+        <el-button style="margin-top: 12px;" @click="next">Next step</el-button>
 
         <el-steps :active="active" finish-status="success">
-        <el-step title="步骤 1"></el-step>
-        <el-step title="步骤 2"></el-step>
-        <el-step title="步骤 3"></el-step>
+        <el-step title="step 1"></el-step>
+        <el-step title="step 2"></el-step>
+        <el-step title="step 3"></el-step>
         </el-steps>
     </div>
 </template>

@@ -10,7 +10,9 @@
             <p> {{user_profile.nickname}} </p>
           </div>
 
-          <el-dialog  :visible.sync="dialogNewUser" title="更新用户信息" append-to-body :close-on-click-modal='false'>
+
+          <el-dialog  :visible.sync="dialogNewUser" title="Update user information" append-to-body :close-on-click-modal='false'>
+
             <UpdateUserProfile v-on:closedialog="finalizeNewUser"></UpdateUserProfile>
             <div  slot="footer" class="dialog-footer">
           </div>
@@ -21,19 +23,19 @@
               router>
               <el-menu-item route="/LiveFeeds" index="1">
               <i class="el-icon-connection"></i>
-              <span slot="title">我的圈子</span>
+              <span slot="title">My circle</span>
               </el-menu-item>
               <el-menu-item route="/" index="2">
               <i class="el-icon-user"></i>
-              <span slot="title">我的主页</span>
+              <span slot="title">My home page</span>
               </el-menu-item>
               <el-menu-item  route="/more" index="3">
               <i class="el-icon-search"></i>
-              <span slot="title">发现更多</span>
+              <span slot="title">Discover more</span>
               </el-menu-item>
               <el-menu-item route="about" index="4">
               <i class="el-icon-star-on"></i>
-              <span slot="title">关于CKplant</span>
+              <span slot="title">About CKplant</span>
               </el-menu-item>
           </el-menu>
         </div>
@@ -77,7 +79,7 @@ export default {
           return this.user_profiles_pool[this.user_lock_args]
         else
           return {
-            nickname:"请填写昵称",
+            nickname:"Please fill in nickname",
             avatar_url:"https://hiltonsheartland.com/wp-content/uploads/2013/08/unknown-avatar.jpg"
             }
         

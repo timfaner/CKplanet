@@ -1,10 +1,12 @@
 <template>
   <div id="UpdateDataServer">
     <el-form :disabled='btnloading' :model="form">
-      <el-form-item label="服务器ip" :label-width="formLabelWidth">
+
+      <el-form-item label="Server ip" :label-width="formLabelWidth">
         <el-input
           v-model="data_server_ip"
-          placeholder="请输入数据服务器ip"
+          placeholder="Please enter the data server ip"
+
           clearable
         ></el-input>
       </el-form-item>
@@ -18,7 +20,9 @@
           type="primary"
           :loading="btnloading"
           @click="UpdateDataServer()"
-          >保存</el-button
+
+          >SAVE</el-button
+
         >
       </el-form-item>
     </el-form>
@@ -57,7 +61,9 @@ export default {
 
         await user_ds.updateDataServerInfo();
         this.$message({
-          message: "服务器信息连接成功",
+
+          message: "Successfully connected with server information",
+
           type: "success",
         });
 

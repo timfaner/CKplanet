@@ -14,10 +14,12 @@
             placement="top"
             width="160"
             v-model="visible">
-            <p>确定删除吗这个用户吗？</p>
+
+            <p>Are you sure to delete this user?</p>
             <div style="text-align: right; margin: 0">
-            <el-button size="mini" type="text" @click="visible = false">取消</el-button>
-            <el-button type="primary" size="mini" @click="visible = false">确定</el-button>
+            <el-button size="mini" type="text" @click="visible = false">NO</el-button>
+            <el-button type="primary" size="mini" @click="visible = false">YES</el-button>
+
             </div>
             <el-button slot="reference"  type="text" icon="el-icon-delete"></el-button>
         </el-popover>

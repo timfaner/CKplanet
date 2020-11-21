@@ -13,17 +13,19 @@
           Search
         </el-button>
         <el-button v-if="!wallet_connected" @click="dialogSelectWallet = true">
-          连接钱包
+
+          Connect wallet
         </el-button>
 
         <el-button v-if="wallet_connected" @click="dialogSelectWallet = true">
-          切换钱包
+          Switch wallet
         </el-button>
 
         <el-button v-if="walletConnect" @click="dialogUpdateDataServer = true">
-          切换数服务器
+          Switch data server
         </el-button>
-        <el-button @click="logout()"> 退出</el-button>
+        <el-button @click="logout()"> quit</el-button>
+
         <div>
           <p>{{ user_address }}</p>
         </div>
@@ -31,7 +33,9 @@
 
       <el-dialog
         :visible.sync="dialogUpdateDataServer"
-        title="连接数据服务器"
+
+        title="Connect to data server"
+
         append-to-body
         :close-on-click-modal="false"
       >
@@ -43,7 +47,9 @@
 
       <el-dialog
         :visible.sync="dialogNewUser"
-        title="新建用户信息"
+
+        title="Create a new user information"
+
         append-to-body
         :close-on-click-modal="false"
       >
@@ -55,7 +61,9 @@
 
       <el-dialog
         :visible.sync="dialogSelectWallet"
-        title="选择钱包"
+
+        title="Choose a wallet"
+
         :modal="false"
         :close-on-click-modal="false"
       >
@@ -215,7 +223,9 @@ export default {
             cycle_id: this.input_cycle_id,
           },
         });
-      else this.$message("用户不存在");
+
+      else this.$message("User does not exist");
+
     },
     async test() {},
 
@@ -274,7 +284,9 @@ export default {
         console.log("logged in");
       } catch (error) {
         console.error("Conncet wallet error", error);
-        this.notifiy("连接钱包失败", "Error");
+
+        this.notifiy("Failed to connect to wallet", "Error");
+
         return;
       }
 
@@ -303,7 +315,9 @@ export default {
         } else {
           await user_ds.getDataserverAuth();
           this.$message({
-            message: "成功连接服务器",
+
+            message: "Successfully connected to the server",
+
             type: "success",
           });
           this.dataServerConnect(true);
@@ -323,11 +337,13 @@ export default {
         }
 
         this.$parent.loadings = false;
-        this.notifiy("连接钱包成功", "Info");
+
+        this.notifiy("Successfully connected to the wallet", "Info");
         this.dialogSelectWallet = false;
       } catch (error) {
         this.$parent.loadings = false;
-        this.notifiy("连接钱包失败", "Error");
+        this.notifiy("Failed to connect to wallet", "Error");
+
         console.error(error);
       }
     },
@@ -335,10 +351,12 @@ export default {
     loginToCkplanet: function() {
       console.log("logged to ckplanet");
       this.getManageCycles(this.user_lock_args).catch((e) =>
-        this.$message.error("获取用户管理的圈子失败", e)
+
+        this.$message.error("Failed to get user-managed circles", e)
       );
       this.getJoinCycles(this.user_lock_args).catch((e) =>
-        this.$message.error("获取用户加入的的圈子失败", e)
+        this.$message.error("Failed to get user-joined circles", e)
+
       );
     },
 

@@ -5,7 +5,9 @@
             <el-avatar :src="profile.avatar_url" :size="100"></el-avatar>
             <div class="col">
                 <h4> {{profile.cycle_name}} 
-                    <el-tooltip class="item" effect="dark" content="这是一个私有圈子" placement="bottom">
+
+                    <el-tooltip class="item" effect="dark" content="This is a private circle" placement="bottom">
+
                         <i v-if="profile.type==='close'" class="el-icon-lock"></i>
                     </el-tooltip>
                 </h4>
@@ -50,7 +52,9 @@
             <el-tab-pane>
                 <span slot="label"><i class="el-icon-date"></i> Members ({{cycle.user_lists.length}}) </span>
                 <div>
-                <input v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
+
+                <input v-model="userToAdd" placeholder="Enter the lock args of the user you want to add">  
+
                 <el-button @click="addUser"> Add user </el-button>
 
                 <MemberItem v-for="user in cycle.user_lists"
@@ -159,7 +163,9 @@ export default {
             try {
                 let exists = await this.checkUserExists(this.userToAdd)
                 if(!exists){
-                    this.$message("用户" + this.userToAdd + "不存在")
+
+                    this.$message("User" + this.userToAdd + "does not exist")
+
                     return
                 }
                 await this.updateTokenList()
@@ -277,11 +283,13 @@ export default {
         let joined_cycle = this.$store.state.ckplanet.user_joined_cycles_index
 
         if(this.lock_args === this.user_lock_args){
-            this.$$message("不能加入自己的圈子")
+
+            this.$$message("You cannot join your own circle")
             return
         }
         if(this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id) !=="disjointed"){
-                this.$message("已经发送过请求/加入圈子啦")
+                this.$message("You have sent a request/join the circle")
+
                 return
             }
 
@@ -301,7 +309,8 @@ export default {
         //TODO 发送给cycle 拥有者
 
     
-        this.getJoinCyclesIndex(this.user_lock_args).catch((e) => this.$message("更新用户列表失败",e))
+        this.getJoinCyclesIndex(this.user_lock_args).catch((e) => this.$message("Failed to update user list",e))
+
         
         },
         test:function(){
@@ -313,7 +322,9 @@ export default {
                 return
             }
             if(!this.logged_in){
-                this.$message("未登录")
+
+                this.$message("Not logged in")
+
                 return
             }
             console.log("fetch date of " + this.lock_args + " "+ this.cycle_id)
