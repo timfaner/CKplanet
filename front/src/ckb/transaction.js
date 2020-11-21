@@ -248,7 +248,9 @@ async function changeOnChain(
 
 
 
-    window.app.$loading({text:"请在钱包中完成授权"})
+
+    window.app.$loading({text:"Please authorize in the wallet"})
+
 
     let tx
     if(wallet==="ckb"){
@@ -269,7 +271,9 @@ async function changeOnChain(
     let e = new CustomEvent("tx-status",{ 'detail' :{ tx_hash:'',status:"preparing to sign tx"}})
     window.document.body.dispatchEvent(e)
 
-    window.app.$loading({text:"请在钱包中完成授权"}).close()
+
+    window.app.$loading({text:"Please authorize in the wallet"}).close()
+
 
 
     e = new CustomEvent("tx-status",{ 'detail' :{ tx_hash:'',status:"sending tx to node"}})

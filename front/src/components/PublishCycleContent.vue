@@ -3,7 +3,7 @@
 
     <el-form :model="form">
         <el-form-item label="Planet" :label-width="formLabelWidth">
-          <el-select v-model="cycle_id" placeholder="请选择">
+          <el-select v-model="cycle_id" placeholder="please choose">
             <el-option
               v-for="cycle in cycles.ego_cycles"
               :key="cycle.cycle_id"
@@ -156,7 +156,7 @@ export default {
         )
 
         this.$message({
-            message: '成功'+ this.mode + this.cycle_publish_to.cycle_profile.cycle_name + '内容',
+            message: 'success'+ this.mode + this.cycle_publish_to.cycle_profile.cycle_name + 'content',
             type: 'success'
           })
 

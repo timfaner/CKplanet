@@ -63,9 +63,9 @@
 
   <div class="container">
     <div  class="px-4 py-2 my-2 row" style="border-radius: 10px;background-color: #EBEEF5">
-    <span class="px-2 py-2 t1" > xx 申请加入圈子 x </span>
-      <el-button class="ml-auto" type="danger">否认</el-button>
-      <el-button type=primary>同意</el-button>
+    <span class="px-2 py-2 t1" > xx Apply to join a circle x </span>
+      <el-button class="ml-auto" type="danger">refuse</el-button>
+      <el-button type=primary>agree</el-button>
     </div>
   </div>
   </el-tab-pane>

@@ -15,21 +15,27 @@
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
       </el-form-item>
-      <el-form-item label="圈子名字" :label-width="formLabelWidth">
+
+      <el-form-item label="Circle name" :label-width="formLabelWidth">
         <el-input v-model="cycle_name" autocomplete="off"></el-input>
       </el-form-item>
 
-      <el-form-item label="简介" :label-width="formLabelWidth">
+      <el-form-item label="Profile" :label-width="formLabelWidth">
+
         <el-input
           type="textarea"
           :rows="4"
           v-model="introduction"
-          placeholder="请输入简介"
+
+          placeholder="Please enter a profile"
+
         ></el-input>
       </el-form-item>
       <el-form-item>
         <el-checkbox :disabled="mode !== 'create'" v-model="close_checked"
-          >设为私有圈子</el-checkbox
+
+          >Set as private circle</el-checkbox
+
         >
       </el-form-item>
       <el-form-item>
@@ -39,7 +45,9 @@
       </el-form-item>
       <el-form-item>
         <el-button :loading="btnloading" type="primary" @click="Update()"
-          >保存</el-button
+
+          >SAVE</el-button
+
         >
       </el-form-item>
     </el-form>
@@ -169,7 +177,9 @@ export default {
           await data_setter.postData([], data_id, access_type, true, tx_id);
         }
         this.$message({
-          message: "成功" + this.mode + "圈子信息",
+
+          message: "success" + this.mode + "Circle information",
+
           type: "success",
         });
 
@@ -230,7 +240,9 @@ export default {
         //this.$message.error('上传头像图片只能是 JPG 格式!');
       }
       if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
+
+        this.$message.error("The size of the uploaded avatar image cannot exceed 2MB！");
+
       }
       return isLt2M;
     },

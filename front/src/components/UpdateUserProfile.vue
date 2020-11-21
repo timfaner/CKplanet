@@ -89,7 +89,7 @@ export default {
         )
 
         this.$message({
-            message: '成功更新个人信息',
+            message: 'Successfully updated personal information',
             type: 'success'
           })
 
@@ -138,7 +138,7 @@ export default {
           //this.$message.error('上传头像图片只能是 JPG 格式!');
         }
         if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!');
+          this.$message.error('The size of the uploaded profile picture cannot exceed 2MB!');
         }
         return isLt2M;
       }
