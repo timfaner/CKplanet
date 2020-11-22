@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="abi-4.5.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/jar_files/abi-4.5.0.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/bcprov-jdk15on-1.61.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/jackson-annotations-2.8.0.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/jackson-core-2.8.5.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/jackson-databind-2.8.5.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/rlp-4.5.0.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/slf4j-api-1.7.25.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jar_files/utils-4.5.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

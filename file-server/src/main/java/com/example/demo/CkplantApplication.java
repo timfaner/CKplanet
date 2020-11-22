@@ -10,11 +10,12 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 public class CkplantApplication  {
 
     public static void main(String[] args) {
-        if(args.length!=2){
-            System.out.println("必须传入rpc参数和mongodb地址");
+        if(args.length!=1){
+            System.out.println("you must configure the rpc address");
+            return;
         }
         FileServerController.setRpcAddress(args[0]);
-        System.out.println("rpc地址为："+FileServerController.getRpcAddress());
+        System.out.println("rpc address："+FileServerController.getRpcAddress());
         SpringApplication.run(CkplantApplication.class, args);
     }
 }

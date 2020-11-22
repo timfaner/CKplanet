@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6554f283-7555-4e81-a192-44099d23efda" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/file-server/src/main/java/com/example/demo/service/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file-server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/file-server/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file-server/src/main/java/com/example/demo/controller/ClusterDemoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/file-server/src/main/java/com/example/demo/controller/ClusterDemoController.java" afterDir="false" />
-    </list>
+    <list default="true" id="6554f283-7555-4e81-a192-44099d23efda" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,17 +31,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IgnoredFileRootStore">
-    <option name="generatedRoots">
-      <set>
-        <option value="E:\document\code\CKplanet\.idea" />
-      </set>
-    </option>
-  </component>
   <component name="ProjectId" id="1htqA3VdTDTJaHHvxGVWeVbO3NE" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
@@ -53,11 +41,15 @@
     <property name="RequestMappingsPanelOrder1" value="1" />
     <property name="RequestMappingsPanelWidth0" value="75" />
     <property name="RequestMappingsPanelWidth1" value="75" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="go.import.settings.migrated" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/file-server/pom.xml" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
@@ -94,6 +86,7 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -106,11 +99,12 @@
       <updated>1600840588858</updated>
       <workItem from="1600840590986" duration="2442000" />
       <workItem from="1600864051555" duration="582000" />
+      <workItem from="1605945656201" duration="11000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
     <state x="614" y="306" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog" timestamp="1600840666023">
