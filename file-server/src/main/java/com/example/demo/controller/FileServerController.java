@@ -213,9 +213,21 @@ public class FileServerController {
             String cpk = jsonObject.getString("cpk");
             String type = jsonObject.getString("type");
             AuthRequestEntity entity = new AuthRequestEntity(accessToken, msg, cpk);
-            if (!AuthenticationService.verify(entity.getAccessToken(), entity.msg, entity.getCpk())) {
-                return new AuthResponseEntity(UNAUTHORIZED);
+            if(type.equals("ckb")){
+                if (!AuthenticationService.verify(entity.getAccessToken(), entity.msg, entity.getCpk())) {
+                    log4js.warning("ckb类型签名认证失败"+"，accessToken:"+accessToken+",msg:"+msg+",cpk:"+cpk);
+                    return new AuthResponseEntity(UNAUTHORIZED);
+                }
+            }else if(type.equals("eth")){
+                if (!AuthenticationService.verifyEthSignature(entity.getAccessToken(),entity.getCpk(),entity.getMsg())){
+                    log4js.warning("以太坊类型签名认证失败"+"，accessToken:"+accessToken+",msg:"+msg+",cpk:"+cpk);
+                    return new AuthResponseEntity(UNAUTHORIZED);
+                }
+            }else{
+                log4js.warning("类型错误");
+                return new AuthResponseEntity(FAILED);
             }
+
             KeyPair keyPair = AuthenticationService.generateKeyPair();
             AuthResponseEntity responseEntity = new AuthResponseEntity(SUCCESS);
             responseEntity.setPk("0x" + keyPair.getPub());
@@ -302,6 +314,8 @@ public class FileServerController {
             return NOT_FOUND;
         }
     }
+
+
 }
 
 
