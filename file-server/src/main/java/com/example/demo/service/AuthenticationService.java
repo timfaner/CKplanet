@@ -30,7 +30,7 @@ public class AuthenticationService {
     static final String MSK = "3f9fe839273f21567f08441470e797c42535409253b5eae4501d42506ffa5c4d";
     public static final String PERSONAL_MESSAGE_PREFIX = "\u0019Ethereum Signed Message:\n";
 
-    public static boolean verifyEthSignature(String signature,String address,String message) {
+    public static boolean verifyEthSignature(String signature, String address, String message) {
         String prefix = PERSONAL_MESSAGE_PREFIX + message.length();
         byte[] msgHash = Hash.sha3((prefix + message).getBytes());
 
@@ -68,7 +68,7 @@ public class AuthenticationService {
             }
         }
 
-        return  match;
+        return match;
     }
 
     static String compressPubKey(SECP256K1.PublicKey publicKey) {

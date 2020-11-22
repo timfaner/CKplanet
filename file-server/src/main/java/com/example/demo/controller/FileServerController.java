@@ -213,17 +213,17 @@ public class FileServerController {
             String cpk = jsonObject.getString("cpk");
             String type = jsonObject.getString("type");
             AuthRequestEntity entity = new AuthRequestEntity(accessToken, msg, cpk);
-            if(type.equals("ckb")){
+            if (type.equals("ckb")) {
                 if (!AuthenticationService.verify(entity.getAccessToken(), entity.msg, entity.getCpk())) {
-                    log4js.warning("ckb类型签名认证失败"+"，accessToken:"+accessToken+",msg:"+msg+",cpk:"+cpk);
+                    log4js.warning("ckb类型签名认证失败" + "，accessToken:" + accessToken + ",msg:" + msg + ",cpk:" + cpk);
                     return new AuthResponseEntity(UNAUTHORIZED);
                 }
-            }else if(type.equals("eth")){
-                if (!AuthenticationService.verifyEthSignature(entity.getAccessToken(),entity.getCpk(),entity.getMsg())){
-                    log4js.warning("以太坊类型签名认证失败"+"，accessToken:"+accessToken+",msg:"+msg+",cpk:"+cpk);
+            } else if (type.equals("eth")) {
+                if (!AuthenticationService.verifyEthSignature(entity.getAccessToken(), entity.getCpk(), entity.getMsg())) {
+                    log4js.warning("以太坊类型签名认证失败" + "，accessToken:" + accessToken + ",msg:" + msg + ",cpk:" + cpk);
                     return new AuthResponseEntity(UNAUTHORIZED);
                 }
-            }else{
+            } else {
                 log4js.warning("类型错误");
                 return new AuthResponseEntity(FAILED);
             }

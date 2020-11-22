@@ -5,7 +5,7 @@ package com.example.demo.entity;
  */
 public class KeyPair {
     public String pri;
-    public  String pub;
+    public String pub;
 
     public String getPri() {
         return pri;
