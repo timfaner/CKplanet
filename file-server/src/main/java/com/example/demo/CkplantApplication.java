@@ -10,7 +10,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 public class CkplantApplication  {
 
     public static void main(String[] args) {
-        if(args.length!=1){
+        if(args.length<1){
             System.out.println("you must configure the rpc address");
             return;
         }
