@@ -103,10 +103,15 @@ EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app.jar"]
 ```
 copy the `file-server-0.0.1-SNAPSHOT.jar` into image floder
+
 then run `sudo docker build -t "app".` in image floder.
+
 you can see a `app` image in docker by this command `sudo docker images`
+
 then you can run this image in docker 
+
 `sudo docker run -t -i  -p 8888:8877 app  http://ckplanet.beihanguni.cn:8114/rpc  --spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user   /bin/bash`
+
 note: 
 - `http://ckplanet.beihanguni.cn:8114/rpc`:is the ckb rpc address
 - `spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user`:is the mongodb address
