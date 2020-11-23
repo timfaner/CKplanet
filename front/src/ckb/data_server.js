@@ -110,12 +110,13 @@ const getMpk = async (server_url) =>{
 
 
 
-const getAuth = async (server_url,access_token,msg,cpk) =>{
+const getAuth = async (server_url,access_token,msg,cpk,type) =>{
 
     let payload = {
         access_token,
-        msg:"Nervos Message:" + msg,
+        msg,
         cpk,
+        type
     }
     if (MOCK_API.GET_AUTH){
       return data_server_res.getAuth(payload)

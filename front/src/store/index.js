@@ -249,7 +249,7 @@ export default new Vuex.Store({
         address: provider.address.toCKBAddress(),
         lock_args: provider.address.toLockScript().args,
         lock_script: provider.address.toLockScript(),
-        public_key: "",
+        public_key: provider.address.addressString,
         lock_hash: provider.address.toLockScript().toHash(),
         balance_summary: {
           inuse: 0,
@@ -365,11 +365,25 @@ export default new Vuex.Store({
       let sth = getters.getSthFromPool(lock_args, "data_server");
       const ip = sth.ip;
 
+      let msg
+      switch (state.wallet) {
+        case "ckb":
+          msg = "Nervos Message:" + "public" //keypering megic word
+          break;
+        case "eth":
+          msg = "public"
+          break;
+        default:
+          console.error("Invalid wallet type")
+          break;
+      }
+
       let res = await getAuth(
         ip,
         state.user_id_public.access_token,
-        "public",
-        state.user_chain_info.public_key
+        msg,
+        state.user_chain_info.public_key,
+        state.wallet
       );
       commit("updatePublicId", res);
       commit("updateAccessTokens", {
@@ -382,11 +396,24 @@ export default new Vuex.Store({
       const lock_args = state.user_chain_info.lock_args;
       let sth = getters.getSthFromPool(lock_args, "data_server");
       const ip = sth.ip;
+      let msg
+      switch (state.wallet) {
+        case "ckb":
+          msg = "Nervos Message:" + "private" //keypering megic word
+          break;
+        case "eth":
+          msg = "private"
+          break;
+        default:
+          console.error("Invalid wallet type")
+          break;
+      }
       let res = await getAuth(
         ip,
         state.user_id_private.access_token,
-        "private",
-        state.user_chain_info.public_key
+        msg,
+        state.user_chain_info.public_key,
+        state.wallet
       );
       commit("updatePrivateId", res);
       commit("updateAccessTokens", {
