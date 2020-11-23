@@ -1,0 +1,26 @@
+{
+  "name": "ckplanet-notify-server",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node server.js 9216"
+  },
+  "description": "\"websocket server for ckplanet notify\"",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timfaner/CKplanet.git"
+  },
+  "keywords": [
+    "websocket",
+    "ckb"
+  ],
+  "author": "TimFan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/timfaner/CKplanet/issues"
+  },
+  "homepage": "https://github.com/timfaner/CKplanet#readme",
+  "dependencies": {
+    "ws": "*"
+  }
+}
