@@ -104,7 +104,24 @@ ENTRYPOINT ["java","-jar","/app.jar"]
 ```
 copy the `file-server-0.0.1-SNAPSHOT.jar` into image floder
 
-then run `sudo docker build -t "app".` in image floder.
+then run `sudo docker build -t "app".` in image floder,if success you can see
+```
+Sending build context to Docker daemon  43.86MB
+Step 1/4 : FROM java:8-alpine
+ ---> 3fd9dd82815c
+Step 2/4 : ADD  file-server-0.0.1-SNAPSHOT.jar app.jar
+ ---> 03bcc45c1901
+Step 3/4 : EXPOSE 8000-9000
+ ---> Running in c308ee1026c0
+Removing intermediate container c308ee1026c0
+ ---> ee73d2e707f5
+Step 4/4 : ENTRYPOINT ["java","-jar","/app.jar"]
+ ---> Running in 098d17d4c05f
+Removing intermediate container 098d17d4c05f
+ ---> dd9c1b52ec25
+Successfully built dd9c1b52ec25
+Successfully tagged app:latest
+```
 
 you can see a `app` image in docker by this command `sudo docker images`
 
@@ -161,7 +178,7 @@ vethe6664b6: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
 ```
-- `8888:8877`:you can access the data server by port `8888`
+- `8888:8877`:you can access the data server port `8877` by port `8888`
 
 ### How to Use
  1. /v2/getMpk
