@@ -17,8 +17,9 @@ public class UploadRequestEntity {
     public String url;
     public String data_hash;
 
-    public UploadRequestEntity(){
+    public UploadRequestEntity() {
     }
+
     public UploadRequestEntity(String dataId, String accessToken, String data, String sig, String txId, String pk, String cert, String url, String dataHash) {
         this.data_id = dataId;
         this.access_token = accessToken;
