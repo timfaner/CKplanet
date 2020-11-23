@@ -229,7 +229,7 @@ async function changeOnChain(
     }
 
     else if(wallet==="ckb"){
-    let {tmp,tmp1} =  jointTx(
+    let tmp =  jointTx(
       empty_cells_pool,
       current_cell,
       mode,
@@ -238,8 +238,8 @@ async function changeOnChain(
       current_cells_type,
       type_args
     )
-    rawTx = tmp
-    cells_to_delete = tmp1
+    rawTx = tmp.rawTx
+    cells_to_delete = tmp.cells_to_delete
 
     }
 

@@ -237,11 +237,14 @@ export default {
       });
     },
     logout: async function() {
+      if(window._PWCore){
       this.pw = {};
       // web3Modal: null,
       (this.chainId = 1), (this.builder = {});
       await PWCore.provider.close();
       await this.web3Modal.clearCachedProvider();
+      }
+      
 
       window.localStorage.setItem("vuex", "");
       this.$store.dispatch("resetAllState");
@@ -268,7 +271,6 @@ export default {
 
       console.log("getting wallet auth...");
 
-      
 
       this.updateWallet(wallet);
 
@@ -287,7 +289,7 @@ export default {
         console.error("Conncet wallet error", error);
 
         this.notifiy("Failed to connect to wallet", "Error");
-
+        this.$parent.loadings = false;
         return;
       }
 
