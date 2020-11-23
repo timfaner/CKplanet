@@ -219,7 +219,8 @@ public class FileServerController {
                     return new AuthResponseEntity(UNAUTHORIZED);
                 }
             } else if (type.equals("eth")) {
-                if (!AuthenticationService.verifyEthSignature(entity.getAccessToken(), entity.getCpk(), entity.getMsg())) {
+                System.out.println(entity.toString());
+                if (!AuthenticationService.verifyEthSignature(entity.getAccessToken(), "0x"+entity.getCpk(), entity.getMsg())) {
                     log4js.warning("以太坊类型签名认证失败" + "，accessToken:" + accessToken + ",msg:" + msg + ",cpk:" + cpk);
                     return new AuthResponseEntity(UNAUTHORIZED);
                 }

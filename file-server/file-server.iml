@@ -25,8 +25,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="crypto-4.5.0" level="project" />
-    <orderEntry type="library" name="utils-4.5.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.11" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.60" level="project" />
     <orderEntry type="library" name="Maven: org.nervos.ckb:core:0.24.0" level="project" />
@@ -114,13 +112,14 @@
     <orderEntry type="library" name="Maven: org.ow2.asm:asm-util:5.0.3" level="project" />
     <orderEntry type="library" name="Maven: com.github.jnr:jnr-a64asm:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.github.jnr:jnr-x86asm:1.0.2" level="project" />
-    <orderEntry type="library" name="Maven: org.web3j:crypto:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.web3j:rlp:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.web3j:utils:3.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.web3j:crypto:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.web3j:abi:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.web3j:rlp:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.web3j:utils:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.30" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.11.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.11.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.11.2" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.30" level="project" />
     <orderEntry type="library" name="Maven: net.i2p.crypto:eddsa:0.3.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-starter-test:2.3.4.RELEASE" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-test:2.3.4.RELEASE" level="project" />

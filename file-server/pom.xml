@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.web3j</groupId>
             <artifactId>crypto</artifactId>
-            <version>3.3.1</version>
+            <version>4.5.0</version>
         </dependency>
 
         <!-- Install Ed25519-Java - Ed25519 EdDSA library -->

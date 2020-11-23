@@ -36,3 +36,4 @@ public class MongoDBService {
     }
 
 }
+//    sudo docker run -t -i  -p 8888:8877 server http://ckplanet.beihanguni.cn:8114/rpc  --spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user   /bin/bash
