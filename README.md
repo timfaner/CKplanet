@@ -114,7 +114,53 @@ then you can run this image in docker
 
 note: 
 - `http://ckplanet.beihanguni.cn:8114/rpc`:is the ckb rpc address
-- `spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user`:is the mongodb address
+- `spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user`:is the mongodb address,`172.17.0.1` is the docker network address, you can see by `ifconfig`
+```
+ubuntu@ckplanet:~/filer-server-docker$ ifconfig
+docker0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
+        inet6 fe80::42:1fff:fe14:a444  prefixlen 64  scopeid 0x20<link>
+        ether 02:42:1f:14:a4:44  txqueuelen 0  (Ethernet)
+        RX packets 4515351  bytes 1981720095 (1.9 GB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 5290891  bytes 1191038932 (1.1 GB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.53.0.5  netmask 255.255.255.0  broadcast 10.53.0.255
+        inet6 fe80::20d:3aff:fec7:51de  prefixlen 64  scopeid 0x20<link>
+        ether 00:0d:3a:c7:51:de  txqueuelen 1000  (Ethernet)
+        RX packets 59155843  bytes 24943057993 (24.9 GB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 56745533  bytes 12956999015 (12.9 GB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 8987036  bytes 4986243709 (4.9 GB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 8987036  bytes 4986243709 (4.9 GB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+veth6a5df31: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet6 fe80::ccbf:e4ff:feea:2c0b  prefixlen 64  scopeid 0x20<link>
+        ether ce:bf:e4:ea:2c:0b  txqueuelen 0  (Ethernet)
+        RX packets 191  bytes 60114 (60.1 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 370  bytes 34239 (34.2 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+vethe6664b6: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet6 fe80::38c1:32ff:fe78:18a2  prefixlen 64  scopeid 0x20<link>
+        ether 3a:c1:32:78:18:a2  txqueuelen 0  (Ethernet)
+        RX packets 4472493  bytes 2029687927 (2.0 GB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 5234093  bytes 1181191443 (1.1 GB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+```
 - `8888:8877`:you can access the data server by port `8888`
 
 ### How to Use
