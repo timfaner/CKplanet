@@ -128,7 +128,36 @@ you can see a `app` image in docker by this command `sudo docker images`
 then you can run this image in docker 
 
 `sudo docker run -t -i  -p 8888:8877 app  http://ckplanet.beihanguni.cn:8114/rpc  --spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user   /bin/bash`
+if success,you can see
+```
+ubuntu@ckplanet:~/filer-server-docker$ sudo docker run -t -i  -p 8877:8877 data  http://ckplanet.beihanguni.cn:8114/rpc  --spring.data.mongodb.uri=mongodb://1727.0.1:27018/user   /bin/bash
+rpc address：http://ckplanet.beihanguni.cn:8114/rpc
 
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.3.4.RELEASE)
+
+2020-11-23 04:13:55.104  INFO 1 --- [           main] com.example.demo.CkplantApplication      : Starting CkplantApplication v0.0.1-SNAPSHOT on 0fc6740a72f4 with PID 1 (/app.jar started by root in /)
+2020-11-23 04:13:55.112  INFO 1 --- [           main] com.example.demo.CkplantApplication      : No active profile set, falling back to default profiles: default
+2020-11-23 04:13:56.774  INFO 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2020-11-23 04:13:56.804  INFO 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 21ms. Found 0 MongoDB repository interfaces.
+2020-11-23 04:13:57.800  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8877 (http)
+2020-11-23 04:13:57.822  INFO 1 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2020-11-23 04:13:57.823  INFO 1 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.38]
+2020-11-23 04:13:57.926  INFO 1 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2020-11-23 04:13:57.927  INFO 1 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2612 ms
+2020-11-23 04:13:58.179  INFO 1 --- [           main] org.mongodb.driver.cluster               : Cluster created with settings {hosts=[172.17.0.1:27018], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms'}
+2020-11-23 04:13:58.327  INFO 1 --- [72.17.0.1:27018] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:1, serverValue:8}] to 172.17.0.1:27018
+2020-11-23 04:13:58.341  INFO 1 --- [72.17.0.1:27018] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=172.17.0.1:27018, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=9, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=4975208}
+2020-11-23 04:13:59.455  INFO 1 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2020-11-23 04:13:59.739  WARN 1 --- [           main] ion$DefaultTemplateResolverConfiguration : Cannot find template location: classpath:/templates/ (please add some templates or check your Thymeleaf configuration)
+2020-11-23 04:13:59.955  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8877 (http) with context path ''
+
+```
 note: 
 - `http://ckplanet.beihanguni.cn:8114/rpc`:is the ckb rpc address
 - `spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user`:is the mongodb address,`172.17.0.1` is the docker network address, you can see by `ifconfig`
