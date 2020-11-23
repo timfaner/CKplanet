@@ -3,274 +3,115 @@
 ### About Data Server
 data server provide service for dapp and communicates with the ckb chain
 ### How to Install
-1.  **How to Install JDK on Ubuntu**
+**you should install docker in your machine before install**
+#### install mongodb
+pull a mongodb image in docker `sudo  docker pull mongo:latest`
+if success,you can see
+```
+latest: Pulling from library/mongo
+171857c49d0f: Pull complete 
+419640447d26: Pull complete 
+61e52f862619: Pull complete 
+892787ca4521: Pull complete 
+06e2d54757a5: Pull complete 
+e2f7d90822f3: Pull complete 
+f518d3776320: Pull complete 
+feb8e9d469d8: Pull complete 
+e70918e624e3: Pull complete 
+cfd619253c19: Pull complete 
+b4be7d0f542e: Pull complete 
+b1ee54282adf: Pull complete 
+Digest: sha256:7aa0d854df0e958f26e11e83d875d0cccc53fab1ae8da539070adfc41ab58ace
+Status: Downloaded newer image for mongo:latest
+docker.io/library/mongo:latest
+```
+then run mogodb 
+```
+ sudo  docker run -itd --name mongos -p 27018:27017 mongo
+```
+if success,you can see
+```
+ubuntu@ckplanet:~/filer-server-docker$ sudo  docker run -itd --name mongos -p 27018:27017 mongo
+33822c78562d293a231024f848905ab7ff7372d2af77c0530a0f600851450537
+```
+enter mogodb and create a user database
+
+```
+sudo docker exec  -it mongos mongo
+MongoDB shell version v4.4.2
+connecting to: mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("47e1afde-cb97-42a2-94ed-302f138cef4d") }
+MongoDB server version: 4.4.2
+Welcome to the MongoDB shell.
+For interactive help, type "help".
+For more comprehensive documentation, see
+	https://docs.mongodb.com/
+Questions? Try the MongoDB Developer Community Forums
+	https://community.mongodb.com
 ---
-There are several JDK implementations available for Linux, such as Oracle JDK, OpenJDK, Sun JDK, IBM JDK and GNU Java Compiler. We shall choose the Oracle JDK 8. Ubuntu chooses OpenJDK as its default JDK, which is not 100% compatible with Oracle JDK.
-
-- **Step 1: Download and Install JDK**
-
-1.Goto JDK (Java SE) download site @ [http://www.oracle.com/technetwork/java/javase/downloads/index.html](http://www.oracle.com/technetwork/java/javase/downloads/index.html). Under "Java Platform, Standard Edition" ⇒ "Java SE 11.0.{x}" ⇒ Click JDK's "Download" ⇒ Under "Java SE Development Kit 11.0.{x}" ⇒ Check "Accept License Agreement" ⇒ Select "Linux", "tar.gz" package, (e.g., "jdk-13.0.{x}-linux-x64_bin.tar.gz" - 171MB).
-The tarball will be downloaded in directory "~/Downloads", by default.
-2.We shall install JDK under "/usr/local/java" (or Ubuntu's default JDK directory /usr/lib/jvm; or /opt/java). First, create a directory "java" under "/usr/local". Open a Terminal and issue these commands:
-
-```bash
-$ cd /usr/local
-$ sudo mkdir java
-```
-
-Extract the downloaded package (Check your downloaded filename!)
-
-```bash
-$ cd /usr/local/java
-$ sudo tar xzvf ~/Downloads/jdk-13.0.{x}-linux-x64_bin.tar.gz
-       // x: extract, z: for unzipping gz, v: verbose, f: filename
-```
-
-JDK shall be extracted in a folder "/usr/local/java/jdk-13.0.{x}", where {x} is the update number.
-3.Inform the Ubuntu to use this JDK/JRE:
-
-```bash
-// Setup the location of java, javac and javaws
-$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/local/java/jdk-13.0.{x}/bin/java" 1
-      // --install symlink name path priority
-$ sudo update-alternatives --install "/usr/bin/javac" "javac" "/usr/local/java/jdk-13.0.{x}/bin/javac" 1
-$ sudo update-alternatives --install "/usr/bin/javaws" "javaws" "/usr/local/java/jdk-13.0.{x}/bin/javaws" 1
-// Use this Oracle JDK/JRE as the default
-$ sudo update-alternatives --set java /usr/local/java/jdk-13.0.{x}/bin/java
-      // --set name path
-$ sudo update-alternatives --set javac /usr/local/java/jdk-13.0.{x}/bin/javac
-$ sudo update-alternatives --set javaws /usr/local/java/jdk-13.0.{x}/bin/javaws
-```
-The above steps set up symlinks java, javac, javaws at /usr/bin (which is in the PATH), that link to /etc/alternatives and then to JDK bin directory.
-The "alternatives" system aims to resolve the situation where several programs fulfilling the same function (e.g., different version of JDKs). It sets up symlinks thru /etc/alternatives to refer to the actual programs to be used.
-```bash
-$ ls -ld /usr/bin/java*
-lrwxrwxrwx 1 root root xx xxx xx xx:xx /usr/bin/java -> /etc/alternatives/java
-lrwxrwxrwx 1 root root xx xxx xx xx:xx /usr/bin/javac -> /etc/alternatives/javac
-lrwxrwxrwx 1 root root xx xxx xx xx:xx /usr/bin/javaws -> /etc/alternatives/javaws
-
-$ ls -ld /etc/alternatives/java*
-lrwxrwxrwx 1 root root xx xxx xx xx:xx /etc/alternatives/java -> /usr/local/java/jdk-13.0.{x}/bin/java
-lrwxrwxrwx 1 root root xx xxx xx xx:xx /etc/alternatives/javac -> /usr/local/java/jdk-13.0.{x}/bin/javac
-lrwxrwxrwx 1 root root xx xxx xx xx:xx /etc/alternatives/javaws -> /usr/local/java/jdk-13.0.{x}/bin/javaws
-```
-Alternatively, you can include the JDK's bin and JRE's bin into the PATH directly.
-4. To verify the JDK installation, issue these commands:
-```bash
-// Show the Java Compiler (javac) version
-$ javac -version
-javac 11.0.{x}
- 
-// Show the Java Runtime (java) version
-$ java -version
-java version "11.0.{x}"
-......
- 
-// Show the location of javac and java
-$ which javac
-/usr/bin/javac
-
-$ which java
-/usr/bin/java
-```
-5.[Don't Do this step - It is taken care by "alternative" in Step 3. Keep here to show you how to set PATH.]
-Add JDK's binary directory ("bin") to the "PATH" by editing "/etc/profile":
-```bash
-$ cd /etc
-$ gksudo gedit profile   // OR "sudo nano profile" to use the console-based nano editor
-```
-Add these lines at the end of the file "/etc/profile", replace "{x}" with the actual number:
-```bash
-export JAVA_HOME=/usr/local/java/jdk-13.0.{x}
-export PATH=$JAVA_HOME/bin:$PATH
-```
-Rerun the configuration file by:
-```bash
-// Refresh
-$ source /etc/profile
- 
-// Check the new settings for JAVA_HOME and PATH
-$ echo $JAVA_HOME
-/usr/local/java/jdk-13.0.{x}
- 
-$ echo $PATH
-.....:/usr/local/java/jdk-13.0.{x}/bin
-```
-- **Step 2: Compile and Run a Hello-world Java Program**
-
-1.File Explorer ⇒ Home ⇒ Create a new folder called "myProject" to keep our works.
-2.Open "Text Editor" (gedit). Enter the following source code and save as "Hello.java" under the "~/myProject" directory created earlier.
-```java
-public class Hello {   // To save as "Hello.java" under "~/myProject"
-   public static void main(String[] args) {
-      System.out.println("Hello, world from Ubuntu!");
-   }
-}
-```
-3.To compile the Hello-world Java program, launch a Terminal and issue these commands:
-```bash
-// Change directory to where the source code resides
-$ cd ~/myProject
- 
-// List the contents of current directory. Check for "Hello.java"
-$ ls
-...... Hello.java ......
- 
-// Compile "Hello.java" into "Hello.class"
-$ javac Hello.java
- 
-// Check for "Hello.class"
-$ ls
-...... Hello.class ......
-```
-4.Run the Hello-world Java program:
-```bash
-// Run "Hello.class"
-$ java Hello
-Hello, world from Ubuntu!
-```
-1.  **How to Install Mogodb on Ubuntu**
+The server generated these startup warnings when booting: 
+        2020-11-23T03:34:29.112+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+        2020-11-23T03:34:29.902+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+        2020-11-23T03:34:29.902+00:00: /sys/kernel/mm/transparent_hugepage/enabled is 'always'. We suggest setting it to 'never'
 ---
-- **Step 1: Import the MongoDB repository**
+---
+        Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+        metrics about your deployment (disk utilization, CPU, operation statistics, etc).
 
-Import the public key used by the package management system.
-The Ubuntu package management tools ensure package consistency and authenticity by verifying that they are signed with GPG keys. The following command will import the MongoDB public GPG key.
-```bash
-> sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10</span>
-```
-Create a source list file for MongoDB
-Create the /etc/apt/sources.list.d/mongodb-org-3.4.list list file using the command below.
-```bash
-> echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo 
-tee /etc/apt/sources.list.d/mongodb-org-3.4.list
-```
-Update the local package repository
-```bash
-> sudo apt-get update
-```
-- **Step 2: Install the MongoDB packages**
-Install the latest stable version of MongoDB:
-```bash
-> sudo apt-get install -y mongodb-org
-```
-Install a specific release of MongoDB:
-You must specify each component package specifically with their version number, check the following example:
-```bash
-> sudo apt-get install -y mongodb-org=3.4 mongodb-org-server=3.4 mongodb-org-shell=3.4 mongodb-org-mongos=3.4 mongodb-org-tools=3.4
-```
-- **Step 3: Launch MongoDB as a service on Ubuntu 16.04**
+        The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+        and anyone you share the URL with. MongoDB may use this information to make product
+        improvements and to suggest MongoDB products and deployment options to you.
 
-We need to create a unit file, which tells systemd how to manage a resource. Most common unit type, service, determine how to start or stop the service, auto-start etc.
-
-Create a configuration file named mongodb.service in /etc/systemd/system to manage the MongoDB service.
-```bash
-> sudo vim /etc/systemd/system/mongodb.service
-```
-Copy the following contents in the file.
-```bash
-#Unit contains the dependencies to be satisfied before the service is started.
-[Unit]
-Description=MongoDB Database
-After=network.target
-Documentation=https://docs.mongodb.org/manual
-#Service tells systemd, how the service should be started.
-#Key `User` specifies that the server will run under the mongodb user and
-#`ExecStart` defines the startup command for MongoDB server.
-[Service]
-User=mongodb
-Group=mongodb
-ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
-#Install tells systemd when the service should be automatically started.
-#`multi-user.target` means the server will be automatically started during boot.
-[Install]
-WantedBy=multi-user.target
-```
-Update the systemd service with the command stated below:
-```bash
-> systemctl daemon-reload
-```
-Start the service with systemcl.
-```bash
-> sudo systemctl start mongodb
-```
-Check if mongodb has been started on port 27017 with netstat command:
-
-```bash
-> netstat -plntu
-```
-
-Check if the service has started properly.
-
-```bash
-> sudo systemctl status mongodb
-```
-
-The output to the above command will show `active (running)` status with the PID and Memory/CPU it is consuming.
-
-Enable auto start MongoDB when system starts.
-
-```bash
-> sudo systemctl enable mongodb
-```
-
-Stop MongoDB
-
-```bash
-> sudo systemctl stop mongodb
-```
-
-Restart MongoDB
-
-```bash
-> sudo systemctl restart mongodb
-```
-
-- **Step 4: Configure and Connect MongoDB**
-Open mongo shell
-Open MongoDB shell on your server by typing below command:
-
-```bash
-> mongo
-```
-
-Switch to the database admin
-
-```bash
-> use admin
-```
-
-Create the root user
-```bash
-> db.createUser({user:"admin", pwd:”password", roles:[{role:"root", db:"admin"}]})
- ```
-Exit from the MongoDB shell.
-Connect MongoDB
-Restart MongoDB( command mentioned above ) and connect with user created with this command:
-
-```bash
-> mongo -u admin -p admin123 --authenticationDatabase admin
-```
-
-You can see the mongo connecting. Check the databases using the following command:
-
-```bash
+        To enable free monitoring, run the following command: db.enableFreeMonitoring()
+        To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+> 
+> 
 > show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+> use  user
+switched to db user
+> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+> use  user
+switched to db user
+> show  dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+user    0.000GB
 ```
-1.  **How to Install Data Server in Ubuntu**
----
-Open mongo shell
-```bash
-> mongo
+#### run data server
+make a floder and enter it.
+``
+mkidir image & cd image
+``
+create a Dokcerfile
 ```
-create a database user
+touch Dockerfile
+```
+copy this txt into the Dockerfile
 
-```bash
-> use user
+```bash 
+FROM java:8-alpine
+ADD  file-server-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app.jar"]
 ```
-then  run the java jar in ubuntu
-```bash
-java -jar dsdsdsd.jar --port=[port] [rpcAddress]
-```
+copy the `file-server-0.0.1-SNAPSHOT.jar` into image floder
+then run `sudo docker build -t "app".` in image floder.
+you can see a `app` image in docker by this command `sudo docker images`
+then you can run this image in docker 
+`sudo docker run -t -i  -p 8888:8877 app  http://ckplanet.beihanguni.cn:8114/rpc  --spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user   /bin/bash`
+note: 
+- `http://ckplanet.beihanguni.cn:8114/rpc`:is the ckb rpc address
+- `spring.data.mongodb.uri=mongodb://172.17.0.1:27018/user`:is the mongodb address
+- `8888:8877`:you can access the data server by port `8888`
+
 ### How to Use
  1. /v2/getMpk
  - description：return the data server's public key 
