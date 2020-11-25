@@ -193,6 +193,10 @@ function convertTx(tx){
   return tx
 }
 
+function isEquivalent(a, b) {
+
+  return JSON.stringify(a) === JSON.stringify(b)
+}
 
 export  {
   filterCellsWithTypeScript,
@@ -211,5 +215,6 @@ export  {
   getTypeScript,
   getScriptCapacity,
   convertTx,
-  fileToBase64
+  fileToBase64,
+  isEquivalent
 }

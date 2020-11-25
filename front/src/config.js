@@ -25,7 +25,7 @@ const NETWORK_CONST = {
     }
   },
   "devnet_azure":{
-    kvdb_bucket:"MGpfP2JL8xDacsmQvhBa4Y",
+    kvdb_bucket:"KLJSvVd9Tcvk79jCuLmBcQ",
     rpc_url:"http://ckplanet.beihanguni.cn:8114/rpc",
     indexer_url:"http://ckplanet.beihanguni.cn:8114/indexer",
     secp256k1:{

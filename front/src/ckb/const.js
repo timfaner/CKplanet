@@ -6,6 +6,7 @@ const {  CHAIN_SPECS } = require("@lay2/pw-core")
 const RICH_NODE_RPC_URL = NETWORK_CONST[TYPE].rpc_url
 const RICH_NODE_INDEXER_URL = NETWORK_CONST[TYPE].indexer_url
 
+const WS_SERVER_URL = "ws://localhost:9216"
 
 const KEYPERING_URL = 'http://localhost:3102'
 
@@ -96,5 +97,6 @@ const DATA_INTEGRITY = {
   DAPP_ID,
   CELLS_CACHE_TIME,
   SECP256K1_BLAKE160_LOCK,
-  PW_LOCK
+  PW_LOCK,
+  WS_SERVER_URL
 }

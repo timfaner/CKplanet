@@ -9,6 +9,7 @@ import {encodeUnicode,decodeUnicode} from "./utils"
 const ECDH_IV = "0x253544254332253931253545772531414a25433325413625363025433325383425433325394266254332253941254333253842254332254245704f"
 const DEFAULT_IV = "0x253544254332253931253545772531414a25433325413625363025433325383425433325394266254332253941254333253842254332254245704f"
 
+const OPEN_AES_KEY = "a098a21831504027a3dc3039233d9d33"
 const { bytesToHex, hexToBytes,blake2b, PERSONAL } = require('@nervosnetwork/ckb-sdk-utils')
 //const { toUnicode } = require("punycode")
 //pubkey,privkey,signature 均为hex形式的string
@@ -196,6 +197,7 @@ export {
     decryptAESKey,
     importSignature,
     exportSinature,
-    hashFunc
+    hashFunc,
+    OPEN_AES_KEY
 }
 

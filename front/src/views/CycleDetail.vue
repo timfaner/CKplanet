@@ -51,7 +51,7 @@
                 <span slot="label"><i class="el-icon-date"></i> Members ({{cycle.user_lists.length}}) </span>
                 <div>
                 <input v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
-                <el-button @click="addUser"> Add user </el-button>
+                <el-button @click="addUserAndSendApproval(userToAdd)"> Add user </el-button>
 
                 <MemberItem v-for="user in cycle.user_lists"
                 :key="user"
@@ -60,7 +60,16 @@
 
                 </div>
             </el-tab-pane>
-            <el-tab-pane label="Joined requests">
+            <el-tab-pane v-if="profile.type==='close'">
+                <span slot="label"><i class="el-icon-date"></i> Join requests ({{join_applys.length}}) </span>
+                  <div class="container">
+                    <div  v-for="apply in join_applys" :key="apply.from" class="px-4 py-2 my-2 row" style="border-radius: 10px;background-color: #EBEEF5">
+                        <el-avatar shape="square" :size="50" :src="user_profile(apply.from).avatar_url"></el-avatar>
+                        <span class="px-2 py-2 t1" > {{user_profile(apply.from).nickname}} applys to join  circle  </span>
+                        <el-button class="ml-auto" @click.prevent="finishiApproval({apply,result:false})" type="danger">refuse</el-button>
+                        <el-button type=primary @click.prevent="finishiApproval({apply,result:true})">agree</el-button>
+                    </div>
+                </div>
             </el-tab-pane>
 
         </el-tabs>
@@ -81,6 +90,7 @@ import {getCycleTemplate,getDataID,encryptCycleToken,inTokenList} from "@/ckb/ck
 
 import {DataServer} from "@/ckb/data_server"
 import {DataSetter } from "@/ckb/data_handler"
+import {  sendApply, sendApproval } from '@/ckb/ws_client'
 
 
 
@@ -92,6 +102,7 @@ export default {
             dialogPublish:false,
             dialogUpdateCycleProfile:false,
             userToAdd:'',
+            apply_count_tmp:0,
         }
     },
     components:{
@@ -102,12 +113,26 @@ export default {
     },
     created (){
         this.fetchData()
+        this.$watch(
+            function(){
+                return this.join_applys.length
+            },
+
+            this.process_applys,
+        )
     },
     watch: {
         // 如果路由有变化，会再次执行该方法
         '$route': 'fetchData',
     },
     computed:{
+        user_profile :  () => function (lock_args) {
+            if (lock_args in this.$store.state.ckplanet.user_profiles_pool)
+                return this.$store.state.ckplanet.user_profiles_pool[lock_args]
+            else 
+                this.$store.dispatch("getUserProfile",lock_args)
+            return { nickname:'',avatar_url:''} 
+        },
         cycle_id: function(){return this.$route.params.cycle_id},
         lock_args: function(){return this.$route.params.lock_args},
         cycle_joined_statue : function(){return this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id)},
@@ -122,8 +147,21 @@ export default {
                         return state.ckplanet.cycles_pool[this.lock_args][this.cycle_id]
                 return  getCycleTemplate()
                 
+                },
+            join_applys: function(state){
+                let applys = []
+                for(let ap of state.ckplanet.join_applys){
+                    if(ap.to === this.user_lock_args 
+                    && ap.lock_args === this.lock_args
+                    && ap.cycle_id === this.cycle_id
+                    && this.lock_args !== ""){
+                        applys.push(ap)
+                    }
                 }
+                return applys
+            }
             }),
+
             profile: function(){ return this.cycle.cycle_profile},
             contents: function(){ 
                 let contents = []
@@ -149,21 +187,100 @@ export default {
 
 
         ]),
+        addUserAndSendApproval: async function(user_to_add){
+            sendApproval({
+                from:this.user_lock_args,
+                to:user_to_add,
+                result:true,
+                lock_args:this.lock_args,
+                cycle_id:this.cycle_id
+            })
+            this.addUser(user_to_add).then(()=> (this.$message("Add user successed")))
+
+        },
+
+        finishiApproval: async function ({apply,result}) {
+
+            sendApproval({
+                from:this.user_lock_args,
+                to:apply.from,
+                result:result,
+                lock_args:this.lock_args,
+                cycle_id:this.cycle_id
+            })
+            this.$store.commit(
+                "deleteJoinApply",
+                apply
+            )
+            if(result){
+                this.addUser(apply.from)
+            }
+        },
+
+        process_applys : async function(){
+            if(this.join_applys.length > this.apply_count_tmp){
+                //FIXME maybe trigger recursive watch
+                this.apply_count_tmp = this.join_applys.length
+
+                console.debug('[process_applys] Begin process applys')
+                if(this.profile.type === "open"){
+                    
+                    for(let ap of this.join_applys){
+                        let user_to_add = ap.from
+                        await this.addUser(user_to_add)
+                        this.$store.commit(
+                            "deleteJoinApply",
+                            ap
+                        )
+                        sendApproval({
+                            from:ap.to,
+                            to:ap.from,
+                            lock_args:this.lock_args,
+                            cycle_id:this.cycle_id,
+                            result:true
+                        })
+                        this.$notify({
+                        title: 'Notification',
+                        message: 'New User Joined Cycle',
+                        duration: 3000
+                        });
+                        
+                    }
+                }
+                else if(this.profile.type === "close"){
+                        this.$notify({
+                        title: 'Notification',
+                        message: `${this.join_applys.length} new applys to join cycle`,
+                        duration: 3000
+                        });
+                }
+            }
+            else if(this.join_applys.length <= this.apply_count_tmp){
+                console.debug('[process_applys] Bypass')
+                this.apply_count_tmp = this.join_applys.length
+            }
+
+        },
         updateCycle: async function(){
             console.log("Detect join statue change")
                 this.getCycle({
                         lock_args:this.lock_args,
                         cycle_id:this.cycle_id})
         },
-        addUser: async function(){
+        addUser: async function(userToAdd){
             try {
-                let exists = await this.checkUserExists(this.userToAdd)
-                if(!exists){
-                    this.$message("用户" + this.userToAdd + "不存在")
+                if(this.cycle.user_lists.indexOf(userToAdd) > -1){
+                    console.log(`[addUser] ${userToAdd} already in user lists`)
                     return
                 }
-                await this.updateTokenList()
-                await this.addUserToUserList()
+                let exists = await this.checkUserExists(userToAdd)
+                if(!exists){
+                    this.$message("User " + userToAdd + " not exists")
+                    return
+                }
+
+                await this.updateTokenList(userToAdd)
+                await this.addUserToUserList(userToAdd)
                 //更新圈子信息
                 await this.getCycle({
                     lock_args:this.lock_args,
@@ -179,15 +296,15 @@ export default {
 
 
 
-        addUserToUserList:async function(){
+        addUserToUserList:async function(userToAdd){
             try{
 
                 let user_list  = this.cycle.user_lists
 
-                if(user_list.includes(this.userToAdd))
+                if(user_list.includes(userToAdd))
                     return
 
-                user_list.push(this.userToAdd)
+                user_list.push(userToAdd)
                 let user_ds = new DataServer(this.$store,this.user_lock_args)
                 let data_setter = new DataSetter(user_ds)
 
@@ -215,7 +332,7 @@ export default {
                 throw(error)
             }
         },
-        updateTokenList:async function(){
+        updateTokenList:async function(userToAdd){
             try {
                 
                 if(this.cycle.cycle_profile.type==="open"){
@@ -223,14 +340,14 @@ export default {
                     return
                 }
 
-                await this.getDataServerInfo(this.userToAdd)
-                let access_token_items = this.$store.getters.getSthFromPool(this.userToAdd,"access_token")
+                await this.getDataServerInfo(userToAdd)
+                let access_token_items = this.$store.getters.getSthFromPool(userToAdd,"access_token")
                 let pk = access_token_items.access_token_public_pk
                 let sk = this.$store.state.user_id_public.sk
 
                 let token_list = this.cycle.token_list
 
-                if(inTokenList(this.userToAdd,token_list,pk,sk)){
+                if(inTokenList(userToAdd,token_list,pk,sk)){
                     return
                 }
 
@@ -277,13 +394,23 @@ export default {
         let joined_cycle = this.$store.state.ckplanet.user_joined_cycles_index
 
         if(this.lock_args === this.user_lock_args){
-            this.$$message("不能加入自己的圈子")
+            this.$message("Can't join cycles of yourself")
             return
         }
-        if(this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id) !=="disjointed"){
-                this.$message("已经发送过请求/加入圈子啦")
+        switch (this.$store.getters.cycle_joined_status(this.lock_args,this.cycle_id)) {
+            case 'joined':{
+                this.$message("Already joined cycle")
                 return
-            }
+                }
+            case 'pending':{
+                this.$message("Already sent join request")
+                return
+                }
+                
+            default:
+                break;
+        }
+
 
         joined_cycle.push({
             lock_args:this.lock_args,
@@ -299,7 +426,12 @@ export default {
             ""
         )
         //TODO 发送给cycle 拥有者
-
+        sendApply({
+            from:this.user_lock_args,
+            to:this.lock_args,
+            lock_args:this.lock_args,
+            cycle_id:this.cycle_id,
+        })
     
         this.getJoinCyclesIndex(this.user_lock_args).catch((e) => this.$message("更新用户列表失败",e))
         

@@ -1,7 +1,8 @@
 import {getData} from "@/ckb/data_server"
 import { decryptContent, getCycleTemplate, getUrl,vaildDataType,inJoinedList,inTokenList, getTokenItem, decrtptCycleToken } from "../ckb/ckplanet"
 import Vue from 'vue'
-import { generateAESKey, hashFunc } from "../ckb/crypto"
+import { generateAESKey, hashFunc, OPEN_AES_KEY } from "../ckb/crypto"
+import { isEquivalent } from "@/ckb/utils"
 const getDefaultState = () => {
     return {
         wallet_connected:false,
@@ -16,12 +17,54 @@ const getDefaultState = () => {
         user_managed_cycles_index:[],
 
         cycles_pool:{},
+        join_applys : [],
+        join_approvals:[],
     }
   }
 
 const ckplanet = {
     state :getDefaultState(),
     mutations:{
+        addJoinApply(state,apply){
+            let index = -1
+            for(let i=0;i<state.join_applys.length;i++)
+                if(isEquivalent(apply,state.join_applys[i])){
+                    index = i
+                    break
+                }
+            if(index === -1)
+                state.join_applys.push(apply)
+        },
+        deleteJoinApply(state,apply){
+            let index = -1
+            for(let i=0;i<state.join_applys.length;i++){
+                if(isEquivalent(apply,state.join_applys[i])){
+                    index = i
+                    break}
+            }
+            if(index > -1)
+                state.join_applys.splice(index,1)
+        },
+        addJoinApproval(state,approval){
+            let index = -1
+            for(let i=0;i<state.join_approvals.length;i++)
+                if(isEquivalent(approval,state.join_approvals[i])){
+                    index = i
+                    break
+                }
+            if(index === -1)
+                state.join_approvals.push(approval)
+        },
+        deleteJoinApproval(state,approval){
+            let index = -1
+            for(let i=0;i<state.join_approvals.length;i++){
+                if(isEquivalent(approval,state.join_approvals[i])){
+                    index = i
+                    break}
+            }
+            if(index > -1)
+                state.join_approvals.splice(index,1)
+        },
         resetCkplanetState(state){
             Object.assign(state,getDefaultState())
         },
@@ -333,10 +376,18 @@ const ckplanet = {
             return res
         },
 
-        generateCycleAesKey({state},{lock_args,cycle_id}){
-            //FIXME cycle key 生成方法
+        generateCycleAesKey({state},{lock_args,cycle_id,type}){
             state
-            return generateAESKey(hashFunc(lock_args+cycle_id))
+            
+            if(type === "close"){
+            //FIXME sevret way to generate cycle key 
+                return generateAESKey(hashFunc(lock_args+cycle_id))
+            }
+            else if(type === 'open'){
+                return OPEN_AES_KEY
+            }
+            
+            
         },
         async getCycleTokenList({commit,dispatch,},{lock_args,cycle_id}){
             let data_type = 'cycle_tokens_list'
@@ -385,36 +436,47 @@ const ckplanet = {
             
                 //获取或生成key
                 if(getters.cycle_joined_status(lock_args,cycle_id)==='joined' || lock_args===rootState.user_chain_info.lock_args){
-                    
-                    let aes_key = ''
-                    let access_token_private = ''
-                    if(lock_args===rootState.user_chain_info.lock_args)
-                        aes_key = await dispatch("generateCycleAesKey",{lock_args,cycle_id})
-                    else{
-                        let tmp = getters.getSthFromPool(lock_args,"access_token")
-                        let pk = tmp.access_token_public_pk
-                        let sk = rootState.user_id_public.sk
-                        let token_item = getTokenItem(lock_args,token_list,pk,sk)
-                        let res =  decrtptCycleToken(token_item,pk,sk)
+                    if(cycle_profile.type==='close'){
+                        let aes_key = ''
+                        let access_token_private = ''
+                        if(lock_args===rootState.user_chain_info.lock_args)
+                            aes_key = await dispatch("generateCycleAesKey",{lock_args,cycle_id,type:cycle_profile.type})
+                        else{
+                            let tmp = getters.getSthFromPool(lock_args,"access_token")
+                            let pk = tmp.access_token_public_pk
+                            let sk = rootState.user_id_public.sk
+                            let token_item = getTokenItem(lock_args,token_list,pk,sk)
+                            let res =  decrtptCycleToken(token_item,pk,sk)
 
-                        console.debug("[getCycle] Got <" + "decrypt items" + "> of",arguments[1],res)
+                            console.debug("[getCycle] Got <" + "decrypt items" + "> of",arguments[1],res)
 
-                        access_token_private = res.access_token_private
-                        aes_key = res.aes_key
-                        // 更新对应access_token_private
-                        commit("updateAccessTokens",{
+                            access_token_private = res.access_token_private
+                            aes_key = res.aes_key
+                            // 更新对应access_token_private
+                            commit("updateAccessTokens",{
+                                lock_args,
+                                access_token_private
+                            })
+                            }
+
+                        commit("updateCyclesPool",{
                             lock_args,
-                            access_token_private
+                            cycle_id,
+                            cycle_props:{
+                                aes_key,
+                            }
                         })
-                        }
-
-                    commit("updateCyclesPool",{
-                        lock_args,
-                        cycle_id,
-                        cycle_props:{
-                            aes_key,
-                        }
-                    })
+                    }
+                    else if(cycle_profile.type === "open"){
+                        let aes_key = await await dispatch("generateCycleAesKey",{lock_args,cycle_id,type:cycle_profile.type})
+                        commit("updateCyclesPool",{
+                            lock_args,
+                            cycle_id,
+                            cycle_props:{
+                                aes_key,
+                            }
+                        })
+                    }
                 }
 
                 if(  cycle_profile.type==='open' ||   //公开的

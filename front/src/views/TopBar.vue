@@ -13,7 +13,6 @@
           Search
         </el-button>
         <el-button v-if="!wallet_connected" @click="dialogSelectWallet = true">
-
           Connect wallet
         </el-button>
 
@@ -33,9 +32,7 @@
 
       <el-dialog
         :visible.sync="dialogUpdateDataServer"
-
         title="Connect to data server"
-
         append-to-body
         :close-on-click-modal="false"
       >
@@ -47,9 +44,7 @@
 
       <el-dialog
         :visible.sync="dialogNewUser"
-
         title="Create a new user information"
-
         append-to-body
         :close-on-click-modal="false"
       >
@@ -61,9 +56,7 @@
 
       <el-dialog
         :visible.sync="dialogSelectWallet"
-
         title="Choose a wallet"
-
         :modal="false"
         :close-on-click-modal="false"
       >
@@ -85,13 +78,12 @@ import { mapState, mapMutations, mapActions } from "vuex";
 import { DataServer } from "@/ckb/data_server";
 //import {DataSetter } from "@/ckb/data_handler"
 
-import Vuex_Collector from "@/ckb/vuex-collector"
+import Vuex_Collector from "@/ckb/vuex-collector";
 import UpdateUserProfile from "@/components/UpdateUserProfile.vue";
 import UpdateDataServer from "@/components/UpdateDataServer.vue";
-import {RICH_NODE_RPC_URL} from "@/ckb/const"
+import { RICH_NODE_RPC_URL } from "@/ckb/const";
 
 import PWCore, {
-
   Web3ModalProvider,
   //Amount,
   //AmountUnit,
@@ -106,6 +98,12 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import supportedChains from "@/eth/chains";
 import Torus from "@toruslabs/torus-embed";
 import Web3 from "web3";
+import {
+  connect_ws_server,
+  get_onclose,
+  get_onerror,
+  get_onmessage,
+} from "@/ckb/ws_client";
 
 export default {
   name: "TopBar",
@@ -142,11 +140,14 @@ export default {
     ckplanet: (state) => state.ckplanet,
     user_managed_cycles_index: (state) =>
       state.ckplanet.user_managed_cycles_index,
+    user_joined_cycles_index: (state) =>
+      state.ckplanet.user_joined_cycles_index,
     wallet_connected: (state) => state.ckplanet.wallet_connected,
     data_server_connected: (state) => state.ckplanet.data_server_connected,
   }),
 
   async mounted() {
+    if (!window.ws) this.connect_ws();
     this.web3Modal = new Web3Modal({
       network: this.getNetwork(),
       cacheProvider: true,
@@ -171,6 +172,15 @@ export default {
       "checkUserExists",
     ]),
 
+    connect_ws: function() {
+      let msg_handler = () => {};
+      window.ws = connect_ws_server(
+        this.user_lock_args,
+        get_onmessage(this.$store, msg_handler),
+        get_onclose(),
+        get_onerror()
+      );
+    },
     getNetwork: function() {
       return this.getChainData(this.chainId).network;
     },
@@ -223,9 +233,7 @@ export default {
             cycle_id: this.input_cycle_id,
           },
         });
-
       else this.$message("User does not exist");
-
     },
     async test() {},
 
@@ -237,48 +245,47 @@ export default {
       });
     },
     logout: async function() {
-      if(window._PWCore){
-      this.pw = {};
-      // web3Modal: null,
-      (this.chainId = 1), (this.builder = {});
-      await PWCore.provider.close();
-      await this.web3Modal.clearCachedProvider();
+      if (window._PWCore) {
+        this.pw = {};
+        // web3Modal: null,
+        (this.chainId = 1), (this.builder = {});
+        await PWCore.provider.close();
+        await this.web3Modal.clearCachedProvider();
       }
-      
+
+      if (window.ws) {
+        window.ws.close();
+      }
 
       window.localStorage.setItem("vuex", "");
       this.$store.dispatch("resetAllState");
     },
 
-    connectWeb3 : async function(){
-      console.debug("Trying to connect web3")
+    connectWeb3: async function() {
+      console.debug("Trying to connect web3");
       const provider = await this.web3Modal.connect();
       const web3 = new Web3(provider);
       window._web3 = web3;
-                this.pw = await new PWCore(RICH_NODE_RPC_URL).init(
-            new Web3ModalProvider(web3),
-            new Vuex_Collector(this.$store)
-          );
-          window._PWCore = PWCore;
-          window.ppw = this.pw
+      this.pw = await new PWCore(RICH_NODE_RPC_URL).init(
+        new Web3ModalProvider(web3),
+        new Vuex_Collector(this.$store)
+      );
+      window._PWCore = PWCore;
+      window.ppw = this.pw;
     },
     login: async function(wallet) {
-            window.localStorage.setItem("vuex", "");
+      window.localStorage.setItem("vuex", "");
       this.$store.dispatch("resetAllState");
       console.log("clear old status...");
 
-      
-
       console.log("getting wallet auth...");
-
 
       this.updateWallet(wallet);
 
       try {
         if (wallet === "eth") {
           this.dialogSelectWallet = false;
-          await this.connectWeb3()
-
+          await this.connectWeb3();
         } else if (wallet === "ckb") {
           this.$parent.loadings = true;
           await getWalletAuth();
@@ -292,7 +299,6 @@ export default {
         this.$parent.loadings = false;
         return;
       }
-
 
       this.walletConnect(true);
       console.log("getting user  onchain info");
@@ -318,7 +324,6 @@ export default {
         } else {
           await user_ds.getDataserverAuth();
           this.$message({
-
             message: "Successfully connected to the server",
 
             type: "success",
@@ -354,15 +359,33 @@ export default {
     loginToCkplanet: function() {
       console.log("logged to ckplanet");
       this.getManageCycles(this.user_lock_args).catch((e) =>
-
         this.$message.error("Failed to get user-managed circles", e)
       );
-      this.getJoinCycles(this.user_lock_args).catch((e) =>
-        this.$message.error("Failed to get user-joined circles", e)
-
-      );
+      this.getJoinCycles(this.user_lock_args)
+        .then(() => {
+          this.$watch(function() {
+            return this.user_joined_cycles_index.length;
+          }, this.process_cycles_change);
+        })
+        .catch((e) =>
+          this.$message.error("Failed to get user-joined circles", e)
+        );
+      this.connect_ws();
     },
+    process_cycles_change: function(n, o) {
+      let s = n - o;
+      if (s > 0) {
+        console.debug(`[Watcher] user_joined_cycles_index add detected`);
+        for (let i = o - 1; i < n; i++) {
+          let cycle = this.user_joined_cycles_index[i];
 
+          this.getCycle({
+            lock_args: cycle.lock_args,
+            cycle_id: cycle.cycle_id,
+          });
+        }
+      }
+    },
     finalizeUpdateDataServer: function() {
       if (this.ckplanet.data_server_connected) {
         this.dialogUpdateDataServer = false;
@@ -385,6 +408,6 @@ export default {
 
 <style>
 .topbar {
-  background-color: aquamarine;
+  background-color: white;
 }
 </style>
