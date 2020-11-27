@@ -109,6 +109,7 @@ import { Amount, AmountUnit, Cell, CellDep, DepType, OutPoint, Script } from '@l
 import {    
     connect_ws_server,
     get_onmessage,get_onerror,get_onclose, sendApply, sendApproval} from "@/ckb/ws_client"
+import { getInjectedProvider, getProviderInfo } from 'web3modal';
 
 
 export default {
@@ -142,8 +143,10 @@ export default {
       )
       
     },
+
     test() {
-      this.id = this.id + "1";
+
+      console.log(getInjectedProvider())
       
     },
     purgeState(){
@@ -190,6 +193,7 @@ export default {
   CELLS_CACHE_TIME,
   SECP256K1_BLAKE160_LOCK,
   PW_LOCK,
+  getProviderInfo,
       Amount, AmountUnit, Cell, CellDep, DepType, OutPoint, Script,
       CKplanet_Builder,
       Vuex_Collector,

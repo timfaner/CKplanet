@@ -17,14 +17,16 @@
             
             
             <div class="col-1 sml-auto">
-                <el-button v-if="user_lock_args!==lock_args" @click="joinCycle">  Join Cycle </el-button>
+                <el-button v-if="user_lock_args!==lock_args && cycle_joined_statue==='disjointed'" @click="joinCycle">  Join Cycle </el-button>
+                <el-button v-if="user_lock_args!==lock_args && cycle_joined_statue==='pending'"   disabled @click="joinCycle">  Pending </el-button>
+                <el-button v-if="user_lock_args!==lock_args && cycle_joined_statue==='joined'"   disabled @click="joinCycle">  Joined </el-button>
             <el-button v-if="user_lock_args===lock_args" @click="dialogPublish=true"> Share your thoughts </el-button>
             <el-button v-if="user_lock_args===lock_args" @click="dialogUpdateCycleProfile=true"> Edit Planet </el-button>
 
 
             </div>
         </div>
-        <el-dialog title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false'>
+        <el-dialog title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false' width="40%">
             <PublishCycleContent  v-if="dialogPublish" v-on:closedialog="dialogPublish=false" mode="create" :cycleid="cycle_id"></PublishCycleContent>
             <div slot="footer"  class="dialog-footer">
             </div>
@@ -38,7 +40,8 @@
 
         <el-tabs>
 
-            <el-tab-pane label="Posts">
+            <el-tab-pane >
+                <span slot="label"><i class="el-icon-orange"></i> Posts</span>
                 <ContentItem v-for="content in contents"
                 :key="content.time"
                 :content_id="content.content_id"
@@ -48,7 +51,7 @@
 
             </el-tab-pane>
             <el-tab-pane>
-                <span slot="label"><i class="el-icon-date"></i> Members ({{cycle.user_lists.length}}) </span>
+                <span slot="label"><i class="el-icon-s-custom"></i> Members ({{cycle.user_lists.length}}) </span>
                 <div>
                 <input v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
                 <el-button @click="addUserAndSendApproval(userToAdd)"> Add user </el-button>
@@ -60,12 +63,12 @@
 
                 </div>
             </el-tab-pane>
-            <el-tab-pane v-if="profile.type==='close'">
-                <span slot="label"><i class="el-icon-date"></i> Join requests ({{join_applys.length}}) </span>
+            <el-tab-pane v-if="user_lock_args===lock_args">
+                <span slot="label"><i class="el-icon-news"></i> Join requests ({{join_applys.length}}) </span>
                   <div class="container">
                     <div  v-for="apply in join_applys" :key="apply.from" class="px-4 py-2 my-2 row" style="border-radius: 10px;background-color: #EBEEF5">
                         <el-avatar shape="square" :size="50" :src="user_profile(apply.from).avatar_url"></el-avatar>
-                        <span class="px-2 py-2 t1" > {{user_profile(apply.from).nickname}} applys to join  circle  </span>
+                        <span class="px-2 py-2 t1" > {{user_profile(apply.from).nickname}} applys to join  planet  </span>
                         <el-button class="ml-auto" @click.prevent="finishiApproval({apply,result:false})" type="danger">refuse</el-button>
                         <el-button type=primary @click.prevent="finishiApproval({apply,result:true})">agree</el-button>
                     </div>

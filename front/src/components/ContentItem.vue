@@ -7,7 +7,9 @@
         <div class="row">
         <h5 class="ml-3"> {{content.title}}  <el-link >posted @ {{cycle_profile.cycle_name}}</el-link>
         </h5>
+        <!-- delete
         <div class="ml-auto mr-2">
+        
         <el-popover
             placement="top"
             width="160"
@@ -20,10 +22,10 @@
             <el-button slot="reference"  type="text" icon="el-icon-delete"></el-button>
         </el-popover>
             </div>
+        -->
         </div>
-        <p>
-            {{content.content}}
-        </p>
+        <div v-html="compiled_markdown"> 
+        </div>
         <i > posted: {{post_time}} </i>
         </div>
 
@@ -36,6 +38,9 @@
 export default {
   name: 'ContentItem',
   computed :{
+    compiled_markdown :function () {
+      return window.marked(this.content.content,{ sanitize: true })
+    },
     post_time :function(){return  new Date(this.content.time).toLocaleString()},
     cycle_profile : function(){ 
       return this.$store.state.ckplanet.cycles_pool[this.lock_args][this.cycle_id]["cycle_profile"]

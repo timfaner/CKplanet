@@ -18,9 +18,10 @@
       </div>
 
       <el-dialog
-        title="创建新的圈子"
+        title="Create New Planet"
         :visible.sync="dialogNewCycle"
         :close-on-click-modal="false"
+        width="40%"
       >
         <UpdateCycleProfile
           v-on:closedialog="dialogNewCycle = false"
@@ -44,12 +45,12 @@
           </div>
         </el-tab-pane>
         <el-tab-pane>
-          <p slot="label">Joined Planets ({{ cycles.autrui_cycles.length }})</p>
+          <p slot="label">Joined Planets ({{ cycles.autrui_cycles_joined.length }})</p>
 
           <div class="container">
             <div />
             <CycleItem
-              v-for="cycle in cycles.autrui_cycles"
+              v-for="cycle in cycles.autrui_cycles_joined"
               :key="cycle.cycle_id"
               :cycle_profile="cycle.cycle_profile"
               :lock_args="cycle.lock_args"
@@ -59,7 +60,18 @@
           </div>
         </el-tab-pane>
         <el-tab-pane>
-          <p slot="label">Pending ({{ pending_cycles_num }})</p>
+          <p slot="label">Pending Planets({{ cycles.autrui_cycles_pending.length }})</p>
+          <div class="container">
+            <div />
+            <CycleItem
+              v-for="cycle in cycles.autrui_cycles_pending"
+              :key="cycle.cycle_id"
+              :cycle_profile="cycle.cycle_profile"
+              :lock_args="cycle.lock_args"
+              :cycle_id="cycle.cycle_id"
+              :cycle_member_num="cycle.user_lists.length"
+            />
+          </div>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -115,7 +127,8 @@ export default {
         let user_lock_args = state.user_chain_info.lock_args;
         let cycles = state.ckplanet.cycles_pool;
         let ego_cycles = [];
-        let autrui_cycles = [];
+        let autrui_cycles_joined = [];
+        let autrui_cycles_pending = [];
         let tmp = [];
         for (const lock_args in cycles) {
           for (const cycle_id in cycles[lock_args]) {
@@ -127,10 +140,15 @@ export default {
         ego_cycles = tmp.filter(function(cycle) {
           return cycle.lock_args === user_lock_args;
         });
-        autrui_cycles = tmp.filter(function(cycle) {
-          return cycle.lock_args !== user_lock_args;
+        autrui_cycles_joined = tmp.filter((cycle) =>{
+          let joined_status = this.$store.getters.cycle_joined_status(cycle.lock_args,cycle.cycle_id)
+          return cycle.lock_args !== user_lock_args  && joined_status ==="joined";
         });
-        return { ego_cycles, autrui_cycles };
+        autrui_cycles_pending = tmp.filter((cycle) =>{
+          let joined_status = this.$store.getters.cycle_joined_status(cycle.lock_args,cycle.cycle_id)
+          return cycle.lock_args !== user_lock_args  && joined_status ==="pending";
+        });
+        return { ego_cycles, autrui_cycles_pending, autrui_cycles_joined};
       },
     }),
   },

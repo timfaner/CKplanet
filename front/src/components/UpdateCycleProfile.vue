@@ -16,8 +16,8 @@
         </el-upload>
       </el-form-item>
 
-      <el-form-item label="Circle name" :label-width="formLabelWidth">
-        <el-input v-model="cycle_name" autocomplete="off"></el-input>
+      <el-form-item label="Planet name" :label-width="formLabelWidth">
+        <el-input v-model="cycle_name" autocomplete="off" :maxlength="20" show-word-limit></el-input>
       </el-form-item>
 
       <el-form-item label="Profile" :label-width="formLabelWidth">
@@ -33,8 +33,17 @@
       </el-form-item>
       <el-form-item>
         <el-checkbox :disabled="mode !== 'create'" v-model="close_checked"
+          >Set as private 
+          <el-tooltip >
+            <div slot='content'>
+              Private planets require an application to join
+              <br/>
+              Once set CANNOT be changed
 
-          >Set as private circle</el-checkbox
+            </div>
+            <span class="el-icon-question"></span>
+          </el-tooltip>
+          </el-checkbox
 
         >
       </el-form-item>
@@ -178,7 +187,7 @@ export default {
         }
         this.$message({
 
-          message: "success" + this.mode + "Circle information",
+          message: "Success " + this.mode + " planet",
 
           type: "success",
         });

@@ -1,40 +1,70 @@
 <template>
-  <div class="topbar">
-    <el-row>
-      <el-col class="col-md-1 col-lg-2 ">CKPlanet</el-col>
-      <el-col :span="6">
+  <div >
+    <el-row  id="topbar"  type="flex" align="middle" > 
+      <el-col :span="4" ><span id="brandtext">CKPlanet</span></el-col>
+      <el-col :span="12">
+        <el-row type="flex" justify="center">
+          <el-col :span="11">
         <el-input placeholder="lock_args" v-model="input_lock_args"> </el-input>
+          </el-col>
+          <el-col :span="6">
+        <el-input placeholder="planet_id" v-model="input_cycle_id"> </el-input>
+          </el-col>
+          <el-col :span="3" :offset="1">
+        <el-button  type="success"  @click="search()">
+          Search Planet
+        </el-button>
+          </el-col>
+        </el-row>
       </el-col>
-      <el-col :span="6">
-        <el-input placeholder="cycle_id" v-model="input_cycle_id"> </el-input>
+      
+
+
+      <el-col :span="5" :offset="2">
+
+
+        <el-row class="infoRow" type="flex" :gutter="5">
+          <el-col class="infoRowLabel" :span="7">
+           Wallet: 
+            </el-col>
+          <el-col class="infoRowContent" :span="9">
+            {{walletDisPlay}}
+          </el-col>
+          <el-col :span="8">
+            <el-button  type="success" class="toggleBtn" size="mini" v-if="!wallet_connected" @click="dialogSelectWallet = true">
+              <span class="toggleBtnFont">Connect</span>
+            </el-button>
+            <el-button type="success" class="toggleBtn" size="mini" v-if="wallet_connected" @click="logout()">
+              <span class="toggleBtnFont">Disconnect</span>
+            </el-button>
+        
+          </el-col>
+
+        </el-row>
+ 
+        <el-row class="infoRow" type="flex"  :gutter="5">
+          <el-col class="infoRowLabel" :span="7">
+            DataServer: 
+          </el-col>
+          <el-col class="infoRowContent" :span="dataServerSpan">
+              <span>{{dataServerDisPlay}}</span>
+          </el-col>
+          <el-col :span="8" v-if="data_server_connected">
+        <el-button type="success" class="toggleBtn" size="mini" v-if="walletConnect" @click="dialogUpdateDataServer = true">
+          <span class="toggleBtnFont">{{dataServerButtonDisPlay}}</span>
+        </el-button>
+          </el-col>
+        </el-row>
+
       </el-col>
-      <el-col :span="6">
-        <el-button @click="search()">
-          Search
-        </el-button>
-        <el-button v-if="!wallet_connected" @click="dialogSelectWallet = true">
-          Connect wallet
-        </el-button>
 
-        <el-button v-if="wallet_connected" @click="dialogSelectWallet = true">
-          Switch wallet
-        </el-button>
-
-        <el-button v-if="walletConnect" @click="dialogUpdateDataServer = true">
-          Switch data server
-        </el-button>
-        <el-button @click="logout()"> quit</el-button>
-
-        <div>
-          <p>{{ user_address }}</p>
-        </div>
-      </el-col>
 
       <el-dialog
         :visible.sync="dialogUpdateDataServer"
-        title="Connect to data server"
+        title="Connect to a data server"
         append-to-body
         :close-on-click-modal="false"
+        width="40%"
       >
         <UpdateDataServer
           v-on:closedialog="finalizeUpdateDataServer"
@@ -47,6 +77,7 @@
         title="Create a new user information"
         append-to-body
         :close-on-click-modal="false"
+        width="40%"
       >
         <UpdateUserProfile
           v-on:closedialog="finalizeNewUser"
@@ -59,6 +90,7 @@
         title="Choose a wallet"
         :modal="false"
         :close-on-click-modal="false"
+        width="40%"
       >
         <el-button @click="login('ckb')"> Keypering</el-button>
         <el-button @click="login('eth')"> Use ETH Wallet </el-button>
@@ -93,7 +125,7 @@ import PWCore, {
 
 //import SDCollector from "./sd-collector";
 //import SDBuilder from "./sd-builder";
-import Web3Modal from "web3modal";
+import Web3Modal, {  getInjectedProviderName } from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import supportedChains from "@/eth/chains";
 import Torus from "@toruslabs/torus-embed";
@@ -109,6 +141,7 @@ export default {
   name: "TopBar",
   data: function() {
     return {
+      
       pw: {},
       web3Modal: null,
       chainId: 1,
@@ -134,9 +167,35 @@ export default {
       editData: "",
     };
   },
-  computed: mapState({
+  computed: 
+  {
+    dataServerButtonDisPlay(){
+      if(this.wallet_connected)
+        return "Switch"
+      else
+        return "Connect"
+    },
+    dataServerSpan:function(){
+      if(this.wallet_connected)
+        return 9
+      else
+        return 15
+    },
+    walletDisPlay:function(){
+      if(!this.wallet_connected)
+        return  "Not Connected"
+      else
+        return this.walletName
+    },
+    dataServerDisPlay:function(){
+      if(!this.data_server_connected)
+        return "Please connect Wallet first"
+      else return "Connected"
+    },
+    ...mapState({
     user_address: (state) => state.user_chain_info.address,
     user_lock_args: (state) => state.user_chain_info.lock_args,
+
     ckplanet: (state) => state.ckplanet,
     user_managed_cycles_index: (state) =>
       state.ckplanet.user_managed_cycles_index,
@@ -144,7 +203,22 @@ export default {
       state.ckplanet.user_joined_cycles_index,
     wallet_connected: (state) => state.ckplanet.wallet_connected,
     data_server_connected: (state) => state.ckplanet.data_server_connected,
-  }),
+    
+    user_dataserver:function (state) {
+      return state.data_server_pool[this.user_lock_args].ip
+    },
+    walletName : function(state){
+      switch (state.wallet) {
+        case "ckb":
+          return "keypering";
+        case "eth":
+          return getInjectedProviderName()
+        default:
+          return ""
+      }
+    },
+  })
+  },
 
   async mounted() {
     if (!window.ws) this.connect_ws();
@@ -155,7 +229,8 @@ export default {
     });
 
     if (this.web3Modal.cachedProvider) {
-      this.connectWeb3();
+      const provider = await this.web3Modal.connect();
+      this.connectWeb3(provider);
     }
   },
   components: {
@@ -245,6 +320,7 @@ export default {
       });
     },
     logout: async function() {
+
       if (window._PWCore) {
         this.pw = {};
         // web3Modal: null,
@@ -261,9 +337,9 @@ export default {
       this.$store.dispatch("resetAllState");
     },
 
-    connectWeb3: async function() {
+    connectWeb3: async function(provider) {
       console.debug("Trying to connect web3");
-      const provider = await this.web3Modal.connect();
+      
       const web3 = new Web3(provider);
       window._web3 = web3;
       this.pw = await new PWCore(RICH_NODE_RPC_URL).init(
@@ -281,14 +357,20 @@ export default {
       console.log("getting wallet auth...");
 
       this.updateWallet(wallet);
-
+      this.dialogSelectWallet = false;
       try {
         if (wallet === "eth") {
-          this.dialogSelectWallet = false;
-          await this.connectWeb3();
+          
+          
+          await this.web3Modal.clearCachedProvider();
+          const provider = await this.web3Modal.connect();
+          this.$parent.loadings = true;
+          await this.connectWeb3(provider);
+
         } else if (wallet === "ckb") {
           this.$parent.loadings = true;
           await getWalletAuth();
+
         }
 
         console.log("logged in");
@@ -359,7 +441,7 @@ export default {
     loginToCkplanet: function() {
       console.log("logged to ckplanet");
       this.getManageCycles(this.user_lock_args).catch((e) =>
-        this.$message.error("Failed to get user-managed circles", e)
+        console.error("Failed to get user-managed planets", e)
       );
       this.getJoinCycles(this.user_lock_args)
         .then(() => {
@@ -368,7 +450,7 @@ export default {
           }, this.process_cycles_change);
         })
         .catch((e) =>
-          this.$message.error("Failed to get user-joined circles", e)
+          console.error("Failed to get user-joined planets", e)
         );
       this.connect_ws();
     },
@@ -407,7 +489,41 @@ export default {
 </script>
 
 <style>
-.topbar {
-  background-color: white;
+#topbar {
+  background-color:#409d9e;
+  min-height: 70px;
+  text-align: center;
+  color: white;
+}
+
+.toggleBtn{
+  width:100%;
+  
+}
+
+.toggleBtnFont{
+  font-weight: 600;
+}
+
+.infoRow {
+padding: 2px;
+}
+
+.infoRowLabel {
+
+  text-align: right;
+  align-self: flex-end;
+}
+
+
+.infoRowContent {
+  font-weight: 700;
+
+}
+
+#brandtext {
+  font-size: 30px;
+  font-weight: bold;
+  color: white;
 }
 </style>

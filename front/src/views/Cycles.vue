@@ -7,7 +7,7 @@
     <h4> Livefeed</h4>
     <el-button @click="dialogPublish=true" class="col-2 ml-auto"> share your thoughts </el-button>
 
-    <el-dialog  v-if="dialogPublish" title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false'>
+    <el-dialog  v-if="dialogPublish" title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false' width="40%" >
         <PublishCycleContent v-on:closedialog="dialogPublish=false" mode="create" ></PublishCycleContent>
         <div slot="footer"  class="dialog-footer">
         </div>
@@ -19,7 +19,7 @@
   <el-tab-pane> <span  slot="label"> All </span>
   <div class="container">
     <ContentItem v-for="content in posts.all_posts"
-    :key="content.time"
+    :key="content.content_id"
     :content_id="content.content_id"
     :cycle_id="content.cycle_id"
     :lock_args="content.lock_args"
@@ -29,7 +29,7 @@
   </el-tab-pane>
   <el-tab-pane> <span slot="label"> My Posts </span>
     <ContentItem v-for="content in posts.my_posts"
-    :key="content.time"
+    :key="content.content_id"
     :content_id="content.content_id"
     :cycle_id="content.cycle_id"
     :lock_args="content.lock_args"
@@ -76,6 +76,8 @@ export default {
               }
             }
           }
+        all_posts.sort((a,b)=>b.time-a.time) //sort by newest
+        my_posts.sort((a,b)=> b.time-a.time)
         return( {all_posts,my_posts})
         }
 
