@@ -2,7 +2,7 @@
 <div id="PublishCycleContent">
 
     <el-form :model="form">
-        <el-form-item label="Planet" :label-width="formLabelWidth">
+        <el-form-item label="Planet" class="center_item">
           <el-select v-model="cycle_id" placeholder="Choose a planets">
             <el-option
               v-for="cycle in cycles.ego_cycles"
@@ -13,20 +13,28 @@
           </el-select>
         </el-form-item>
 
+
+
         <el-form-item v-if="!preview" label="Title" :label-width="formLabelWidth">
           <el-input v-model="title" placeholder="Input title" :maxlength="40" show-word-limit></el-input>
         </el-form-item>
+
+
         <el-form-item v-if="!preview" label="Content">
           <el-input type="textarea" :rows="10" v-model="content" placeholder="Wirte down your thougths, support markdown syntax"></el-input>
         </el-form-item>
 
-        <div v-if="preview" v-html="compiled_markdown"> 
-        </div>
-        <el-form-item >
+  <div v-if="preview" class="markdown-body md_preview" v-html="compiled_markdown"> 
+</div>
+
+
+        <el-form-item class="center_item">
           <el-button type="info" @click="togglePreview()">{{btn_display}}</el-button>
           <el-button type="primary" @click="Update()">Publish</el-button>
         </el-form-item>
         
+
+
 
 
     </el-form>
@@ -234,12 +242,15 @@ export default {
 
 
 <style scoped>
+.md_preview{
+  padding: 10px;
+}
 
 #PublishCycleContent {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  
   color: #2c3e50;
 }
   .avatar-uploader .el-upload {
@@ -293,6 +304,10 @@ export default {
 
   .profile {
     text-align: left;
+  }
+
+  .center_item {
+    text-align: center;
   }
 
     .minbutton {

@@ -16,10 +16,10 @@
         <main
           role="main"
           class="col-md-9 ml-sm-auto col-lg-10"
-          style="background-color: #F2F6FC"
+          id="main"
         >
-          <keep-alive>
-            <router-view />
+          <keep-alive >
+            <router-view  />
           </keep-alive>
         </main>
       </div>
@@ -74,5 +74,9 @@ export default {
   color: #2c3e50;
 }
 
+#main{
+  background-color: #F6F7F9;
+  padding: 3%;
 
+}
 </style>

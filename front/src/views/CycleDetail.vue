@@ -1,31 +1,63 @@
 <template>
-    <div>
+    <div class="container col-11">
 
-        <div class="container row">
-            <el-avatar :src="profile.avatar_url" :size="100"></el-avatar>
-            <div class="col">
-                <h4> {{profile.cycle_name}} 
-                    <el-tooltip class="item" effect="dark" content="这是一个私有圈子" placement="bottom">
-                        <i v-if="profile.type==='close'" class="el-icon-lock"></i>
+
+    <el-row type="flex" align="top"   :gutter="0">
+      <el-col :span="2">
+        <el-avatar
+          shape="square"
+          :size="100"
+          :src="profile.avatar_url"
+        ></el-avatar>
+      </el-col>
+
+      <el-col style="margin-left: 20px;" :span="17" :offset="0" class="info">
+        <el-row type="flex">
+          <el-col :span="3" >
+
+            <h5>{{ profile.cycle_name }} </h5>
+
+          </el-col >
+          <el-col :span="2">
+              <el-tooltip class="item" effect="dark" content="This is a private planet" placement="bottom">
+                        <el-button v-if="profile.type==='close'" size="mini" class="el-icon-lock">private</el-button>
                     </el-tooltip>
-                </h4>
-                <i>{{cycle_id}}</i>
-                <h6> {{profile.introduction}} </h6>
+
+          </el-col>
+
+        </el-row>
+
+        <el-row
+          >
+          <el-col :span="3">
+          <h6 class="ml-auto"> Planet id: </h6>
+          </el-col>
+          <el-col :span="2">
+          <h6 class="cycle_id">{{ cycle_id }} 
+                        <el-tooltip >
+            <div slot='content'>
+              Planet id is  identity for planet
+              <br/>
+              Tuple like &lt;lock_args:planet_id&gt; is unique
+
             </div>
-
-            
-            
-            
-            <div class="col-1 sml-auto">
-                <el-button v-if="user_lock_args!==lock_args && cycle_joined_statue==='disjointed'" @click="joinCycle">  Join Cycle </el-button>
-                <el-button v-if="user_lock_args!==lock_args && cycle_joined_statue==='pending'"   disabled @click="joinCycle">  Pending </el-button>
-                <el-button v-if="user_lock_args!==lock_args && cycle_joined_statue==='joined'"   disabled @click="joinCycle">  Joined </el-button>
-            <el-button v-if="user_lock_args===lock_args" @click="dialogPublish=true"> Share your thoughts </el-button>
-            <el-button v-if="user_lock_args===lock_args" @click="dialogUpdateCycleProfile=true"> Edit Planet </el-button>
-
-
-            </div>
-        </div>
+            <span class="el-icon-question"></span>
+          </el-tooltip> </h6>
+          </el-col>
+          
+        </el-row>
+        
+            <p style=" word-break: break-all; white-space: normal;"> {{profile.introduction}} </p>
+        
+      </el-col>
+        <el-col :span="3"  :offset="0" >
+                <el-button type="info" class="grpbtn" v-if="user_lock_args!==lock_args && cycle_joined_statue==='disjointed'" @click="joinCycle">  Join Cycle </el-button>
+                <el-button type="success" class="grpbtn" v-if="user_lock_args!==lock_args && cycle_joined_statue==='pending'"   disabled @click="joinCycle">  Pending </el-button>
+                <el-button type="success" class="grpbtn" v-if="user_lock_args!==lock_args && cycle_joined_statue==='joined'"   disabled @click="joinCycle">  Joined </el-button>
+                <el-button type="info" class="grpbtn" v-if="user_lock_args===lock_args" @click="dialogPublish=true"> Share your thoughts </el-button>
+                <el-button type="info" class="grpbtn" v-if="user_lock_args===lock_args" @click="dialogUpdateCycleProfile=true"> Edit Planet </el-button>
+        </el-col>
+        </el-row>
         <el-dialog title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false' width="40%">
             <PublishCycleContent  v-if="dialogPublish" v-on:closedialog="dialogPublish=false" mode="create" :cycleid="cycle_id"></PublishCycleContent>
             <div slot="footer"  class="dialog-footer">
@@ -53,9 +85,10 @@
             <el-tab-pane>
                 <span slot="label"><i class="el-icon-s-custom"></i> Members ({{cycle.user_lists.length}}) </span>
                 <div>
-                <input v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
+                    <div v-if="user_lock_args===lock_args">
+                <input  v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
                 <el-button @click="addUserAndSendApproval(userToAdd)"> Add user </el-button>
-
+                    </div>
                 <MemberItem v-for="user in cycle.user_lists"
                 :key="user"
                 :lockargs="user"
@@ -500,10 +533,15 @@ export default {
 }
 </script>
 
-                    let res = await this.getCycle({
-                        lock_args:this.lock_args,
-                        cycle_id:this.cycle_id
-                    })
-                    if(res===null){
-                        return
-                    }
+<style scoped>
+.cycle_id{
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
+}
+
+.grpbtn{
+    width: 100%;
+    text-align: center;
+    margin: 4px;
+}
+</style>

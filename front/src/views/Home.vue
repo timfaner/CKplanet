@@ -1,17 +1,16 @@
 <template>
-  <div class="home py-4">
+  <div class="home">
     <div
       v-if="loged_in"
-      class="container my-4 col-8"
-      style="border-radius: 4px;"
+      class="container  col-11"
+      
     >
       <div class="row">
         <h3>Planets</h3>
         <el-button
-          class="ml-auto"
-          plain
+          class="ml-auto mainBtn"
+          type="warning"
           @click="dialogNewCycle = true"
-          style="border-radius: 10px;background-color: #FFFFFF;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3)"
         >
           create planets
         </el-button>
@@ -30,7 +29,7 @@
         <div slot="footer" class="dialog-footer"></div>
       </el-dialog>
 
-      <el-tabs style="border-radius: 4px">
+      <el-tabs >
         <el-tab-pane>
           <p slot="label">My Planets ({{ cycles.ego_cycles.length }})</p>
           <div class="container">
@@ -251,6 +250,18 @@ export default {
 </script>
 
 <style>
+
+.tabLabel{
+  
+  
+
+}
+.mainBtn{
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+  border-color: white;
+}
+
 .t1 {
   line-height: 1.7;
   font-size: 20px;
@@ -267,29 +278,7 @@ export default {
   font-size: 16px;
 }
 
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #409eff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
+
 
 .profile {
   text-align: left;

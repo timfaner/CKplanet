@@ -1,13 +1,13 @@
 <template>
 
-<div class="cycles py-3" >
+<div class="cycles" >
 
-<div class="container my-2 col-8" style="border-radius: 4px;">
+<div class="container col-11" style="border-radius: 4px;">
   <div class="row">
-    <h4> Livefeed</h4>
-    <el-button @click="dialogPublish=true" class="col-2 ml-auto"> share your thoughts </el-button>
+    <h3> Livefeeds</h3>
+    <el-button @click="dialogPublish=true" type="warning" class="col-2 ml-auto mainBtn"> Share your thoughts </el-button>
 
-    <el-dialog  v-if="dialogPublish" title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false' width="40%" >
+    <el-dialog  v-if="dialogPublish" title="Share your thoughts" :visible.sync="dialogPublish" :close-on-click-modal='false' width="60%" >
         <PublishCycleContent v-on:closedialog="dialogPublish=false" mode="create" ></PublishCycleContent>
         <div slot="footer"  class="dialog-footer">
         </div>
@@ -16,7 +16,7 @@
 
 
   <el-tabs >
-  <el-tab-pane> <span  slot="label"> All </span>
+  <el-tab-pane> <span class="tabLabel" slot="label">All</span>
   <div class="container">
     <ContentItem v-for="content in posts.all_posts"
     :key="content.content_id"
@@ -28,6 +28,7 @@
   </div>   
   </el-tab-pane>
   <el-tab-pane> <span slot="label"> My Posts </span>
+  <div class="container">
     <ContentItem v-for="content in posts.my_posts"
     :key="content.content_id"
     :content_id="content.content_id"
@@ -35,7 +36,7 @@
     :lock_args="content.lock_args"
     :show_avatar = true
     ></ContentItem>
-
+      </div>   
   </el-tab-pane>
 </el-tabs>
 </div>
@@ -95,6 +96,7 @@ export default {
 
 
 <style>
+
 
 .content {
     text-align: left;

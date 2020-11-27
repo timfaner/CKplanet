@@ -26,7 +26,8 @@
           type="textarea"
           :rows="4"
           v-model="introduction"
-
+          :maxlength="200"
+          show-word-limit
           placeholder="Please enter a profile"
 
         ></el-input>

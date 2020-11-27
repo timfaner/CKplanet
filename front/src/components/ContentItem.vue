@@ -1,72 +1,98 @@
 <template>
-<div class="py-2">
-    <div class="row mx-2 my-2">
-      <el-avatar v-if="show_avatar" shape="square" :size=50  :src="cycle_profile.avatar_url"></el-avatar>
-        
-        <div class="content mx-4 border px-3 py-3 col-10" style="border-radius: 5px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);background-color: #EBEEF5">
-        <div class="row">
-        <h5 class="ml-3"> {{content.title}}  <el-link >posted @ {{cycle_profile.cycle_name}}</el-link>
-        </h5>
-        <!-- delete
-        <div class="ml-auto mr-2">
-        
-        <el-popover
-            placement="top"
-            width="160"
-            v-model="visible">
-            <p>Are you sure to delete this post?</p>
-            <div style="text-align: right; margin: 0">
-            <el-button size="mini" type="text" @click="visible = false">NO</el-button>
-            <el-button type="primary" size="mini" @click="visible = false">YES</el-button>
-            </div>
-            <el-button slot="reference"  type="text" icon="el-icon-delete"></el-button>
-        </el-popover>
-            </div>
-        -->
-        </div>
-        <div v-html="compiled_markdown"> 
-        </div>
-        <i > posted: {{post_time}} </i>
-        </div>
+  <el-row :gutter="0">
+    <el-col :span="1">
+      <el-avatar
+        v-if="show_avatar"
+        shape="square"
+        :size="50"
+        :src="cycle_profile.avatar_url"
+      ></el-avatar>
+    </el-col>
+    <el-col :span="22">
+      <el-row class="cycleItem">
+        <el-row class="header">
+          <el-col :span="12">
+            <h4 class="ml-3 title">
+              {{ content.title }}
+              <el-link
+              @click="routeTo(lock_args,cycle_id)"
+              >posted @ {{ cycle_profile.cycle_name }}</el-link>
+            </h4>
+          </el-col>
+          <el-col :span="12" class="post_time">
+            <i class="post_time"> {{ post_time }} </i>
+          </el-col>
+        </el-row>
 
-    </div>
-    </div>
+        <el-divider></el-divider>
+
+        <div class="markdown-body content" v-html="compiled_markdown"></div>
+      </el-row>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
-
 export default {
-  name: 'ContentItem',
-  computed :{
-    compiled_markdown :function () {
-      return window.marked(this.content.content,{ sanitize: true })
+  name: "ContentItem",
+  methods:{
+    routeTo: function(lock_args,cycle_id) {
+      this.$router.push({
+        name: "CycleDetail",
+        params: {
+          lock_args,
+          cycle_id,
+        },
+      });
     },
-    post_time :function(){return  new Date(this.content.time).toLocaleString()},
-    cycle_profile : function(){ 
-      return this.$store.state.ckplanet.cycles_pool[this.lock_args][this.cycle_id]["cycle_profile"]
+  },
+  computed: {
+    compiled_markdown: function() {
+      return window.marked(this.content.content, { sanitize: true });
     },
-    content : function(){
-      return this.$store.state.ckplanet.cycles_pool[this.lock_args][this.cycle_id]["contents"][this.content_id]
-    }
-
+    post_time: function() {
+      return new Date(this.content.time).toLocaleString();
+    },
+    cycle_profile: function() {
+      return this.$store.state.ckplanet.cycles_pool[this.lock_args][
+        this.cycle_id
+      ]["cycle_profile"];
+    },
+    content: function() {
+      return this.$store.state.ckplanet.cycles_pool[this.lock_args][
+        this.cycle_id
+      ]["contents"][this.content_id];
+    },
   },
   props: {
-    content_id:String,
-    cycle_id:String,
-    lock_args:String,
-    show_avatar:Boolean
-
+    content_id: String,
+    cycle_id: String,
+    lock_args: String,
+    show_avatar: Boolean,
   },
-  data:function(){
-    return{
-      visible:false
-    }
-  }
-}
+  data: function() {
+    return {
+      visible: false,
+    };
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.content{
+  margin: 15px;
+  
+}
+
+.post_time{
+  justify-self:flex-end;
+  text-align: right;
+}
+.title{
+  font-weight: 700;
+}
+
 h3 {
   margin: 40px 0 0;
 }
