@@ -19,7 +19,7 @@ public class MongoDBService {
     }
 
     public UploadRequestEntity findUserByDataId(String dataId) {
-        Query query = new Query(Criteria.where("dataId").is(dataId));
+        Query query = new Query(Criteria.where("data_id").is(dataId));
         UploadRequestEntity entity = mongoTemplate.findOne(query, UploadRequestEntity.class);
         return entity;
     }
@@ -31,7 +31,7 @@ public class MongoDBService {
     }
 
     public void deleteDataById(String dataId) {
-        Query query = new Query(Criteria.where("dataId").is(dataId));
+        Query query = new Query(Criteria.where("data_id").is(dataId));
         mongoTemplate.remove(query, UploadRequestEntity.class);
     }
 
