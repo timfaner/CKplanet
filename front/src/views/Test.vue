@@ -111,7 +111,7 @@ import {
     get_onmessage,get_onerror,get_onclose, sendApply, sendApproval} from "@/ckb/ws_client"
 import { getInjectedProvider, getProviderInfo } from 'web3modal';
 
-
+import { clearReqLock, getReqLock, setReqLock,waitReqLock } from "@/ckb/utils";
 export default {
   name: "Test",
   methods: {
@@ -169,6 +169,11 @@ export default {
   },
   data: function() {
     return {
+
+        getReqLock,
+  setReqLock,
+  clearReqLock,
+  waitReqLock,
       apply:{
         from:this.$store.state.user_chain_info.lock_args,
         to:'',

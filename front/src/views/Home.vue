@@ -251,11 +251,7 @@ export default {
 
 <style>
 
-.tabLabel{
-  
-  
 
-}
 .mainBtn{
   border-radius: 5px;
   box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);

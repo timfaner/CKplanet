@@ -29,6 +29,15 @@
             </el-col>
           <el-col class="infoRowContent" :span="9">
             {{walletDisPlay}}
+          <el-tooltip v-if="wallet_connected">
+            <div slot='content'>
+               <span class="data_server_ip">address: {{user_address}}</span>
+              <br/>
+               <span class="data_server_ip">lock_args : {{user_lock_args}}</span>
+
+            </div>
+            <span class="el-icon-info" ></span>
+          </el-tooltip>
           </el-col>
           <el-col :span="8">
             <el-button  type="success" class="toggleBtn" size="mini" v-if="!wallet_connected" @click="dialogSelectWallet = true">
@@ -48,6 +57,14 @@
           </el-col>
           <el-col class="infoRowContent" :span="dataServerSpan">
               <span>{{dataServerDisPlay}}</span>
+            <el-tooltip v-if="wallet_connected">
+            <div slot='content'>
+               <span class="data_server_ip">DataServer: {{user_dataserver}}</span>
+
+
+            </div>
+            <span class="el-icon-info" ></span>
+          </el-tooltip>
           </el-col>
           <el-col :span="8" v-if="data_server_connected">
         <el-button type="success" class="toggleBtn" size="mini" v-if="walletConnect" @click="dialogUpdateDataServer = true">
@@ -205,7 +222,13 @@ export default {
     data_server_connected: (state) => state.ckplanet.data_server_connected,
     
     user_dataserver:function (state) {
-      return state.data_server_pool[this.user_lock_args].ip
+      try {
+        return state.data_server_pool[this.user_lock_args].ip
+      } catch (e) {
+        e
+        return  ''
+      }
+      
     },
     walletName : function(state){
       switch (state.wallet) {
@@ -489,6 +512,12 @@ export default {
 </script>
 
 <style>
+
+.data_server_ip{
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
+}
+
 #topbar {
   background-color:#409d9e;
   min-height: 70px;

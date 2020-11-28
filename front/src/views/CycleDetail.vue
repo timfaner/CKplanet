@@ -36,10 +36,13 @@
           <h6 class="cycle_id">{{ cycle_id }} 
                         <el-tooltip >
             <div slot='content'>
-              Planet id is  identity for planet
+              Using lock_args and Planet id to search Planet
               <br/>
               Tuple like &lt;lock_args:planet_id&gt; is unique
-
+            <br/>
+            <span class="cycle_id">
+            Tuple is &lt;{{lock_args}}:{{cycle_id}}&gt;
+            </span>
             </div>
             <span class="el-icon-question"></span>
           </el-tooltip> </h6>
@@ -86,7 +89,7 @@
                 <span slot="label"><i class="el-icon-s-custom"></i> Members ({{cycle.user_lists.length}}) </span>
                 <div>
                     <div v-if="user_lock_args===lock_args">
-                <input  v-model="userToAdd" placeholder="输入想添加的用户的lock args">  
+                <input  v-model="userToAdd" placeholder="Input users' lock args">  
                 <el-button @click="addUserAndSendApproval(userToAdd)"> Add user </el-button>
                     </div>
                 <MemberItem v-for="user in cycle.user_lists"
@@ -96,7 +99,7 @@
 
                 </div>
             </el-tab-pane>
-            <el-tab-pane v-if="user_lock_args===lock_args">
+            <el-tab-pane v-if="user_lock_args===lock_args && profile.type==='close'">
                 <span slot="label"><i class="el-icon-news"></i> Join requests ({{join_applys.length}}) </span>
                   <div class="container">
                     <div  v-for="apply in join_applys" :key="apply.from" class="px-4 py-2 my-2 row" style="border-radius: 10px;background-color: #EBEEF5">

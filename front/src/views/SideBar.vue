@@ -77,8 +77,8 @@ export default {
           return this.user_profiles_pool[this.user_lock_args]
         else
           return {
-            nickname:"Please fill in nickname",
-            avatar_url:"https://hiltonsheartland.com/wp-content/uploads/2013/08/unknown-avatar.jpg"
+            nickname:"Nickname",
+            avatar_url:"https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png"
             }
         
           
