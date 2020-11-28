@@ -114,14 +114,15 @@ public class FileServerController {
                 log4js.warning("验证签名结果为失败，拒绝上传数据,签名为：" + entity.getSig() + "data为：" + data + "pk为：" + entity.getPk());
                 return new UploadResponseEntity(UNAUTHORIZED);
             }
-            if (mongoDBService.findUserByUrl(entity.getUrl()) != null) {
-                log4js.warning("url已经存在，删除原有数据，url:" + entity.getUrl());
-                mongoDBService.deleteDataByUrl(entity.getUrl());
-            }
+
             String s = (entity.getAccessToken() + entity.getDataId());
             Blake2b hash = new Blake2b();
             hash.update(s.getBytes());
             String url = hash.doFinalString();
+            if (mongoDBService.findUserByUrl(url) != null) {
+                log4js.warning("url已经存在，删除原有数据，url:" + url);
+                mongoDBService.deleteDataByUrl(url);
+            }
             entity.setUrl(url);
             mongoDBService.saveData(entity);
             UploadResponseEntity response = new UploadResponseEntity(SUCCESS);
@@ -159,14 +160,14 @@ public class FileServerController {
                 log4js.warning("验证签名结果为失败，拒绝上传数据,签名为：" + entity.getSig() + "data为：" + data + "pk为：" + entity.getPk());
                 return new UploadResponseEntity(UNAUTHORIZED);
             }
-            if (mongoDBService.findUserByUrl(entity.getUrl()) != null) {
-                log4js.warning("url已经存在，删除原有数据，url:" + entity.getUrl());
-                mongoDBService.deleteDataByUrl(entity.getUrl());
-            }
             String s = (entity.getAccessToken() + entity.getDataId());
             Blake2b hash = new Blake2b();
             hash.update(s.getBytes());
             String url = hash.doFinalString();
+            if (mongoDBService.findUserByUrl(url) != null) {
+                log4js.warning("url已经存在，删除原有数据，url:" + url);
+                mongoDBService.deleteDataByUrl(url);
+            }
             entity.setUrl(url);
             mongoDBService.saveData(entity);
             UploadResponseEntity response = new UploadResponseEntity(SUCCESS);
