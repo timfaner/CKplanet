@@ -83,14 +83,14 @@ export default {
 
       try {
         await user_ds.getDataserverAuth();
-        this.dataServerConnect(true);
+        
 
         await user_ds.updateDataServerInfo();
         this.$message({
           message: "Data server Profile updated success",
           type: "success",
         });
-
+        this.dataServerConnect(true);
         this.showProgress = false;
         this.btnloading = false;
 

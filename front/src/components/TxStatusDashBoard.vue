@@ -1,5 +1,10 @@
 <template>
   <div>
+    <el-collapse-transition >
+      <h5 v-show="count>15">
+        The data is waiting for confirmed onchain , which took about 1~2min.
+      </h5>
+    </el-collapse-transition>
     <el-progress type="dashboard" :percentage="percentage" :color="colors">
     </el-progress>
     <p>
@@ -20,17 +25,12 @@ export default {
       else if (e.detail.status === "pending")
         this.pending_count = this.pending_count + 1;
       else if (e.detail.status === "committed") this.committed === true;
-
-      console.log(e);
       e.stopPropagation();
     });
   },
   computed: {
     percentage: function() {
       this.count;
-      console.log(this.status);
-      console.log(this.pending_count);
-      console.log(this.proposed_cout);
 
       let tmp = 0;
       switch (this.status) {
@@ -60,7 +60,7 @@ export default {
           break;
       }
 
-      console.log(tmp);
+
 
       return tmp;
     },

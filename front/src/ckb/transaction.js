@@ -321,7 +321,9 @@ async function changeOnChain(
   } catch (error) {
     let   e = new CustomEvent("waitwallet",{ 'detail' :{status:"error"}})
     window.document.body.dispatchEvent(e)
+    
     console.error("change on chain error",error)
+    window.app.$loading({text:"Please authorize in the wallet"}).close()
     throw(error)
     
   }

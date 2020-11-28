@@ -1,80 +1,93 @@
 <template>
-  <div >
-    <el-row  id="topbar"  type="flex" align="middle" > 
-      <el-col :span="4" ><span id="brandtext">CKPlanet</span></el-col>
+  <div>
+    <el-row id="topbar" type="flex" align="middle">
+      <el-col :span="4"><span id="brandtext">CKPlanet</span></el-col>
       <el-col :span="12">
         <el-row type="flex" justify="center">
           <el-col :span="11">
-        <el-input placeholder="lock_args" v-model="input_lock_args"> </el-input>
+            <el-input placeholder="lock_args" v-model="input_lock_args">
+            </el-input>
           </el-col>
           <el-col :span="6">
-        <el-input placeholder="planet_id" v-model="input_cycle_id"> </el-input>
+            <el-input placeholder="planet_id" v-model="input_cycle_id">
+            </el-input>
           </el-col>
           <el-col :span="3" :offset="1">
-        <el-button  type="success"  @click="search()">
-          Search Planet
-        </el-button>
+            <el-button type="success" @click="search()">
+              Search Planet
+            </el-button>
           </el-col>
         </el-row>
       </el-col>
-      
-
 
       <el-col :span="5" :offset="2">
-
+        <el-row class="infoRow" type="flex" :gutter="5">
+          <el-col class="infoRowLabel" :span="7">
+            Wallet:
+          </el-col>
+          <el-col class="infoRowContent" :span="9">
+            {{ walletDisPlay }}
+            <el-tooltip v-if="wallet_connected">
+              <div slot="content">
+                <span class="data_server_ip">address: {{ user_address }}</span>
+                <br />
+                <span class="data_server_ip"
+                  >lock_args : {{ user_lock_args }}</span
+                >
+              </div>
+              <span class="el-icon-info"></span>
+            </el-tooltip>
+          </el-col>
+          <el-col :span="8">
+            <el-button
+              type="success"
+              class="toggleBtn"
+              size="mini"
+              v-if="!wallet_connected"
+              @click="dialogSelectWallet = true"
+            >
+              <span class="toggleBtnFont">Connect</span>
+            </el-button>
+            <el-button
+              type="success"
+              class="toggleBtn"
+              size="mini"
+              v-if="wallet_connected"
+              @click="logout()"
+            >
+              <span class="toggleBtnFont">Disconnect</span>
+            </el-button>
+          </el-col>
+        </el-row>
 
         <el-row class="infoRow" type="flex" :gutter="5">
           <el-col class="infoRowLabel" :span="7">
-           Wallet: 
-            </el-col>
-          <el-col class="infoRowContent" :span="9">
-            {{walletDisPlay}}
-          <el-tooltip v-if="wallet_connected">
-            <div slot='content'>
-               <span class="data_server_ip">address: {{user_address}}</span>
-              <br/>
-               <span class="data_server_ip">lock_args : {{user_lock_args}}</span>
-
-            </div>
-            <span class="el-icon-info" ></span>
-          </el-tooltip>
-          </el-col>
-          <el-col :span="8">
-            <el-button  type="success" class="toggleBtn" size="mini" v-if="!wallet_connected" @click="dialogSelectWallet = true">
-              <span class="toggleBtnFont">Connect</span>
-            </el-button>
-            <el-button type="success" class="toggleBtn" size="mini" v-if="wallet_connected" @click="logout()">
-              <span class="toggleBtnFont">Disconnect</span>
-            </el-button>
-        
-          </el-col>
-
-        </el-row>
- 
-        <el-row class="infoRow" type="flex"  :gutter="5">
-          <el-col class="infoRowLabel" :span="7">
-            DataServer: 
+            DataServer:
           </el-col>
           <el-col class="infoRowContent" :span="dataServerSpan">
-              <span>{{dataServerDisPlay}}</span>
+            <span>{{ dataServerDisPlay }}</span>
             <el-tooltip v-if="wallet_connected">
-            <div slot='content'>
-               <span class="data_server_ip">DataServer: {{user_dataserver}}</span>
-
-
-            </div>
-            <span class="el-icon-info" ></span>
-          </el-tooltip>
+              <div slot="content">
+                <span class="data_server_ip"
+                  >DataServer: {{ user_dataserver }}</span
+                >
+              </div>
+              <span class="el-icon-info"></span>
+            </el-tooltip>
           </el-col>
-          <el-col :span="8" v-if="data_server_connected">
-        <el-button type="success" class="toggleBtn" size="mini" v-if="walletConnect" @click="dialogUpdateDataServer = true">
-          <span class="toggleBtnFont">{{dataServerButtonDisPlay}}</span>
-        </el-button>
+          <el-col :span="8" v-if="wallet_connected">
+            <el-button
+              type="success"
+              class="toggleBtn"
+              size="mini"
+              v-if="walletConnect"
+              @click="dialogUpdateDataServer = true"
+            >
+              <span class="toggleBtnFont">{{ dataServerButtonDisPlay }}</span>
+            </el-button>
           </el-col>
         </el-row>
-
       </el-col>
-
 
       <el-dialog
         :visible.sync="dialogUpdateDataServer"
@@ -109,9 +122,10 @@
         :close-on-click-modal="false"
         width="40%"
       >
+      
         <el-button @click="login('ckb')"> Keypering</el-button>
         <el-button @click="login('eth')"> Use ETH Wallet </el-button>
-
+        <p>New to Keypeing? click <a href="https://nervosnetwork.github.io/keypering/#/">here </a> to learn more </p>
         <div slot="footer" class="dialog-footer"></div>
       </el-dialog>
     </el-row>
@@ -142,7 +156,7 @@ import PWCore, {
 
 //import SDCollector from "./sd-collector";
 //import SDBuilder from "./sd-builder";
-import Web3Modal, {  getInjectedProviderName } from "web3modal";
+import Web3Modal, { getInjectedProviderName } from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import supportedChains from "@/eth/chains";
 import Torus from "@toruslabs/torus-embed";
@@ -158,7 +172,6 @@ export default {
   name: "TopBar",
   data: function() {
     return {
-      
       pw: {},
       web3Modal: null,
       chainId: 1,
@@ -184,63 +197,56 @@ export default {
       editData: "",
     };
   },
-  computed: 
-  {
-    dataServerButtonDisPlay(){
-      if(this.wallet_connected)
-        return "Switch"
-      else
-        return "Connect"
+  computed: {
+    dataServerButtonDisPlay: function() {
+      if (this.data_server_connected) return "Switch";
+      else return "Connect";
     },
-    dataServerSpan:function(){
-      if(this.wallet_connected)
-        return 9
-      else
-        return 15
+    dataServerSpan: function() {
+      if (this.wallet_connected) return 9;
+      else return 15;
     },
-    walletDisPlay:function(){
-      if(!this.wallet_connected)
-        return  "Not Connected"
-      else
-        return this.walletName
+    walletDisPlay: function() {
+      if (!this.wallet_connected) return "Not Connected";
+      else return this.walletName;
     },
-    dataServerDisPlay:function(){
-      if(!this.data_server_connected)
-        return "Please connect Wallet first"
-      else return "Connected"
+    dataServerDisPlay: function() {
+      if (!this.data_server_connected) {
+        if (!this.wallet_connected) return "Please connect Wallet first";
+        else return "Not Connected";
+      } else return "Connected";
     },
     ...mapState({
-    user_address: (state) => state.user_chain_info.address,
-    user_lock_args: (state) => state.user_chain_info.lock_args,
+      user_address: (state) => state.user_chain_info.address,
+      user_lock_args: (state) => state.user_chain_info.lock_args,
 
-    ckplanet: (state) => state.ckplanet,
-    user_managed_cycles_index: (state) =>
-      state.ckplanet.user_managed_cycles_index,
-    user_joined_cycles_index: (state) =>
-      state.ckplanet.user_joined_cycles_index,
-    wallet_connected: (state) => state.ckplanet.wallet_connected,
-    data_server_connected: (state) => state.ckplanet.data_server_connected,
-    
-    user_dataserver:function (state) {
-      try {
-        return state.data_server_pool[this.user_lock_args].ip
-      } catch (e) {
-        e
-        return  ''
-      }
-      
-    },
-    walletName : function(state){
-      switch (state.wallet) {
-        case "ckb":
-          return "keypering";
-        case "eth":
-          return getInjectedProviderName()
-        default:
-          return ""
-      }
-    },
-  })
+      ckplanet: (state) => state.ckplanet,
+      user_managed_cycles_index: (state) =>
+        state.ckplanet.user_managed_cycles_index,
+      user_joined_cycles_index: (state) =>
+        state.ckplanet.user_joined_cycles_index,
+      wallet_connected: (state) => state.ckplanet.wallet_connected,
+      data_server_connected: (state) => state.ckplanet.data_server_connected,
+      log_initalized: (state) => state.ckplanet.log_initalized,
+      user_dataserver: function(state) {
+        try {
+          return state.data_server_pool[this.user_lock_args].ip;
+        } catch (e) {
+          e;
+          return "";
+        }
+      },
+      walletName: function(state) {
+        switch (state.wallet) {
+          case "ckb":
+            return "keypering";
+          case "eth":
+            return getInjectedProviderName();
+          default:
+            return "";
+        }
+      },
+    }),
   },
 
   async mounted() {
@@ -255,6 +261,13 @@ export default {
       const provider = await this.web3Modal.connect();
       this.connectWeb3(provider);
     }
+
+    if (this.log_initalized) {
+      this.$watch(function() {
+        return this.user_joined_cycles_index.length;
+      }, this.process_cycles_change);
+      console.debug("[TopBar] watcher mounted")
+    }
   },
   components: {
     UpdateUserProfile,
@@ -262,7 +275,12 @@ export default {
   },
 
   methods: {
-    ...mapMutations(["walletConnect", "dataServerConnect", "updateWallet"]),
+    ...mapMutations([
+      "walletConnect",
+      "dataServerConnect",
+      "updateWallet",
+      "updateLogInitalization",
+    ]),
     ...mapActions([
       "getManageCycles",
       "getCycle",
@@ -343,7 +361,6 @@ export default {
       });
     },
     logout: async function() {
-
       if (window._PWCore) {
         this.pw = {};
         // web3Modal: null,
@@ -362,7 +379,7 @@ export default {
 
     connectWeb3: async function(provider) {
       console.debug("Trying to connect web3");
-      
+
       const web3 = new Web3(provider);
       window._web3 = web3;
       this.pw = await new PWCore(RICH_NODE_RPC_URL).init(
@@ -383,17 +400,13 @@ export default {
       this.dialogSelectWallet = false;
       try {
         if (wallet === "eth") {
-          
-          
           await this.web3Modal.clearCachedProvider();
           const provider = await this.web3Modal.connect();
           this.$parent.loadings = true;
           await this.connectWeb3(provider);
-
         } else if (wallet === "ckb") {
           this.$parent.loadings = true;
           await getWalletAuth();
-
         }
 
         console.log("logged in");
@@ -472,16 +485,25 @@ export default {
             return this.user_joined_cycles_index.length;
           }, this.process_cycles_change);
         })
-        .catch((e) =>
-          console.error("Failed to get user-joined planets", e)
-        );
+        .then(() => this.updateLogInitalization(true))
+        .catch(
+          (e) => {
+            this.$watch(function() {
+              return this.user_joined_cycles_index.length;
+            }, this.process_cycles_change);
+            this.updateLogInitalization(true)
+            console.error("Failed to get user-joined planets", e)
+          }
+          
+          );
       this.connect_ws();
     },
     process_cycles_change: function(n, o) {
+      console.debug(`[Watcher] user_joined_cycles_index change detected`);
       let s = n - o;
       if (s > 0) {
         console.debug(`[Watcher] user_joined_cycles_index add detected`);
-        for (let i = o - 1; i < n; i++) {
+        for (let i = o ; i < n; i++) {
           let cycle = this.user_joined_cycles_index[i];
 
           this.getCycle({
@@ -512,42 +534,37 @@ export default {
 </script>
 
 <style>
-
-.data_server_ip{
-  font-family: 'Courier New', Courier, monospace;
+.data_server_ip {
+  font-family: "Courier New", Courier, monospace;
   font-weight: 600;
 }
 
 #topbar {
-  background-color:#409d9e;
+  background-color: #409d9e;
   min-height: 70px;
   text-align: center;
   color: white;
 }
 
-.toggleBtn{
-  width:100%;
-  
+.toggleBtn {
+  width: 100%;
 }
 
-.toggleBtnFont{
+.toggleBtnFont {
   font-weight: 600;
 }
 
 .infoRow {
-padding: 2px;
+  padding: 2px;
 }
 
 .infoRowLabel {
-
   text-align: right;
   align-self: flex-end;
 }
 
-
 .infoRowContent {
   font-weight: 700;
-
 }
 
 #brandtext {

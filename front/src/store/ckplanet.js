@@ -7,7 +7,7 @@ const getDefaultState = () => {
     return {
         wallet_connected:false,
         data_server_connected:false,
-
+        log_initalized:false,
         
         user_profiles_pool:{
             
@@ -25,6 +25,9 @@ const getDefaultState = () => {
 const ckplanet = {
     state :getDefaultState(),
     mutations:{
+        updateLogInitalization(state,status){
+            state.log_initalized = status
+        },
         addJoinApply(state,apply){
             let index = -1
             for(let i=0;i<state.join_applys.length;i++)

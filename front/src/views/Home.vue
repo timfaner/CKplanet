@@ -75,10 +75,7 @@
       </el-tabs>
     </div>
 
-    <div v-else>
-      <p>
-        please setup the wallet and dataserver and go on
-      </p>
+    <div v-else class="markdown-body" v-html="compiled_markdown">
     </div>
   </div>
 </template>
@@ -98,6 +95,9 @@ import { isEquivalent } from "@/ckb/utils";
 export default {
   name: "Home",
   computed: {
+    compiled_markdown: function() {
+      return window.marked(this.guide_content, { sanitize: true });
+    },
     localComputed() {
       return {
         ego_cycles_num: () => 1,
@@ -153,8 +153,10 @@ export default {
   },
   data() {
     return {
+      guide_content:'',
       dialogNewCycle: false,
       approval_count_tmp: 0,
+      guide_url : 'https://raw.githubusercontent.com/timfaner/CKplanet/master/GUIDE.md'
     };
   },
   components: {
@@ -166,6 +168,12 @@ export default {
     this.$watch(function() {
       return this.join_approvals.length;
     }, this.processApproval);
+    if(!this.loged_in){
+      fetch(this.guide_url).
+      then((res)=>res.text())
+      .then((res)=>this.guide_content=res)
+      .catch((e)=>console.error(e))
+    }
   },
 
   methods: {

@@ -1,10 +1,10 @@
 const MOCK_API = 
 {
-    SIGN_MESSAGE : true,
+    SIGN_MESSAGE : false,
     GET_MPK: true,
-    GET_AUTH : true,
-    POST_DATA : true,
-    GET_DATA : true,
+    GET_AUTH : false,
+    POST_DATA : false,
+    GET_DATA : false,
 }
 false
 const KVDB_ENABLE = true
