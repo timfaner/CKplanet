@@ -198,6 +198,40 @@ function isEquivalent(a, b) {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
+function getReqLock(lock_args){
+  if(!window.req_locks){
+    return false
+  }
+  if(window.req_locks[lock_args] === undefined){
+    return false
+  }
+  return window.req_locks[lock_args]
+}
+
+function setReqLock(lock_args){
+  if(!window.req_locks){
+    window.req_locks = {}
+  }
+  window.req_locks[lock_args] = true
+}
+
+function clearReqLock(lock_args){
+  if(!window.req_locks){
+    window.req_locks = {}
+  }
+  window.req_locks[lock_args] = false
+}
+
+async function waitReqLock(lock_args){
+  
+  do {
+    await sleep(50)
+  } while (getReqLock(lock_args));
+}
+
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve,ms))
+}
 export  {
   filterCellsWithTypeScript,
   encodeUnicode,
@@ -216,5 +250,10 @@ export  {
   getScriptCapacity,
   convertTx,
   fileToBase64,
-  isEquivalent
+  isEquivalent,
+  getReqLock,
+  setReqLock,
+  clearReqLock,
+  waitReqLock,
 }
+
