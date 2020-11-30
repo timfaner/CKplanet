@@ -25,7 +25,7 @@ const NETWORK_CONST = {
     }
   },
   "devnet_azure":{
-    kvdb_bucket:"MGpfP2JL8xDacsmQvhBa4Y",
+    kvdb_bucket:"KLJSvVd9Tcvk79jCuLmBcQ",
     rpc_url:"http://ckplanet.beihanguni.cn:8114/rpc",
     indexer_url:"http://ckplanet.beihanguni.cn:8114/indexer",
     secp256k1:{
@@ -43,7 +43,7 @@ const NETWORK_CONST = {
   },
   "testnet":{
     kvdb_bucket:"EyermFFTE4QVgfsZjn2bCU",
-    rpc_url:"http://ckplanet.beihanguni.cn:9111/rpc",
+    rpc_url:"https://prototype.ckbapp.dev/testnet/rpc",
     indexer_url:"https://prototype.ckbapp.dev/testnet/indexer",
     secp256k1:{
       codeh:CHAIN_SPECS.Aggron.defaultLock.script.codeHash,

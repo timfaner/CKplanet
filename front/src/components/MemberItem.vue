@@ -1,33 +1,32 @@
 <template>
-<div class="py-2">
-    <div class="row mx-2 my-2">
-        
-        <div class="content mx-4 border px-3 py-3 col-10" style="border-radius: 5px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);background-color: #EBEEF5">
-        <div class="row">
-        <h5 class="ml-3"> {{user_profile.nickname}}
-        </h5>
-        <el-avatar :src="user_profile.avatar_url" :size="100"></el-avatar>
-        </div>
-        <div class="ml-auto mr-2">
 
-        <el-popover
-            placement="top"
-            width="160"
-            v-model="visible">
 
-            <p>Are you sure to delete this user?</p>
-            <div style="text-align: right; margin: 0">
-            <el-button size="mini" type="text" @click="visible = false">NO</el-button>
-            <el-button type="primary" size="mini" @click="visible = false">YES</el-button>
+    <el-row type="flex" align="top"  class="cycleItem" :gutter="0">
+      <el-col :span="2">
+        <el-avatar
+          shape="square"
+          :size="80"
+          :src="user_profile.avatar_url"
+        ></el-avatar>
+      </el-col>
 
-            </div>
-            <el-button slot="reference"  type="text" icon="el-icon-delete"></el-button>
-        </el-popover>
-            </div>
+      <el-col :span="17" :offset="0" class="info">
+        <el-row type="flex">
+          <el-col :span="23" >
+            <h5>{{ user_profile.nickname }} </h5>
+          </el-col >
 
-    </div>
-    </div>
-</div>
+        </el-row>
+
+        <el-row
+          ><span class="ml-auto "> lock_args: <span class="lock_args">{{ lock_args }} </span></span>
+        </el-row>
+        <el-row
+          ><span class="ml-auto "> Data Server: <span class="lock_args">{{ data_server_ip }} </span></span>
+        </el-row>
+      </el-col>
+
+    </el-row>
 </template>
 
 <script>
@@ -44,6 +43,12 @@ export default {
         return this.$store.state.ckplanet.user_profiles_pool[this.lock_args]
       else 
         return { nickname:'',avatar_url:''}
+    },
+    data_server_ip:function () {
+      if (this.lock_args in this.$store.state.data_server_pool)
+        return this.$store.state.data_server_pool[this.lock_args].ip
+      else
+        return ''
     }
   },
   props: {
@@ -68,18 +73,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+
+.lock_args{
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
+  word-break: break-all;
+  white-space: normal;
 }
 </style>

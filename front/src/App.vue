@@ -15,11 +15,11 @@
         <SideBar class="col-md-1 col-lg-2 "> </SideBar>
         <main
           role="main"
-          class="col-md-9 ml-sm-auto col-lg-10 px-md-4"
-          style="background-color: #F2F6FC"
+          class="col-md-9 ml-sm-auto col-lg-10"
+          id="main"
         >
-          <keep-alive>
-            <router-view />
+          <keep-alive >
+            <router-view  />
           </keep-alive>
         </main>
       </div>
@@ -70,7 +70,38 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  
   color: #2c3e50;
+}
+
+#main{
+  background-color: #F6F7F9;
+  padding: 3%;
+
+
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 </style>

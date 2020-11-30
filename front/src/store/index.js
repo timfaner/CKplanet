@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { getSummary, groupCells } from "@/ckb/utils";
+import { clearReqLock, getReqLock, getSummary, groupCells, setReqLock, waitReqLock } from "@/ckb/utils";
 import { getCellsByLocks, queryAddresses, signMessage } from "@/ckb/rpc";
 
 import ckplanet from "./ckplanet";
@@ -204,6 +204,13 @@ export default new Vuex.Store({
     },
     //从ckb-indexer 获取 lock_args 对应的cells并放入缓存池
     async getUserCells({ commit, state }, lock_args) {
+      let l = getReqLock(lock_args)
+      if(l){
+        console.debug(`[getUserCells] Lock for ${lock_args} detected.`)
+        await waitReqLock(lock_args)
+        
+      }
+      
       if (lock_args in state.cells_pool) {
         let last_update_time = state.cells_pool[lock_args].update_time;
         let now_time = new Date().getTime();
@@ -214,8 +221,17 @@ export default new Vuex.Store({
         }
       }
 
-      const cells = await getCellsByLocks(lock_args);
-      commit("updateUserCells", { lock_args, cells });
+      setReqLock(lock_args)
+      try {
+        setReqLock(lock_args)
+        const cells = await getCellsByLocks(lock_args);
+        commit("updateUserCells", { lock_args, cells });
+        clearReqLock(lock_args)
+      } catch (error) {
+        clearReqLock(lock_args)
+        console.error(`[getUserCells] getting ${lock_args} error`,error)
+      }
+
     },
 
     async getUser({ dispatch, commit, state }) {

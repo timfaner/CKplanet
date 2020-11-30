@@ -16,8 +16,8 @@
         </el-upload>
       </el-form-item>
 
-      <el-form-item label="Circle name" :label-width="formLabelWidth">
-        <el-input v-model="cycle_name" autocomplete="off"></el-input>
+      <el-form-item label="Planet name" :label-width="formLabelWidth">
+        <el-input v-model="cycle_name" autocomplete="off" :maxlength="20" show-word-limit></el-input>
       </el-form-item>
 
       <el-form-item label="Profile" :label-width="formLabelWidth">
@@ -26,15 +26,25 @@
           type="textarea"
           :rows="4"
           v-model="introduction"
-
+          :maxlength="200"
+          show-word-limit
           placeholder="Please enter a profile"
 
         ></el-input>
       </el-form-item>
       <el-form-item>
         <el-checkbox :disabled="mode !== 'create'" v-model="close_checked"
+          >Set as private 
+          <el-tooltip >
+            <div slot='content'>
+              Private planets require an application to join
+              <br/>
+              Once set CANNOT be changed
 
-          >Set as private circle</el-checkbox
+            </div>
+            <span class="el-icon-question"></span>
+          </el-tooltip>
+          </el-checkbox
 
         >
       </el-form-item>
@@ -178,7 +188,7 @@ export default {
         }
         this.$message({
 
-          message: "success" + this.mode + "Circle information",
+          message: "Success " + this.mode + " planet",
 
           type: "success",
         });
@@ -283,53 +293,9 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #409eff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
 
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #409eff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
+
+
 
 .profile {
   text-align: left;

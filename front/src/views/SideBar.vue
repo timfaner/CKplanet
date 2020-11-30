@@ -10,7 +10,7 @@
             <p> {{user_profile.nickname}} </p>
           </div>
 
-          <el-dialog  :visible.sync="dialogNewUser" title="更新用户信息" append-to-body :close-on-click-modal='false'>
+          <el-dialog  width="30%" :visible.sync="dialogNewUser" title="Update User Profile" append-to-body :close-on-click-modal='false'>
             <UpdateUserProfile v-on:closedialog="finalizeNewUser"></UpdateUserProfile>
             <div  slot="footer" class="dialog-footer">
           </div>
@@ -21,15 +21,15 @@
               router>
               <el-menu-item route="/LiveFeeds" index="1">
               <i class="el-icon-connection"></i>
-              <span slot="title">My circle</span>
+              <span slot="title">Livefeeds </span>
               </el-menu-item>
               <el-menu-item route="/" index="2">
               <i class="el-icon-user"></i>
-              <span slot="title">My home page</span>
+              <span slot="title">Planets</span>
               </el-menu-item>
               <el-menu-item  route="/more" index="3">
               <i class="el-icon-search"></i>
-              <span slot="title">Discover more</span>
+              <span slot="title">Explore</span>
               </el-menu-item>
               <el-menu-item route="about" index="4">
               <i class="el-icon-star-on"></i>
@@ -77,8 +77,8 @@ export default {
           return this.user_profiles_pool[this.user_lock_args]
         else
           return {
-            nickname:"Please fill in nickname",
-            avatar_url:"https://hiltonsheartland.com/wp-content/uploads/2013/08/unknown-avatar.jpg"
+            nickname:"Nickname",
+            avatar_url:"https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png"
             }
         
           
@@ -91,6 +91,11 @@ export default {
 
 
 <style>
+
+#sidebarMenu{
+  text-align: center;
+}
+
 #nav {
   padding: 30px;
 }

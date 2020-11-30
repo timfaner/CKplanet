@@ -10,7 +10,13 @@
 
       >Test</el-button
     >
-    <el-button @click.prevent="postDataa()">Send data</el-button>
+    <el-checkbox v-model="apply.result">true</el-checkbox>
+    <el-input placeholder="lock_args" v-model="apply.lock_args"></el-input>
+    <el-input placeholder="cycle_id" v-model="apply.cycle_id"></el-input>
+    <el-input placeholder="to" v-model="apply.to"></el-input>
+    
+    <el-button @click.prevent="sendApply()">sendApply </el-button>
+    <el-button @click.prevent="sendApproval()">sendApproval </el-button>
     <el-button @click.prevent="purgeState()">Clear state</el-button>
 
     
@@ -99,11 +105,48 @@ import { DataSetter } from "@/ckb/data_handler";
 import Vuex_Collector from "@/ckb/vuex-collector"
 import CKplanet_Builder from "@/ckb/ckplanet-builder"
 import { Amount, AmountUnit, Cell, CellDep, DepType, OutPoint, Script } from '@lay2/pw-core'
+
+import {    
+    connect_ws_server,
+    get_onmessage,get_onerror,get_onclose, sendApply, sendApproval} from "@/ckb/ws_client"
+import { getInjectedProvider, getProviderInfo } from 'web3modal';
+
+import { clearReqLock, getReqLock, setReqLock,waitReqLock } from "@/ckb/utils";
 export default {
   name: "Test",
   methods: {
+    sendApply(){
+      sendApply({
+        from:this.apply.from,
+        to:this.apply.lock_args,
+        lock_args:this.apply.lock_args,
+        cycle_id:this.apply.cycle_id,
+      })
+    },
+
+    sendApproval(){
+      sendApproval({
+        from:this.apply.from,
+        to:this.apply.to,
+        lock_args:this.apply.lock_args,
+        cycle_id:this.apply.cycle_id,
+        result:this.apply.result
+      }
+      )
+    },
+    connectWs(){
+      window.ws = connect_ws_server(
+        "01",
+        get_onmessage(this.$store),
+        get_onclose(),
+        get_onerror()
+      )
+      
+    },
+
     test() {
-      this.id = this.id + "1";
+
+      console.log(getInjectedProvider())
       
     },
     purgeState(){
@@ -126,6 +169,19 @@ export default {
   },
   data: function() {
     return {
+
+        getReqLock,
+  setReqLock,
+  clearReqLock,
+  waitReqLock,
+      apply:{
+        from:this.$store.state.user_chain_info.lock_args,
+        to:'',
+        lock_args:'', 
+        cycle_id:'',
+        result:false,
+      },
+
         RICH_NODE_RPC_URL,
   RICH_NODE_INDEXER_URL,
   MIN_CAPACITY,
@@ -142,6 +198,7 @@ export default {
   CELLS_CACHE_TIME,
   SECP256K1_BLAKE160_LOCK,
   PW_LOCK,
+  getProviderInfo,
       Amount, AmountUnit, Cell, CellDep, DepType, OutPoint, Script,
       CKplanet_Builder,
       Vuex_Collector,

@@ -1,11 +1,14 @@
 <template>
   <div id="UpdateDataServer">
-    <el-form :disabled='btnloading' :model="form">
-      <el-form-item label="服务器ip" :label-width="formLabelWidth">
+
+    <el-form :disabled='btnloading' status-icon :model="form" :rules="formCheckRules">
+      <el-form-item v-if="data_server_connected" label="Current Data server:">
+          <span class="data_server_ip">{{user_dataserver}} </span>
+      </el-form-item>
+      <el-form-item prop="url" label="Data server" >
         <el-input
-          v-model="data_server_ip"
-          placeholder="请输入数据服务器ip"
-          clearable
+          v-model="form.url"
+          placeholder=" Input dataserver ip and port, like :http://demo.com:8181"
         ></el-input>
       </el-form-item>
       <el-form-item>
@@ -18,7 +21,7 @@
           type="primary"
           :loading="btnloading"
           @click="UpdateDataServer()"
-          >保存</el-button
+          >SAVE</el-button
         >
       </el-form-item>
     </el-form>
@@ -39,28 +42,55 @@ export default {
   computed: mapState({
     user_address: (state) => state.user_chain_info.address,
     user_lock_args: (state) => state.user_chain_info.lock_args,
+    user_dataserver:function (state) {
+      return state.data_server_pool[this.user_lock_args].ip
+    },
+    data_server_connected: (state) => state.ckplanet.data_server_connected,
   }),
   methods: {
     ...mapMutations(["dataServerConnect"]),
 
+       validURL : function(url) {
+        console.log(url)
+      try {
+        let a =new URL(url);
+        if(a.origin !== null){
+          return true}
+        else{
+          return false;  
+        }
+      } catch (_) {
+        
+        return false;  
+      }
+
+    },
     UpdateDataServer: async function() {
+      if(!this.validURL(this.form.url))
+      {
+        this.$message("Invalid sever ip and port")
+        return
+      }
+
       this.showProgress = true;
       this.btnloading = true;
 
       let user_ds = new DataServer(this.$store, this.user_lock_args);
 
-      user_ds.setIp(this.data_server_ip);
+      let ip = new URL(this.form.url).origin
+
+      user_ds.setIp(ip);
 
       try {
         await user_ds.getDataserverAuth();
-        this.dataServerConnect(true);
+        
 
         await user_ds.updateDataServerInfo();
         this.$message({
-          message: "服务器信息连接成功",
+          message: "Data server Profile updated success",
           type: "success",
         });
-
+        this.dataServerConnect(true);
         this.showProgress = false;
         this.btnloading = false;
 
@@ -73,11 +103,36 @@ export default {
     },
   },
   data: function() {
+      let isValidURL = function(rule,url,callback) {
+        console.log(url)
+      try {
+        let a =new URL(url);
+        if(a.origin !== null){
+
+          callback()}
+        else{
+
+          callback(new Error("Invalid ip and port"))}
+      } catch (_) {
+        callback(new Error("Invalid ip and port"))
+        return false;  
+      }
+      return true;
+    }
     return {
+
+      formCheckRules:{
+        'url':[
+          {validator:isValidURL, trigger:"blur"},
+          {required:true, message:"test", trigger:"blur"}
+        ]
+      },
       showProgress: false,
       btnloading: false,
       data_server_ip: "",
-      form: null,
+      form: {
+        url:''
+      },
       formLabelWidth: "100",
       test: null,
       nickname: "",
@@ -95,57 +150,13 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #409eff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
+
+
+.data_server_ip{
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
 }
 
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #409eff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-
-.profile {
-  text-align: left;
-}
 
 .minbutton {
   min-width: 150px;

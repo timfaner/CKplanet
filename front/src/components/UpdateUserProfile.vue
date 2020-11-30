@@ -15,8 +15,8 @@
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
       </el-form-item>
-        <el-form-item label="昵称" :label-width="formLabelWidth">
-        <el-input v-model="nickname" autocomplete="off"></el-input>
+        <el-form-item label="Nickname" :label-width="formLabelWidth">
+        <el-input v-model="nickname" autocomplete="off" :maxlength="20" show-word-limit></el-input>
         </el-form-item>
         <el-form-item>
         <el-collapse-transition>
@@ -24,7 +24,7 @@
         </el-collapse-transition>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :loading="btnloading" @click="updateUserProfile()">保存</el-button>
+          <el-button type="primary" :loading="btnloading" @click="updateUserProfile()">SAVE</el-button>
         </el-form-item>
     </el-form>
 

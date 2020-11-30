@@ -2,8 +2,8 @@
 <div id="PublishCycleContent">
 
     <el-form :model="form">
-        <el-form-item label="Planet" :label-width="formLabelWidth">
-          <el-select v-model="cycle_id" placeholder="please choose">
+        <el-form-item label="Planet" class="center_item">
+          <el-select v-model="cycle_id" placeholder="Choose a planets">
             <el-option
               v-for="cycle in cycles.ego_cycles"
               :key="cycle.cycle_id"
@@ -13,18 +13,33 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Title" :label-width="formLabelWidth">
-          <el-input v-model="title" placeholder="Input title"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-input type="textarea" :rows="4" v-model="content" placeholder="Input your thougths"></el-input>
+
+
+        <el-form-item v-if="!preview" label="Title" :label-width="formLabelWidth">
+          <el-input v-model="title" placeholder="Input title" :maxlength="40" show-word-limit></el-input>
         </el-form-item>
 
-        <el-form-item>
+
+        <el-form-item v-if="!preview" label="Content">
+          <el-input type="textarea" :rows="10" v-model="content" placeholder="Wirte down your thougths, support markdown syntax"></el-input>
+        </el-form-item>
+
+  <div v-if="preview" class="markdown-body md_preview" v-html="compiled_markdown"> 
+</div>
+
+
+        <el-form-item class="center_item">
+          <el-button type="info" @click="togglePreview()">{{btn_display}}</el-button>
           <el-button type="primary" @click="Update()">Publish</el-button>
         </el-form-item>
+        
+
+
+
 
     </el-form>
+
+
 
 </div>
 </template>
@@ -46,7 +61,15 @@ import {mapState} from "vuex"
 export default {
   name: 'PublishCycleContent',
     computed: {
-
+      btn_display :function () {
+        if (this.preview)
+          return "Back"
+        else
+          return "Preview"
+      },
+        compiled_markdown :function () {
+      return window.marked(this.content,{ sanitize: true })
+    },
         cycle_id : {
           get: function(){ 
             if(this.follow)
@@ -89,8 +112,15 @@ export default {
       
       },
   methods:{
-
+    togglePreview : function(){
+      this.preview = !this.preview
+    },
     Update : async function(){
+      if(this.cycle_id ===""){
+
+        this.$message("Please choose a planet")
+        return
+      }
       let user_ds = new DataServer(this.$store,this.user_lock_args)
       let data_setter = new DataSetter(user_ds)
 
@@ -156,7 +186,7 @@ export default {
         )
 
         this.$message({
-            message: 'success'+ this.mode + this.cycle_publish_to.cycle_profile.cycle_name + 'content',
+            message: 'success '+ this.mode + this.cycle_publish_to.cycle_profile.cycle_name + ' content',
             type: 'success'
           })
 
@@ -193,7 +223,7 @@ export default {
       content:'',
       value:'',
       follow:true,
-
+      preview : false
     }
   },
   props: {
@@ -212,12 +242,15 @@ export default {
 
 
 <style scoped>
+.md_preview{
+  padding: 10px;
+}
 
 #PublishCycleContent {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  
   color: #2c3e50;
 }
   .avatar-uploader .el-upload {
@@ -271,6 +304,10 @@ export default {
 
   .profile {
     text-align: left;
+  }
+
+  .center_item {
+    text-align: center;
   }
 
     .minbutton {

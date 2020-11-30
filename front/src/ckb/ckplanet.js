@@ -79,6 +79,8 @@ const CYCLE = {
         avatar_url:'',
         type:'' //enmu, open|close
     },
+
+    //FIXME this is not reactive and not store in state. Need to access cycle_joined_status getter to get
     joined_status:'disjointed', //enmu , joined|pending|disjointed
     aes_key:'',
     user_lists:[],
@@ -103,8 +105,6 @@ function inTokenList(lock_args,token_list,ecdh_pk,ecdh_sk){
     let ecdh_key = generateECDHKey(ecdh_sk,ecdh_pk)
     let k = encryptData_c(lock_args,ecdh_key).encrypted_data
     for(const item of token_list){
-        console.log(k)
-        console.log(item.k)
         if(item.k===k)
             return true
     }
