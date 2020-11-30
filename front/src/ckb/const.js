@@ -6,7 +6,7 @@ const {  CHAIN_SPECS } = require("@lay2/pw-core")
 const RICH_NODE_RPC_URL = NETWORK_CONST[TYPE].rpc_url
 const RICH_NODE_INDEXER_URL = NETWORK_CONST[TYPE].indexer_url
 
-const WS_SERVER_URL = "ws://localhost:9216"
+const WS_SERVER_URL = "wss://ckplanet.beihanguni.cn/wsapp/"
 
 const KEYPERING_URL = 'http://localhost:3102'
 
