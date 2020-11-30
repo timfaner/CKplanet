@@ -148,7 +148,6 @@ public class FileServerController {
             String accessToken = jsonObject.getString("access_token");
             String txId = jsonObject.getString("tx_id");
 
-
             UploadRequestEntity entity = new UploadRequestEntity(dataId, accessToken, data, sig, pk, cert);
             String mpk = AuthenticationService.generatePublicKey();
             String msg = entity.getPk() + entity.getAccessToken();

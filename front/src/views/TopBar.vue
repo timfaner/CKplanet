@@ -361,6 +361,7 @@ export default {
       });
     },
     logout: async function() {
+
       if (window._PWCore) {
         this.pw = {};
         // web3Modal: null,
@@ -372,6 +373,7 @@ export default {
       if (window.ws) {
         window.ws.close();
       }
+
 
       window.localStorage.setItem("vuex", "");
       this.$store.dispatch("resetAllState");
@@ -395,6 +397,7 @@ export default {
       console.log("clear old status...");
 
       console.log("getting wallet auth...");
+
 
       this.updateWallet(wallet);
       this.dialogSelectWallet = false;
