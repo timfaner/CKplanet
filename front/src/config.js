@@ -1,7 +1,7 @@
 const {  CHAIN_SPECS } = require("@lay2/pw-core")
 
 
-const TYPE = "devnet_azure"   //devnet_local,devnet_azure,testnet
+const TYPE = "testnet"   //devnet_local,devnet_azure,testnet
 
 
 const NETWORK_CONST = {

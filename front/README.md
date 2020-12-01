@@ -1,6 +1,9 @@
-# front
+# The Web UI of CKPlanet
+
+The Web UI of CKPlanet
 
 ## Project setup
+
 ```
 yarn install
 ```
@@ -18,6 +21,12 @@ yarn build
 ### Lints and fixes files
 ```
 yarn lint
+```
+
+### Project configuration
+
+```shell
+vim src/config.js
 ```
 
 ### Customize configuration
