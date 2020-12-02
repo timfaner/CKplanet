@@ -36,7 +36,7 @@ copy jar file into `file-server`, the directory looks like
 
 ```shell
 # Init docker
-make init
+make build
 
 # Start CKDataBase
 make start
